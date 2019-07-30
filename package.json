@@ -1,0 +1,46 @@
+{
+  "name": "jvb-dashboard",
+  "version": "0.0.1",
+  "description": "Jitsi Videobridge dashboard",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jitsi/jvb-dashboard"
+  },
+  "keywords": [],
+  "author": "bbaldino",
+  "readmeFilename": "README.md",
+  "dependencies": {
+    "@babel/core": "7.4.5",
+    "babel-loader": "8.0.6",
+    "@babel/plugin-proposal-class-properties": "7.4.4",
+    "@babel/preset-react": "7.0.0",
+    "body-parser": "1.19.0",
+    "express": "4.17.1",
+    "highcharts": "7.1.2",
+    "prop-types": "15.7.2",
+    "react": "16.8.6",
+    "react-dom": "16.8.6",
+    "react-highcharts": "16.0.2",
+    "react-redux": "7.1.0",
+    "redux": "4.0.1",
+    "webpack": "4.35.0"
+  },
+  "devDependencies": {
+    "babel-eslint": "10.0.2",
+    "eslint": "6.0.1",
+    "eslint-config-jitsi": "jitsi/eslint-config-jitsi#1.0.1",
+    "eslint-plugin-flowtype": "3.11.1",
+    "eslint-plugin-import": "2.18.0",
+    "eslint-plugin-react": "7.14.2",
+    "husky": "2.7.0",
+    "webpack-cli": "^3.3.5"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "postinstall": "webpack",
+    "start": "node server.js",
+    "precommit": "npm run-script lint"
+  },
+  "main": "./index.js",
+  "license": "Apache-2.0"
+}
