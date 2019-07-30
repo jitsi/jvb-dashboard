@@ -2,11 +2,11 @@ import ConferencesNode from './conferencesNode';
 import DashboardNode from './dashboardNode';
 import React from 'react';
 
-class BridgeInfoNode extends DashboardNode {
+class BridgeInfoNode extends React.Component {
     render() {
         return(
             <div>
-                {DashboardNode._doRender(this.props.data, (key) => !key.includes("conferences"))}
+                <DashboardNode data={this.props.data} filter={key => !key.includes("conferences")} />
                 <ConferencesNode data={this.props.data}/>
             </div>
         );

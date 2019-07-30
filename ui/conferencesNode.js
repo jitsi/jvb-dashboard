@@ -3,7 +3,7 @@ import DashboardNode from './dashboardNode';
 import filter from '../util/filter';
 import React from 'react';
 
-class ConferencesNode extends DashboardNode {
+class ConferencesNode extends React.Component {
     static _conferencesFilter = (key) => key == 'conferences';
     _renderConferences(conferences) {
         return

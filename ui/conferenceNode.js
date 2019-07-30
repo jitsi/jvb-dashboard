@@ -3,7 +3,7 @@ import delayAsync from '../util/delayAsync';
 import filter from '../util/filter';
 import React from 'react';
 
-class ConferenceNode extends DashboardNode {
+class ConferenceNode extends React.Component {
     _running;
 
     async componentDidMount() {
@@ -16,16 +16,20 @@ class ConferenceNode extends DashboardNode {
             d['creationTime'] = new Date(d['creationTime']).toString();
             d['lastActivity'] = new Date(d['lastActivity']).toString();
             d['numEndpoints'] = Object.keys(d.endpoints).length;
-            return DashboardNode._doRender(d, key => {
-                return [
-                    'creationTime',
-                    'lastActivity',
-                    'speechActivity',
-                        'dominantSpeakerIdentification',
-                        'dominantEndpoint',
-                    'numEndpoints'
-                ].indexOf(key) !== -1;
-            });
+            return(
+                <div>
+                    <DashboardNode data={d} filter={key => {
+                        return [
+                            'creationTime',
+                            'lastActivity',
+                            'speechActivity',
+                                'dominantSpeakerIdentification',
+                                'dominantEndpoint',
+                            'numEndpoints'
+                        ].indexOf(key) !== -1;
+                            }}/>
+                </div>
+            );
         }
         return(
             <div>Loading...</div>
