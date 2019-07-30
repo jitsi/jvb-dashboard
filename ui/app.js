@@ -5,25 +5,6 @@ import DashboardNode from './jsonFilter';
  * Component for displaying the top-level dashboard
  */
 class Dashboard extends React.Component {
-    /**
-     * @inheritdoc
-     */
-    async componentDidMount() {
-        // Retrieve the data from the psnr test which will be used by
-        // the psnr and frame charts.  We do it here so we only make
-        // the request once.
-        try {
-            //const jsonData = await PsnrResultRequester.fetchPsnrResults();
-
-            //this.setState({
-            //    psnrData: PsnrResultRequester.getPsnrChartData(jsonData),
-            //    frameData: PsnrResultRequester.getFrameChartData(jsonData)
-            //});
-        } catch (error) {
-            this.setState({ error });
-        }
-    }
-
     static defaultProps = {
         data: {}
     };
@@ -33,7 +14,6 @@ class Dashboard extends React.Component {
      */
     render() {
         if (this.props.data) {
-            console.log("got data ", this.props.data);
             return (
                 <div>
                     <DashboardNode
@@ -42,36 +22,6 @@ class Dashboard extends React.Component {
                 </div>
             );
         }
-        //if (this.state) {
-        //    if (this.state.error) {
-        //        return (
-        //            <pre>Error: {this.state.error.stack}</pre>
-        //        );
-        //    }
-
-        //    return (
-        //        <div>
-        //            <Chart
-        //                graphTitle='PSNR'
-        //                graphYAxis='PSNR value'
-        //                graphYAxisMin={0}
-        //                graphYAxisMax={50}
-        //                graphXAxis='Build date'
-        //                data={this.state.psnrData}
-        //            />
-
-        //            <Chart
-        //                graphTitle='Frozen/skipped frames'
-        //                graphYAxis='% of total frames'
-        //                graphYAxisMin={0}
-        //                graphYAxisMax={100}
-        //                graphXAxis='Build number'
-        //                data={this.state.frameData}
-        //            />
-
-        //        </div>
-        //    );
-        //}
 
         return (
             <div>Loading...</div>
