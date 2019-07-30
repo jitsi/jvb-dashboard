@@ -14,6 +14,7 @@ class JsonData extends React.Component {
                 <div>
                     <ReactJson
                         src={this.props.data}
+                        name={this.props.name}
                         displayDataTypes={false}
                         collapsed={2}
                     />

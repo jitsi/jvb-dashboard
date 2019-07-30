@@ -28,25 +28,21 @@ class DashboardNode extends React.Component {
         }, {});
     }
 
-    static _doRender(data, predicate) {
-        const filteredData = filter(data, predicate || DashboardNode.acceptAllFilter);
-
-        return (
-            <div>
-                <JsonData
-                    data={filteredData}
-                />
-            </div>
-        );
-    }
-
     /**
      * @inheritdoc
      */
     render() {
         if (this.props.data) {
-            const filter = this.props.filter || DashboardNode.acceptAllFilter;
-            return DashboardNode._doRender(this.props.data, filter);
+            const predicate = this.props.filter || DashboardNode.acceptAllFilter;
+            const filteredData = filter(this.props.data, predicate);
+            return (
+                <div>
+                    <JsonData
+                        data={filteredData}
+                        name={this.props.name}
+                    />
+                </div>
+            );
         }
 
         return (

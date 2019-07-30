@@ -16,24 +16,37 @@ class ConferenceNode extends React.Component {
             d['creationTime'] = new Date(d['creationTime']).toString();
             d['lastActivity'] = new Date(d['lastActivity']).toString();
             d['numEndpoints'] = Object.keys(d.endpoints).length;
+            let filter;
+            if (this.state.showDetails || true) {
+                filter = key => true;
+            } else {
+                filter = key => {
+                    return [
+                        'creationTime',
+                        'lastActivity',
+                        'speechActivity',
+                            'dominantSpeakerIdentification',
+                            'dominantEndpoint',
+                        'numEndpoints'
+                    ].indexOf(key) !== -1;
+                };
+            }
+            //TODO: onClick here conflicts with the json view, but don't think we'll end up using
+            // both in the same place in the end?
+            // <div onClick={this.handleClick.bind(this)}>
             return(
-                <div>
-                    <DashboardNode data={d} filter={key => {
-                        return [
-                            'creationTime',
-                            'lastActivity',
-                            'speechActivity',
-                                'dominantSpeakerIdentification',
-                                'dominantEndpoint',
-                            'numEndpoints'
-                        ].indexOf(key) !== -1;
-                    }}/>
+                <div >
+                    <DashboardNode name={`${d.name}-${d.id}`} data={d} filter={filter} />
                 </div>
             );
         }
         return(
             <div>Loading...</div>
         );
+    }
+
+    handleClick() {
+        this.setState({ showDetails: true });
     }
 
     async _refreshData() {
