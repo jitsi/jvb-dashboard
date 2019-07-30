@@ -27,7 +27,7 @@ class ConferenceNode extends React.Component {
                                 'dominantEndpoint',
                             'numEndpoints'
                         ].indexOf(key) !== -1;
-                            }}/>
+                    }}/>
                 </div>
             );
         }

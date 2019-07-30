@@ -21,6 +21,7 @@
     "react": "16.8.6",
     "react-dom": "16.8.6",
     "react-highcharts": "16.0.2",
+    "react-json-view": "1.19.1",
     "react-redux": "7.1.0",
     "redux": "4.0.1",
     "webpack": "4.35.0"

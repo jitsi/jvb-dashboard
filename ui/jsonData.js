@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactJson from 'react-json-view'
 
 /**
  * Component for displaying the top-level dashboard
@@ -11,9 +12,11 @@ class JsonData extends React.Component {
         if (this.props.data) {
             return (
                 <div>
-                    <pre>
-                        {JSON.stringify(this.props.data, null, 2)}
-                    </pre>
+                    <ReactJson
+                        src={this.props.data}
+                        displayDataTypes={false}
+                        collapsed={2}
+                    />
                 </div>
             );
         }
