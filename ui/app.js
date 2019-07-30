@@ -1,5 +1,5 @@
 import React from 'react';
-import DashboardNode from './jsonFilter';
+import DashboardNode from './dashboardNode';
 
 /**
  * Component for displaying the top-level dashboard
