@@ -29,7 +29,7 @@ class DashboardNode extends React.Component {
     }
 
     static _doRender(data, predicate) {
-        const filteredData = filter(data, predicate);
+        const filteredData = filter(data, predicate || DashboardNode.acceptAllFilter);
 
         return (
             <div>
