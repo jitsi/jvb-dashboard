@@ -1,5 +1,6 @@
 import React from 'react';
 import DashboardNode from './dashboardNode';
+import BridgeInfoNode from './bridgeInfoNode';
 
 /**
  * Component for displaying the top-level dashboard
@@ -16,7 +17,7 @@ class Dashboard extends React.Component {
         if (this.props.data) {
             return (
                 <div>
-                    <DashboardNode
+                    <BridgeInfoNode
                         data={this.props.data}
                     />
                 </div>

@@ -5,23 +5,38 @@ import JsonData from './jsonData';
  * Component for displaying the top-level dashboard
  */
 class DashboardNode extends React.Component {
+    static acceptAllFilter = () => true;
     /**
      * Recursively filters the data object for keys which pass the given predicate
      */
     static _filter(data, predicate) {
         return Object.keys(data).reduce((acc, currKey) => {
-            if (typeof data[currKey] === 'object') {
-                const res = DashboardNode._filter(data[currKey], predicate);
+            if (predicate(currKey)) {
+                if (typeof data[currKey] === 'object') {
+                    const res = DashboardNode._filter(data[currKey], predicate);
 
-                if (Object.keys(res).length > 0) {
-                    acc[currKey] = res;
+                    if (Object.keys(res).length > 0) {
+                        acc[currKey] = res;
+                    }
+                } else {
+                    acc[currKey] = data[currKey];
                 }
-            } else if (predicate(currKey)) {
-                acc[currKey] = data[currKey];
             }
 
             return acc;
         }, {});
+    }
+
+    static _doRender(data, filter) {
+        const filteredData = DashboardNode._filter(data, filter);
+
+        return (
+            <div>
+                <JsonData
+                    data={filteredData}
+                />
+            </div>
+        );
     }
 
     /**
@@ -29,17 +44,8 @@ class DashboardNode extends React.Component {
      */
     render() {
         if (this.props.data) {
-            const acceptAll = () => true;
-            const filter = this.props.filter || acceptAll;
-            const filteredData = DashboardNode._filter(this.props.data, filter);
-
-            return (
-                <div>
-                    <JsonData
-                        data={filteredData}
-                    />
-                </div>
-            );
+            const filter = this.props.filter || DashboardNode.acceptAllFilter;
+            return DashboardNode._doRender(this.props.data, filter);
         }
 
         return (
