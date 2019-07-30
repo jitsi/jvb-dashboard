@@ -1,5 +1,6 @@
-import React from 'react';
+import filter from '../util/filter';
 import JsonData from './jsonData';
+import React from 'react';
 
 /**
  * Component for displaying the top-level dashboard
@@ -27,8 +28,8 @@ class DashboardNode extends React.Component {
         }, {});
     }
 
-    static _doRender(data, filter) {
-        const filteredData = DashboardNode._filter(data, filter);
+    static _doRender(data, predicate) {
+        const filteredData = filter(data, predicate);
 
         return (
             <div>
