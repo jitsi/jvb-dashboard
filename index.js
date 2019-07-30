@@ -1,16 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+import delayAsync from './util/delayAsync';
+
 import App from './ui/app.js';
 
-/**
- * Asynchronously wait for 'ms' milliseconds
- * @param {Number} ms the amount of milliseconds to wait
- */
-async function delay(ms) {
-    // return await for better async stack trace support in case of errors.
-    return await new Promise(resolve => setTimeout(resolve, ms));
-}
 
 /**
  * Fetch data from the JVB
@@ -31,7 +25,7 @@ async function fetchData() {
             />,
             document.getElementById('app')
         );
-        await delay(5000);
+        await delayAsync(5000);
     }
 }
 

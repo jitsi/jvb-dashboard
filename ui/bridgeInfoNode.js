@@ -10,7 +10,6 @@ class BridgeInfoNode extends DashboardNode {
                 <ConferencesNode data={this.props.data}/>
             </div>
         );
-        //return DashboardNode._doRender(this.props.data, (key) => !key.includes("conferences"));
     }
 }
 

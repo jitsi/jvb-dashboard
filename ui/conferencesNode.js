@@ -10,7 +10,6 @@ class ConferencesNode extends DashboardNode {
     }
     render() {
         const conferences = this.props.data.conferences || {};
-        console.log(conferences);
         return(
             <div>
                 num_conferences: {Object.keys(conferences).length}
@@ -20,7 +19,6 @@ class ConferencesNode extends DashboardNode {
                 }
             </div>
         );
-        return DashboardNode._doRender(this.props.data, (key) => key.includes("conferences"));
     }
 }
 
