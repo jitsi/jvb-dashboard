@@ -27,11 +27,17 @@ data class ChartSettings(
     val events: Events
 )
 
+val EmptyChartSettings = ChartSettings(
+    events = Events(
+        load = {}
+    )
+)
+
 data class ChartOptions(
     val title: Title,
     val series: Array<Series>,
-//    val chart: ChartSettings,
     val xAxis: XAxis,
+    val chart: ChartSettings = EmptyChartSettings
 )
 
 external class Highcharts {
