@@ -27,9 +27,9 @@ class App : RComponent<RProps, AppState>() {
         h1 {
             +"JVB dashboard"
         }
-        child(JvbInfo::class) {
+        child(Jvb::class) {
             attrs {
-                info = state.jvbInfo
+                url = "http://127.0.0.1:4443/debug"
             }
         }
     }
