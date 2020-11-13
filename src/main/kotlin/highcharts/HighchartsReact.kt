@@ -1,8 +1,8 @@
 @file:JsModule("highcharts-react-official")
 @file:JsNonModule
 
-import highcharts.ChartOptions
-import highcharts.Highcharts
+package highcharts
+
 import react.RClass
 import react.RProps
 

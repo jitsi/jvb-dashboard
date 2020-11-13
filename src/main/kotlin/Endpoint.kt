@@ -3,7 +3,6 @@ import react.RBuilder
 import react.RComponent
 import react.RProps
 import react.RState
-import react.dom.p
 
 class Endpoint : RComponent<EpProps, EpState>() {
     private var numPacketsReceived = mutableListOf<Point>()
