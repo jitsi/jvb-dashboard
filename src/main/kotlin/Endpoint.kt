@@ -1,3 +1,4 @@
+import highcharts.*
 import react.RBuilder
 import react.RComponent
 import react.RProps
@@ -14,6 +15,25 @@ class Endpoint : RComponent<EpProps, EpState>() {
         val num_packets_received = props.data.iceTransport.num_packets_received
         p {
             +"num packets received: $num_packets_received"
+        }
+        val chartOpts = ChartOptions(
+            title = Title("foo"),
+            series = arrayOf(
+                Series(
+                    type = "line",
+                    name = "foo",
+                    data = arrayOf(
+                        Point(1, 1),
+                        Point(2, 2),
+                        Point(3, 3),
+                    )
+                )
+            ),
+            xAxis = XAxis("datetime")
+        )
+        val x = HighchartsReact {
+            attrs.highcharts = highcharts
+            attrs.options = chartOpts
         }
     }
 }

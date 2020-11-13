@@ -20,6 +20,9 @@ dependencies {
     implementation(npm("react-dom", "16.13.1"))
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9")
+
+    implementation(npm("highcharts", "8.2.2"))
+    implementation(npm("highcharts-react-official", "3.0.0"))
 }
 
 kotlin {

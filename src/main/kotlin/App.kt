@@ -6,6 +6,7 @@ import react.dom.h1
 
 class App : RComponent<RProps, AppState>() {
     override fun AppState.init() {
+
     }
 
     override fun RBuilder.render() {
