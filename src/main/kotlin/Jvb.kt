@@ -20,14 +20,16 @@ class Jvb : RComponent<JvbProps, JvbState>() {
         }
     }
     override fun RBuilder.render() {
+        if (!state.state) {
+            +"No data received yet"
+            return
+        }
+        console.log("state: ", state.state)
         p {
-            if (!state.state) {
-                +"No data received yet"
-                return
-            }
-            if (state.state.time) {
-                +"time: ${state.state.time}"
-            }
+            +"time: ${state.state.time}"
+        }
+        p {
+            +"conferences: ${keys(state.state.conferences)}"
         }
     }
 
@@ -38,7 +40,6 @@ class Jvb : RComponent<JvbProps, JvbState>() {
             .await()
             .asDynamic()
     }
-
 }
 
 external interface JvbState : RState {
@@ -48,3 +49,4 @@ external interface JvbState : RState {
 external interface JvbProps : RProps {
     var url: String
 }
+

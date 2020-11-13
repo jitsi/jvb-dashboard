@@ -10,7 +10,7 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
         val mainScope = MainScope()
         mainScope.launch {
             for (i in 0..10) {
-                val confData = fetchConferenceData()
+                val confData = fetchData()
                 setState {
                     state = confData.asDynamic()
                 }
@@ -28,7 +28,7 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
         }
     }
 
-    private suspend fun fetchConferenceData(): dynamic {
+    private suspend fun fetchData(): dynamic {
         return window.fetch("${props.baseUrl}/${props.id}")
             .await()
             .json()
