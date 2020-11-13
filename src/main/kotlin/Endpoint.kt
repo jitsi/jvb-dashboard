@@ -6,32 +6,26 @@ import react.RState
 import react.dom.p
 
 class Endpoint : RComponent<EpProps, EpState>() {
+    private var numPacketsReceived = mutableListOf<Point>()
     override fun RBuilder.render() {
         +"Endpoint ${props.id}"
         if (!props.data) {
             +"No data"
             return
         }
-        val num_packets_received = props.data.iceTransport.num_packets_received
-        p {
-            +"num packets received: $num_packets_received"
-        }
+        numPacketsReceived.add(Point(props.timestamp, props.data.iceTransport.num_packets_received))
         val chartOpts = ChartOptions(
-            title = Title("foo"),
+            title = Title("numPacketsReceived"),
             series = arrayOf(
                 Series(
-                    type = "line",
+                    type = "spline",
                     name = "foo",
-                    data = arrayOf(
-                        Point(1, 1),
-                        Point(2, 2),
-                        Point(3, 3),
-                    )
+                    data = numPacketsReceived.toTypedArray()
                 )
             ),
-            xAxis = XAxis("datetime")
+            xAxis = XAxis("datetime"),
         )
-        val x = HighchartsReact {
+        HighchartsReact {
             attrs.highcharts = highcharts
             attrs.options = chartOpts
         }
@@ -40,6 +34,7 @@ class Endpoint : RComponent<EpProps, EpState>() {
 
 external interface EpProps : RProps {
     var id: String
+    var timestamp: Number
     var data: dynamic
 }
 

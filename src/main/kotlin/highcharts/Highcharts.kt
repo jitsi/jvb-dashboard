@@ -19,9 +19,18 @@ data class Series(
     val data: Array<Point>
 )
 
+data class Events(
+    val load: ChartOptions.() -> Unit
+)
+
+data class ChartSettings(
+    val events: Events
+)
+
 data class ChartOptions(
     val title: Title,
     val series: Array<Series>,
+//    val chart: ChartSettings,
     val xAxis: XAxis,
 )
 

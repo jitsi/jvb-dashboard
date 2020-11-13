@@ -12,7 +12,9 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
         mainScope.launch {
             for (i in 0..10) {
                 val jvbData = fetchData()
+                val now = jvbData.time as Number
                 setState {
+                    timestamp = now
                     state = jvbData.conferences[props.id]
                 }
                 delay(1000)
@@ -23,7 +25,7 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
     override fun RBuilder.render() {
         +"Conference id ${props.id}"
         p {
-            if (!state.state) {
+            if (!state.state || keys(state.state).isEmpty()) {
                 +"No data received yet"
                 return
             }
@@ -32,6 +34,7 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
             child(Endpoint::class) {
                 attrs {
                     id = epId
+                    timestamp = state.timestamp
                     data = state.state.endpoints[epId]
                 }
             }
@@ -55,6 +58,7 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
 }
 
 external interface ConferenceState : RState {
+    var timestamp: Number
     var state: dynamic
 }
 
