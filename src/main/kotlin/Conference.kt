@@ -1,6 +1,7 @@
 import kotlinx.browser.window
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.await
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import react.*
 import react.dom.p
@@ -10,23 +11,40 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
         val mainScope = MainScope()
         mainScope.launch {
             for (i in 0..10) {
-                val confData = fetchData()
+                val jvbData = fetchData()
                 setState {
-                    state = confData.asDynamic()
+                    state = jvbData.conferences[props.id]
                 }
+                delay(1000)
             }
         }
     }
 
     override fun RBuilder.render() {
+        +"Conference id ${props.id}"
         p {
             if (!state.state) {
                 +"No data received yet"
                 return
             }
-            +"Got data: ${state.state}"
+        }
+        epIds.forEach { epId ->
+            child(Endpoint::class) {
+                attrs {
+                    id = epId
+                    data = state.state.endpoints[epId]
+                }
+            }
         }
     }
+
+    private val epIds: Array<String>
+        get() {
+            if (!state.state) {
+                return arrayOf()
+            }
+            return keys(state.state.endpoints)
+        }
 
     private suspend fun fetchData(): dynamic {
         return window.fetch("${props.baseUrl}/${props.id}")

@@ -24,14 +24,29 @@ class Jvb : RComponent<JvbProps, JvbState>() {
             +"No data received yet"
             return
         }
-        console.log("state: ", state.state)
         p {
             +"time: ${state.state.time}"
         }
         p {
             +"conferences: ${keys(state.state.conferences)}"
         }
+        conferenceIds.forEach { confId ->
+            child(Conference::class) {
+                attrs {
+                    baseUrl = props.url
+                    id = confId
+                }
+            }
+        }
     }
+
+    private val conferenceIds: Array<String>
+        get() {
+            if (!state.state) {
+                return arrayOf()
+            }
+            return keys(state.state.conferences)
+        }
 
     private suspend fun fetchData(): dynamic {
         return window.fetch(props.url)
