@@ -1,6 +1,7 @@
 import kotlinx.browser.window
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.await
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import react.*
 import react.dom.h1
@@ -12,16 +13,24 @@ class App : RComponent<RProps, AppState>() {
 
         val mainScope = MainScope()
         mainScope.launch {
-            val jvbState = fetchData()
-            setState {
-                jvbInfo = jvbState
+            for (i in 0..10) {
+                val jvbState = fetchData()
+                setState {
+                    jvbInfo = jvbState
+                }
+                delay(1000)
             }
         }
     }
 
     override fun RBuilder.render() {
         h1 {
-            +"Hello, world!"
+            +"JVB dashboard"
+        }
+        child(JvbInfo::class) {
+            attrs {
+                info = state.jvbInfo
+            }
         }
     }
 
