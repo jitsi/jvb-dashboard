@@ -106,6 +106,9 @@ external interface ChartOptions {
     var events: ChartEventsOptions?
         get() = definedExternally
         set(value) = definedExternally
+    var zoomType: String? /* "x" | "xy" | "y" */
+        get() = definedExternally
+        set(value) = definedExternally
 }
 
 fun ChartOptions(): ChartOptions = js("{}")

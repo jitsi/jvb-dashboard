@@ -56,14 +56,14 @@ class Endpoint : RComponent<EpProps, EpState>() {
             attrs.channel = graphChannels.getOrPut("bitrateController.lastBwe") { Channel() }
             attrs.info = GraphInfo("BWE", js("{}"))
         }
-        child(LiveGraphRef::class) {
-            attrs.channel = graphChannels.getOrPut("iceTransport.num_packets_received") { Channel() }
-            attrs.info = GraphInfo("numPacketsReceived", js("{}"))
-        }
-        child(LiveGraphRef::class) {
-            attrs.channel = graphChannels.getOrPut("iceTransport.num_packets_sent") { Channel() }
-            attrs.info = GraphInfo("numPacketsSent", js("{}"))
-        }
+//        child(LiveGraphRef::class) {
+//            attrs.channel = graphChannels.getOrPut("iceTransport.num_packets_received") { Channel() }
+//            attrs.info = GraphInfo("numPacketsReceived", js("{}"))
+//        }
+//        child(LiveGraphRef::class) {
+//            attrs.channel = graphChannels.getOrPut("iceTransport.num_packets_sent") { Channel() }
+//            attrs.info = GraphInfo("numPacketsSent", js("{}"))
+//        }
     }
 }
 
