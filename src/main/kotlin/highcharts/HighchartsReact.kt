@@ -11,5 +11,7 @@ external val HighchartsReact: RClass<HighchartsReactProps>
 
 external interface HighchartsReactProps : RProps {
     var highcharts: Highcharts
-    var options: ChartOptions
+//    var options: dynamic
+    var options: Options
+    var allowChartUpdate: Boolean?
 }

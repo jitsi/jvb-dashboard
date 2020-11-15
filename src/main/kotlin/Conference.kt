@@ -38,6 +38,7 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
                     data = state.state.endpoints[epId]
                 }
             }
+            return
         }
     }
 
