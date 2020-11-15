@@ -1,6 +1,7 @@
 import highcharts.*
 import kotlinx.browser.window
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import react.RBuilder
@@ -41,9 +42,9 @@ class LiveGraph : RComponent<LiveGraphProps, LiveGraphState>() {
 //                        this@LiveGraph.chart = event.target.unsafeCast<Chart>()
                         val chart = event.target.unsafeCast<Chart>()
                         val series = chart.series[0]
-                        series.setData(series.data + Point().apply { x = 1; y = 1})
-                        series.setData(series.data + Point().apply { x = 2; y = 2})
-                        series.setData(series.data + Point().apply { x = 3; y = 3})
+                        series.setData(series.data + Point().apply { x = 1; y = 1 })
+                        series.setData(series.data + Point().apply { x = 2; y = 2 })
+                        series.setData(series.data + Point().apply { x = 3; y = 3 })
 //                        // TODO: coroutine?
 ////                        window.setInterval(
 ////                            { ->
@@ -73,5 +74,10 @@ class LiveGraph : RComponent<LiveGraphProps, LiveGraphState>() {
 external interface LiveGraphProps : RProps {
     var info: GraphInfo
 }
+
+data class TimeSeriesPoint(
+    val timestamp: Number,
+    val value: Number
+)
 
 external interface LiveGraphState : RState

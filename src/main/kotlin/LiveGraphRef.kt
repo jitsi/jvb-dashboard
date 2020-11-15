@@ -1,6 +1,7 @@
 import highcharts.*
 import kotlinx.browser.window
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.w3c.dom.Element
@@ -21,20 +22,24 @@ class LiveGraphRef : RComponent<LiveGraphRefProps, LiveGraphRefState>() {
         var num = 1
         MainScope().launch {
             while (true) {
-                if (mounted) {
-                    val chart = state.myRef.asDynamic().chart.unsafeCast<Chart>()
-                    chart.series[0].addPoint(Point().apply { x = num; y = num }, true, false)
-                    num++
-                }
-                delay(1000)
+                val point = props.channel.receive()
+                println("got point $point")
+                val chart = state.myRef.asDynamic().chart.unsafeCast<Chart>()
+                chart.series[0].addPoint(Point().apply { x = point.timestamp; y = point.value }, true, false)
+//                if (mounted) {
+//                    val chart = state.myRef.asDynamic().chart.unsafeCast<Chart>()
+//                    chart.series[0].addPoint(Point().apply { x = num; y = num }, true, false)
+//                    num++
+//                }
+//                delay(1000)
             }
         }
 
     }
 
-//    override fun shouldComponentUpdate(nextProps: LiveGraphRefProps, nextState: LiveGraphRefState): Boolean {
-//        return false
-//    }
+    override fun shouldComponentUpdate(nextProps: LiveGraphRefProps, nextState: LiveGraphRefState): Boolean {
+        return false
+    }
 
     override fun componentWillMount() {
         console.log("will mount")
@@ -112,6 +117,7 @@ class LiveGraphRef : RComponent<LiveGraphRefProps, LiveGraphRefState>() {
 
 external interface LiveGraphRefProps : RProps {
     var info: GraphInfo
+    var channel: ReceiveChannel<TimeSeriesPoint>
 }
 
 external interface LiveGraphRefState : RState {
