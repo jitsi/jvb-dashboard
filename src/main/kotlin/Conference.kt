@@ -12,7 +12,8 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
     override fun ConferenceState.init() {
         val mainScope = MainScope()
         mainScope.launch {
-            for (i in 0..10) {
+//            for (i in 0..10) {
+            while (true) {
                 val jvbData = fetchData()
                 val now = jvbData.time as Number
                 val confData = jvbData.conferences[props.id]
@@ -46,7 +47,6 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
                     channel = epChannel
                 }
             }
-            return
         }
     }
 

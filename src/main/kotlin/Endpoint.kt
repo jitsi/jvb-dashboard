@@ -22,19 +22,14 @@ fun getValue(obj: dynamic, path: String): dynamic {
 }
 
 class Endpoint : RComponent<EpProps, EpState>() {
-    private var numPacketsReceived = mutableListOf<Point>()
-    private var graphChannel = Channel<TimeSeriesPoint>()
     private var graphChannels = mutableMapOf<String, Channel<TimeSeriesPoint>>()
-    private var graphExtractors = mutableMapOf<String, String>().apply {
-        put("numPacketsReceived", "iceTransport.num_packets_received")
-    }
     override fun EpState.init() {
         MainScope().launch {
             while (true) {
                 val epData = props.channel.receive()
                 console.log("got ep data", epData)
                 val time = epData.timestamp
-                graphChannels.forEach {  (valuePath, channel) ->
+                graphChannels.forEach { (valuePath, channel) ->
                     val value = getValue(epData.data, valuePath)
                     channel.send(TimeSeriesPoint(time, value))
                 }
@@ -56,8 +51,11 @@ class Endpoint : RComponent<EpProps, EpState>() {
 //            +"No data"
 //            return
 //        }
-//        numPacketsReceived.add(Point(props.timestamp, props.data.iceTransport.num_packets_received))
-//        val channel = Channel<TimeSeriesPoint>()
+        // TODO: put the data points we want to graph in state
+        child(LiveGraphRef::class) {
+            attrs.channel = graphChannels.getOrPut("bitrateController.lastBwe") { Channel() }
+            attrs.info = GraphInfo("BWE", js("{}"))
+        }
         child(LiveGraphRef::class) {
             attrs.channel = graphChannels.getOrPut("iceTransport.num_packets_received") { Channel() }
             attrs.info = GraphInfo("numPacketsReceived", js("{}"))
