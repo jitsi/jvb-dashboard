@@ -74,7 +74,7 @@ class LiveGraphRef : RComponent<LiveGraphRefProps, LiveGraphRefState>() {
         }
         styledDiv {
             css {
-                this.width = 25.pct
+                this.width = 50.pct
             }
             HighchartsReact {
                 attrs.highcharts = highcharts

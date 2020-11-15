@@ -1,4 +1,5 @@
 import highcharts.*
+import kotlinext.js.Object
 import kotlinx.browser.window
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.channels.Channel
@@ -11,7 +12,6 @@ import react.RProps
 import react.RState
 import react.setState
 
-
 // TODO: better way to do this?
 fun getValue(obj: dynamic, path: String): dynamic {
     if (path.isBlank()) {
@@ -23,10 +23,16 @@ fun getValue(obj: dynamic, path: String): dynamic {
 
 class Endpoint : RComponent<EpProps, EpState>() {
     private var graphChannels = mutableMapOf<String, Channel<TimeSeriesPoint>>()
+    // A list of all possible key paths
+    private var availableGraphs: List<String> = listOf()
     override fun EpState.init() {
         MainScope().launch {
             while (true) {
                 val epData = props.channel.receive()
+                if (availableGraphs.isEmpty()) {
+                    availableGraphs = getAllKeys(epData.data)
+                    console.log("Got all keys: ", availableGraphs)
+                }
                 console.log("got ep data", epData)
                 val time = epData.timestamp
                 graphChannels.forEach { (valuePath, channel) ->

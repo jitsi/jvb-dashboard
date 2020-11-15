@@ -5,6 +5,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import react.*
+import react.dom.div
 import react.dom.p
 
 class Conference : RComponent<ConferenceProps, ConferenceState>() {
@@ -12,19 +13,18 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
     override fun ConferenceState.init() {
         val mainScope = MainScope()
         mainScope.launch {
-//            for (i in 0..10) {
             while (true) {
                 val jvbData = fetchData()
                 val now = jvbData.time as Number
                 val confData = jvbData.conferences[props.id]
                 val epIds = getEpIds(confData)
-                // TODO: how to handle eps getting added or removed?
+                setState {
+                    this.name = confData.name
+                    this.epIds = epIds
+                }
                 epChannels.forEach { (epId, epChannel) ->
                     val epData = confData.endpoints[epId]
                     epChannel.send(EndpointData(now, epData))
-                }
-                setState {
-                    this.epIds = epIds
                 }
                 delay(1000)
             }
@@ -32,7 +32,11 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
     }
 
     override fun RBuilder.render() {
-        +"Conference id ${props.id}"
+        if (state.name != undefined) {
+            +"Conference id ${props.id} name ${state.name}"
+        } else {
+            +"Conference id ${props.id}"
+        }
         if (state.epIds == undefined || state.epIds.isEmpty()) {
             p {
                 +"No data received yet"
@@ -41,10 +45,12 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
         }
         state.epIds.forEach { epId ->
             val epChannel = epChannels.getOrPut(epId) { Channel()}
-            child(Endpoint::class) {
-                attrs {
-                    id = epId
-                    channel = epChannel
+            div {
+                child(Endpoint::class) {
+                    attrs {
+                        id = epId
+                        channel = epChannel
+                    }
                 }
             }
         }
@@ -72,6 +78,7 @@ private fun getEpIds(confData: dynamic): Array<String> {
 
 external interface ConferenceState : RState {
     var epIds: Array<String>
+    var name: String
 }
 
 
