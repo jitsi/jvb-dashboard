@@ -11,17 +11,34 @@ import react.RProps
 import react.RState
 import react.setState
 
+
+// TODO: better way to do this?
+fun getValue(obj: dynamic, path: String): dynamic {
+    if (path.isBlank()) {
+        return obj
+    }
+    val paths = path.split(".")
+    return getValue(obj[paths.first()], paths.drop(1).joinToString("."))
+}
+
 class Endpoint : RComponent<EpProps, EpState>() {
     private var numPacketsReceived = mutableListOf<Point>()
     private var graphChannel = Channel<TimeSeriesPoint>()
+    private var graphChannels = mutableMapOf<String, Channel<TimeSeriesPoint>>()
+    private var graphExtractors = mutableMapOf<String, String>().apply {
+        put("numPacketsReceived", "iceTransport.num_packets_received")
+    }
     override fun EpState.init() {
         MainScope().launch {
             while (true) {
                 val epData = props.channel.receive()
                 console.log("got ep data", epData)
                 val time = epData.timestamp
-                val numPacketsReceivedValue = epData.data.iceTransport.num_packets_received
-                graphChannel.send(TimeSeriesPoint(time, numPacketsReceivedValue))
+                graphChannels.forEach {  (valuePath, channel) ->
+                    val value = getValue(epData.data, valuePath)
+                    channel.send(TimeSeriesPoint(time, value))
+                }
+                // Do we need to set this state?
 //                setState {
 //                    this.epData = epData
 //                }
@@ -42,71 +59,19 @@ class Endpoint : RComponent<EpProps, EpState>() {
 //        numPacketsReceived.add(Point(props.timestamp, props.data.iceTransport.num_packets_received))
 //        val channel = Channel<TimeSeriesPoint>()
         child(LiveGraphRef::class) {
-            attrs.channel = graphChannel
+            attrs.channel = graphChannels.getOrPut("iceTransport.num_packets_received") { Channel() }
             attrs.info = GraphInfo("numPacketsReceived", js("{}"))
         }
-//        MainScope().launch {
-//            var num = 0
-//            while (true) {
-//                println("Sending point")
-//                channel.send(TimeSeriesPoint(num.toLong(), num))
-//                num++
-//                delay(1000)
-//            }
-//        }
-//        val chartOpts = ChartOptions(
-//            title = Title("numPacketsReceived"),
-//            series = arrayOf(
-//                Series(
-//                    type = "spline",
-//                    name = "foo",
-//                    data = numPacketsReceived.toTypedArray()
-//                )
-//            ),
-//            xAxis = XAxis("datetime"),
-//        )
-//        val options = Options().apply {
-//            title = Title("numPacketsReceived")
-//            series = arrayOf(
-//                SeriesOptions(
-//                    type = "spline",
-//                    name = "foo",
-//                    data = arrayOf(
-//                        Point(1, 1),
-//                        Point(2, 2),
-//                        Point(3, 3),
-//                    )
-//                )
-//            )
-//            xAxis = XAxis("datetime")
-//            chart = ChartOptions().apply {
-//                events = ChartEventsOptions().apply {
-//                    load = { event ->
-//                        val chart = event.target.unsafeCast<Chart>()
-//                        val series = chart.series[0]
-//                        window.setInterval({ ->
-//                            series.addPoint(Point(4, 4), true, true)
-//                        }, 1000)
-////                        console.log("chart: ", chart)
-////                        console.log("chart.series: ", chart.series)
-////                        chart.zoomOut()
-////                        chart.redraw()
-//                    }
-//                }
-//            }
-//        }
-//        HighchartsReact {
-//            attrs.highcharts = highcharts
-//            attrs.options = options
-//        }
+        child(LiveGraphRef::class) {
+            attrs.channel = graphChannels.getOrPut("iceTransport.num_packets_sent") { Channel() }
+            attrs.info = GraphInfo("numPacketsSent", js("{}"))
+        }
     }
 }
 
 external interface EpProps : RProps {
     var id: String
     var channel: ReceiveChannel<EndpointData>
-//    var timestamp: Number
-//    var data: dynamic
 }
 
 data class EndpointData(
