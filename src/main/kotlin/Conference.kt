@@ -14,6 +14,7 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
         val mainScope = MainScope()
         mainScope.launch {
             while (true) {
+//            for (i in 0..10) {
                 val jvbData = fetchData()
                 val now = jvbData.time as Number
                 val confData = jvbData.conferences[props.id]

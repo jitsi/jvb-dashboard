@@ -32,8 +32,11 @@ class Endpoint : RComponent<EpProps, EpState>() {
                 if (availableGraphs.isEmpty()) {
                     availableGraphs = getAllKeys(epData.data)
                     console.log("Got all keys: ", availableGraphs)
+                    setState {
+                        allKeys = availableGraphs
+                    }
                 }
-                console.log("got ep data", epData)
+//                console.log("got ep data", epData)
                 val time = epData.timestamp
                 graphChannels.forEach { (valuePath, channel) ->
                     val value = getValue(epData.data, valuePath)
@@ -47,9 +50,9 @@ class Endpoint : RComponent<EpProps, EpState>() {
         }
     }
 
-    override fun shouldComponentUpdate(nextProps: EpProps, nextState: EpState): Boolean {
-        return false
-    }
+//    override fun shouldComponentUpdate(nextProps: EpProps, nextState: EpState): Boolean {
+//        return false
+//    }
 
     override fun RBuilder.render() {
         +"Endpoint ${props.id}"
@@ -57,11 +60,14 @@ class Endpoint : RComponent<EpProps, EpState>() {
 //            +"No data"
 //            return
 //        }
-        // TODO: put the data points we want to graph in state
-        child(LiveGraphRef::class) {
-            attrs.channel = graphChannels.getOrPut("bitrateController.lastBwe") { Channel() }
-            attrs.info = GraphInfo("BWE", js("{}"))
+        child(GraphFilter::class) {
+            attrs.allKeys = availableGraphs
         }
+        // TODO: put the data points we want to graph in state
+//        child(LiveGraphRef::class) {
+//            attrs.channel = graphChannels.getOrPut("bitrateController.lastBwe") { Channel() }
+//            attrs.info = GraphInfo("BWE", js("{}"))
+//        }
 //        child(LiveGraphRef::class) {
 //            attrs.channel = graphChannels.getOrPut("iceTransport.num_packets_received") { Channel() }
 //            attrs.info = GraphInfo("numPacketsReceived", js("{}"))
@@ -87,6 +93,7 @@ data class EndpointData(
 // request and updates the props of the ep components
 external interface EpState : RState {
     var epData: EndpointData
+    var allKeys: List<String>
 }
 
 inline fun jsObject(init: dynamic.() -> Unit): dynamic {
