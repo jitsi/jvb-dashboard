@@ -12,18 +12,6 @@ import react.createRef
 import react.useRef
 
 class LiveGraph : RComponent<LiveGraphProps, LiveGraphState>() {
-    private var chart: Chart? = null
-
-//    override fun componentDidMount() {
-//        MainScope().launch {
-//            repeat(10) {
-////                chart?.series?.get(0)?.addPoint(Point().apply { x = it; y = it }, true, false)
-//                chart?.series?.get(0)?.data = chart?.series?.get(0)?.data?.plusElement(Point().apply { x = it; y = it }) ?: arrayOf()
-//                delay(1000)
-//            }
-//        }
-//    }
-
     override fun RBuilder.render() {
         val chartOpts = Options().apply {
             title = Title(props.info.name)

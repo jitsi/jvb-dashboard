@@ -1,5 +1,5 @@
 import kotlinx.browser.window
-import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.await
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -7,10 +7,9 @@ import react.*
 import react.dom.p
 
 class Jvb : RComponent<JvbProps, JvbState>() {
-    override fun JvbState.init() {
-        val mainScope = MainScope()
-        mainScope.launch {
-            for (i in 0..10) {
+    init {
+        GlobalScope.launch {
+            while (true) {
                 val jvbData = fetchData()
                 setState {
                     state = jvbData
@@ -19,6 +18,7 @@ class Jvb : RComponent<JvbProps, JvbState>() {
             }
         }
     }
+
     override fun RBuilder.render() {
         if (!state.state) {
             +"No data received yet"

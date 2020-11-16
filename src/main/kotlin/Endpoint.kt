@@ -1,34 +1,31 @@
-import highcharts.*
-import kotlinext.js.Object
-import kotlinx.browser.window
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import react.RBuilder
-import react.RComponent
-import react.RProps
-import react.RState
-import react.setState
-
-// TODO: better way to do this?
-fun getValue(obj: dynamic, path: String): dynamic {
-    if (path.isBlank()) {
-        return obj
-    }
-    val paths = path.split(".")
-    return getValue(obj[paths.first()], paths.drop(1).joinToString("."))
-}
+import kotlinx.html.js.onClickFunction
+import react.*
+import react.dom.button
+import react.dom.div
 
 class Endpoint : RComponent<EpProps, EpState>() {
-    private var graphChannels = mutableMapOf<String, Channel<TimeSeriesPoint>>()
+//    private var graphChannels = mutableMapOf<String, Channel<TimeSeriesPoint>>()
+    private val graphChannels = mutableListOf<ReceiveChannel<EndpointData>>()
+    private val broadcastChannel = BroadcastChannel<EndpointData>(5)
     // A list of all possible key paths
     private var availableGraphs: List<String> = listOf()
+
+    init {
+        state.numGraphs = 0
+        state.allKeys = listOf()
+    }
+
     override fun EpState.init() {
-        MainScope().launch {
+        GlobalScope.launch {
             while (true) {
                 val epData = props.channel.receive()
+                console.log("got ep data")
                 if (availableGraphs.isEmpty()) {
                     availableGraphs = getAllKeys(epData.data)
                     console.log("Got all keys: ", availableGraphs)
@@ -38,18 +35,17 @@ class Endpoint : RComponent<EpProps, EpState>() {
                 }
 //                console.log("got ep data", epData)
                 val time = epData.timestamp
-                graphChannels.forEach { (valuePath, channel) ->
-                    val value = getValue(epData.data, valuePath)
-                    channel.send(TimeSeriesPoint(time, value))
-                }
-                // Do we need to set this state?
-//                setState {
-//                    this.epData = epData
+                // Pass the epData down to all graphs
+                broadcastChannel.send(epData)
+//                graphChannels.forEach { (valuePath, channel) ->
+//                    val value = getValue(epData.data, valuePath)
+//                    channel.send(TimeSeriesPoint(time, value))
 //                }
             }
         }
     }
 
+    // Our props are static, so we don't re-update...all data updates come on the channel
 //    override fun shouldComponentUpdate(nextProps: EpProps, nextState: EpState): Boolean {
 //        return false
 //    }
@@ -60,8 +56,25 @@ class Endpoint : RComponent<EpProps, EpState>() {
 //            +"No data"
 //            return
 //        }
-        child(GraphFilter::class) {
-            attrs.allKeys = availableGraphs
+        button {
+            attrs.text("Add graph")
+            attrs.onClickFunction = { event ->
+                console.log("button clicked!")
+                state.numGraphs++
+                // Create a fixed channel here for this new graph, as we need to re-use the same
+                // channels every time we re-render (or else it will look like the broadcast channel
+                // has lots of receivers, and it will fill up since not all of them will read)
+                graphChannels.add(broadcastChannel.openSubscription())
+            }
+        }
+        console.log("creating ", state.numGraphs, " graphs/broadcast receivers")
+        repeat(state.numGraphs) { index ->
+            div {
+                child(GraphFilter::class) {
+                    attrs.allKeys = availableGraphs
+                    attrs.channel = graphChannels[index]
+                }
+            }
         }
         // TODO: put the data points we want to graph in state
 //        child(LiveGraphRef::class) {
@@ -92,8 +105,8 @@ data class EndpointData(
 // Endpoints don't retrieve their own data, the conference makes a single
 // request and updates the props of the ep components
 external interface EpState : RState {
-    var epData: EndpointData
     var allKeys: List<String>
+    var numGraphs: Int
 }
 
 inline fun jsObject(init: dynamic.() -> Unit): dynamic {

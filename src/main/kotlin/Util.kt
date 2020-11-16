@@ -28,4 +28,15 @@ fun getAllKeys(obj: dynamic): List<String> {
     }
 }
 
+/**
+ * Get the value of a dot-separated path
+ */
+// TODO: better way to do this?
+fun getValue(obj: dynamic, path: String): dynamic {
+    if (path.isBlank()) {
+        return obj
+    }
+    val paths = path.split(".")
+    return getValue(obj[paths.first()], paths.drop(1).joinToString("."))
+}
 

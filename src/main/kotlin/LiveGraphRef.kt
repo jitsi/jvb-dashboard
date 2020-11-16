@@ -1,5 +1,6 @@
 import highcharts.*
 import kotlinx.browser.window
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.delay
@@ -24,9 +25,10 @@ class LiveGraphRef : RComponent<LiveGraphRefProps, LiveGraphRefState>() {
     private var numDataPoints = 0
 
     override fun LiveGraphRefState.init() {
-        MainScope().launch {
+        GlobalScope.launch {
             while (true) {
                 val point = props.channel.receive()
+                console.log("graph got data: ", point)
                 val chart = state.myRef.asDynamic().chart.unsafeCast<Chart>()
                 val shift = numDataPoints >= 10
                 chart.series[0].addPoint(Point().apply { x = point.timestamp; y = point.value }, true, false)
@@ -37,18 +39,6 @@ class LiveGraphRef : RComponent<LiveGraphRefProps, LiveGraphRefState>() {
 
     override fun shouldComponentUpdate(nextProps: LiveGraphRefProps, nextState: LiveGraphRefState): Boolean {
         return false
-    }
-
-    override fun componentWillMount() {
-        console.log("will mount")
-    }
-
-    override fun componentWillUnmount() {
-        console.log("will unmount")
-    }
-
-    override fun componentWillUpdate(nextProps: LiveGraphRefProps, nextState: LiveGraphRefState) {
-        console.log("component updating: nextProps:", nextProps, " nextState: ", nextState)
     }
 
     override fun componentDidMount() {
