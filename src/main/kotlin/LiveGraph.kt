@@ -1,24 +1,17 @@
 import highcharts.*
-import kotlinx.browser.window
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import react.RBuilder
 import react.RComponent
 import react.RProps
 import react.RState
-import react.createRef
-import react.useRef
 
 class LiveGraph : RComponent<LiveGraphProps, LiveGraphState>() {
     override fun RBuilder.render() {
         val chartOpts = Options().apply {
-            title = Title(props.info.name)
+            title = Title(props.info.title)
             series = arrayOf(
                 SeriesOptions(
                     type = "spline",
-                    name = props.info.name,
+                    name = props.info.title,
                     data = arrayOf()
                 )
             )
@@ -65,6 +58,7 @@ external interface LiveGraphProps : RProps {
 
 data class TimeSeriesPoint(
     val timestamp: Number,
+    val key: String,
     val value: Number
 )
 

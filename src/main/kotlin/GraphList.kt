@@ -4,8 +4,12 @@ import react.RProps
 import react.RState
 
 data class GraphInfo(
-    val name: String,
-    val dataSource: () -> dynamic
+    val title: String,
+    val series: List<SeriesInfo>
+)
+
+data class SeriesInfo(
+    val name: String
 )
 
 class GraphList : RComponent<GraphListProps, RState>() {

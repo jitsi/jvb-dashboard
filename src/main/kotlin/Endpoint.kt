@@ -25,7 +25,6 @@ class Endpoint : RComponent<EpProps, EpState>() {
         GlobalScope.launch {
             while (true) {
                 val epData = props.channel.receive()
-                console.log("got ep data")
                 if (availableGraphs.isEmpty()) {
                     availableGraphs = getAllKeys(epData.data)
                     console.log("Got all keys: ", availableGraphs)
@@ -67,7 +66,6 @@ class Endpoint : RComponent<EpProps, EpState>() {
                 graphChannels.add(broadcastChannel.openSubscription())
             }
         }
-        console.log("creating ", state.numGraphs, " graphs/broadcast receivers")
         repeat(state.numGraphs) { index ->
             div {
                 child(GraphFilter::class) {

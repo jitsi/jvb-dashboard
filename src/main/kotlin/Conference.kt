@@ -17,7 +17,6 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
                     val jvbData = fetchData()
                     val now = jvbData.time as Number
                     val confData = jvbData.conferences[props.id]
-                    console.log("got conference data")
                     val epIds = getEpIds(confData)
                     setState {
                         this.name = confData.name

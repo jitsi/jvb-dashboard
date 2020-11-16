@@ -1,37 +1,36 @@
 import highcharts.*
-import kotlinx.browser.window
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.css.pct
-import kotlinx.css.px
 import kotlinx.css.width
-import org.w3c.dom.Element
-import react.RBuilder
-import react.RComponent
-import react.RProps
-import react.RState
-import react.ReactElement
-import react.createRef
-import react.dom.div
-import react.ref
-import react.useRef
+import react.*
 import styled.css
 import styled.styledDiv
 
 class LiveGraphRef : RComponent<LiveGraphRefProps, LiveGraphRefState>() {
     private var numDataPoints = 0
+    private var knownSeries = mutableSetOf<String>()
 
     override fun LiveGraphRefState.init() {
         GlobalScope.launch {
             while (true) {
                 val point = props.channel.receive()
-                console.log("graph got data: ", point)
                 val chart = state.myRef.asDynamic().chart.unsafeCast<Chart>()
+                if (point.key !in knownSeries) {
+                    chart.addSeries(
+                        SeriesOptions(
+                            type = "spline",
+                            name = point.key,
+                            data = arrayOf()
+                        )
+                    )
+                    knownSeries.add(point.key)
+                }
+                console.log("graph got data: ", point)
                 val shift = numDataPoints >= 10
-                chart.series[0].addPoint(Point().apply { x = point.timestamp; y = point.value }, true, false)
+                val series = chart.series.find { it.name == point.key }
+                series?.addPoint(Point().apply { x = point.timestamp; y = point.value }, true, false)
                 numDataPoints++
             }
         }
@@ -48,15 +47,17 @@ class LiveGraphRef : RComponent<LiveGraphRefProps, LiveGraphRefState>() {
 
     override fun RBuilder.render() {
         console.log("rendering")
-        val chartOpts = Options().apply {
-            title = Title(props.info.name)
-            series = arrayOf(
-                SeriesOptions(
-                    type = "spline",
-                    name = props.info.name,
-                    data = arrayOf()
-                )
+        val seriesOptions = props.info.series.map { seriesInfo ->
+            SeriesOptions(
+                type = "spline",
+                name = seriesInfo.name,
+                data = arrayOf()
             )
+        }.toTypedArray()
+        console.log("graphing series options: ", seriesOptions)
+        val chartOpts = Options().apply {
+            title = Title(props.info.title)
+            series = seriesOptions
             xAxis = XAxis("datetime")
             chart = ChartOptions().apply {
                 zoomType = "x"

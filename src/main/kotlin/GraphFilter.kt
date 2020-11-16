@@ -25,13 +25,11 @@ class GraphFilter : RComponent<GraphFilterProps, GraphFilterState>() {
             try {
                 while (true) {
                     delay(1000)
-                    console.log("graph filter receiving")
                     val data = props.channel.receive()
-                    console.log("graph filter received")
-                    val key = state.graphedKeys.firstOrNull() ?: continue
-                    val value = getValue(data.data, key)
-                    console.log("graphfilter sending point: ", key, value)
-                    graphChannel.send(TimeSeriesPoint(data.timestamp, value))
+                    state.graphedKeys.forEach { key ->
+                        val value = getValue(data.data, key)
+                        graphChannel.send(TimeSeriesPoint(data.timestamp, key, value))
+                    }
                 }
             } catch (t: Throwable) {
                 console.log("graph filter loop error: ", t)
@@ -58,10 +56,12 @@ class GraphFilter : RComponent<GraphFilterProps, GraphFilterState>() {
                 state.graphedKeys += event.target.asDynamic().value.unsafeCast<String>()
             }
         }
+        val infos = state.graphedKeys.map { SeriesInfo(it) }.toTypedArray()
+        console.log("graphing keys", infos)
         div {
             child(LiveGraphRef::class) {
                 attrs.channel = graphChannel
-                attrs.info = GraphInfo("stuff", js("{}"))
+                attrs.info = GraphInfo("stuff", state.graphedKeys.map { SeriesInfo(it) })
             }
         }
     }

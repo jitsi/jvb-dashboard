@@ -118,6 +118,7 @@ open external class Chart {
         get() = definedExternally
         set(value) = definedExternally
     open fun redraw(animation: Boolean = definedExternally)
+    open fun addSeries(options: SeriesOptions, redraw: Boolean = definedExternally, animation: Boolean = definedExternally): Series
     open fun zoomOut()
 }
 
