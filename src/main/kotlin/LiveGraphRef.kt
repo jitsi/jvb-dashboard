@@ -2,11 +2,8 @@ import highcharts.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.launch
-import kotlinx.css.pct
-import kotlinx.css.width
 import react.*
-import styled.css
-import styled.styledDiv
+import react.dom.div
 
 class LiveGraphRef : RComponent<LiveGraphRefProps, LiveGraphRefState>() {
     private var numDataPoints = 0
@@ -59,10 +56,7 @@ class LiveGraphRef : RComponent<LiveGraphRefProps, LiveGraphRefState>() {
                 zoomType = "x"
             }
         }
-        styledDiv {
-            css {
-                this.width = 50.pct
-            }
+        div {
             HighchartsReact {
                 attrs.highcharts = highcharts
                 attrs.options = chartOpts

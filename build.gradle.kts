@@ -27,6 +27,7 @@ dependencies {
     implementation("org.jetbrains:kotlin-styled:1.0.0-pre.110-kotlin-1.4.0")
     implementation(npm("styled-components", "~5.1.1"))
     implementation(npm("inline-style-prefixer", "~6.0.0"))
+    implementation(npm("react-select", "~3.1.0"))
 }
 
 kotlin {

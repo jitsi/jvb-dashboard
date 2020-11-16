@@ -1,25 +1,23 @@
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.html.InputType
-import kotlinx.html.js.onChangeFunction
-import kotlinx.html.js.onClickFunction
-import kotlinx.html.js.onInputFunction
-import kotlinx.html.js.onSelectFunction
-import kotlinx.html.onInput
+import kotlinx.css.pct
+import kotlinx.css.width
 import react.RBuilder
 import react.RComponent
 import react.RProps
 import react.RState
-import react.dom.*
+import react.dom.div
+import reactselect.Option
+import reactselect.Select
+import styled.css
+import styled.styledDiv
 
 class GraphFilter : RComponent<GraphFilterProps, GraphFilterState>() {
     private var graphChannel = Channel<TimeSeriesPoint>()
     override fun GraphFilterState.init() {
-        this.currKeys = listOf()
         this.graphedKeys = setOf()
         GlobalScope.launch {
             try {
@@ -38,37 +36,39 @@ class GraphFilter : RComponent<GraphFilterProps, GraphFilterState>() {
     }
 
     override fun RBuilder.render() {
-        input(type = InputType.text) {
-            attrs.onInputFunction = { event ->
-                val input = event.target.asDynamic().value.unsafeCast<String>()
-                state.currKeys = props.allKeys.filter { input.isEmpty() || it.contains(input, ignoreCase = true) }
+        val options = props.allKeys.map {
+            Option().apply {
+                value = it
+                label = it
             }
-        }
-        select {
-            state.currKeys.forEach {
-                option {
-                    attrs.value = it
-                    +it
+        }.toTypedArray()
+        styledDiv {
+            css {
+                width = 50.pct
+            }
+            Select {
+                attrs.options = options
+                attrs.onChange = { event ->
+                    // TODO: when a key is removed here, the old points still remain on
+                    // the graph: would be better to remove them completely
+                    val keys = event.unsafeCast<Array<dynamic>>().map { evt ->
+                        evt.value.unsafeCast<String>()
+                    }.toSet()
+                    state.graphedKeys = keys
                 }
+                attrs.isMulti = true
             }
-            attrs.onChangeFunction = { event ->
-                println("graph ${event.target.asDynamic().value} changed!")
-                state.graphedKeys += event.target.asDynamic().value.unsafeCast<String>()
-            }
-        }
-        val infos = state.graphedKeys.map { SeriesInfo(it) }.toTypedArray()
-        div {
-            child(LiveGraphRef::class) {
-                attrs.channel = graphChannel
-                attrs.info = GraphInfo("stuff", state.graphedKeys.map { SeriesInfo(it) })
+            div {
+                child(LiveGraphRef::class) {
+                    attrs.channel = graphChannel
+                    attrs.info = GraphInfo("stuff", state.graphedKeys.map { SeriesInfo(it) })
+                }
             }
         }
     }
 }
 
 external interface GraphFilterState : RState {
-    var currKeys: List<String>
-    var series: List<String>
     var graphedKeys: Set<String>
 }
 
