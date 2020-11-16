@@ -27,7 +27,6 @@ class LiveGraphRef : RComponent<LiveGraphRefProps, LiveGraphRefState>() {
                     )
                     knownSeries.add(point.key)
                 }
-                console.log("graph got data: ", point)
                 val shift = numDataPoints >= 10
                 val series = chart.series.find { it.name == point.key }
                 series?.addPoint(Point().apply { x = point.timestamp; y = point.value }, true, false)

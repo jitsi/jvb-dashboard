@@ -57,7 +57,6 @@ class GraphFilter : RComponent<GraphFilterProps, GraphFilterState>() {
             }
         }
         val infos = state.graphedKeys.map { SeriesInfo(it) }.toTypedArray()
-        console.log("graphing keys", infos)
         div {
             child(LiveGraphRef::class) {
                 attrs.channel = graphChannel
