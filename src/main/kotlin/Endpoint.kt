@@ -32,14 +32,9 @@ class Endpoint : RComponent<EpProps, EpState>() {
                         allKeys = availableGraphs
                     }
                 }
-//                console.log("got ep data", epData)
                 val time = epData.timestamp
                 // Pass the epData down to all graphs
                 broadcastChannel.send(epData)
-//                graphChannels.forEach { (valuePath, channel) ->
-//                    val value = getValue(epData.data, valuePath)
-//                    channel.send(TimeSeriesPoint(time, value))
-//                }
             }
         }
     }
@@ -74,19 +69,6 @@ class Endpoint : RComponent<EpProps, EpState>() {
                 }
             }
         }
-        // TODO: put the data points we want to graph in state
-//        child(LiveGraphRef::class) {
-//            attrs.channel = graphChannels.getOrPut("bitrateController.lastBwe") { Channel() }
-//            attrs.info = GraphInfo("BWE", js("{}"))
-//        }
-//        child(LiveGraphRef::class) {
-//            attrs.channel = graphChannels.getOrPut("iceTransport.num_packets_received") { Channel() }
-//            attrs.info = GraphInfo("numPacketsReceived", js("{}"))
-//        }
-//        child(LiveGraphRef::class) {
-//            attrs.channel = graphChannels.getOrPut("iceTransport.num_packets_sent") { Channel() }
-//            attrs.info = GraphInfo("numPacketsSent", js("{}"))
-//        }
     }
 }
 

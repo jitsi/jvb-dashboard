@@ -27,9 +27,8 @@ class LiveGraphRef : RComponent<LiveGraphRefProps, LiveGraphRefState>() {
                     )
                     knownSeries.add(point.key)
                 }
-                val shift = numDataPoints >= 10
                 val series = chart.series.find { it.name == point.key }
-                series?.addPoint(Point().apply { x = point.timestamp; y = point.value }, true, false)
+                series?.addPoint(Point().apply { x = point.timestamp; y = point.value }, true)
                 numDataPoints++
             }
         }
@@ -45,7 +44,6 @@ class LiveGraphRef : RComponent<LiveGraphRefProps, LiveGraphRefState>() {
     }
 
     override fun RBuilder.render() {
-        console.log("rendering")
         val seriesOptions = props.info.series.map { seriesInfo ->
             SeriesOptions(
                 type = "spline",
@@ -53,7 +51,6 @@ class LiveGraphRef : RComponent<LiveGraphRefProps, LiveGraphRefState>() {
                 data = arrayOf()
             )
         }.toTypedArray()
-        console.log("graphing series options: ", seriesOptions)
         val chartOpts = Options().apply {
             title = Title(props.info.title)
             series = seriesOptions

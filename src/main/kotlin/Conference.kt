@@ -34,11 +34,6 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
         }
     }
 
-//    override fun shouldComponentUpdate(nextProps: ConferenceProps, nextState: ConferenceState): Boolean {
-//        console.log("checking if should update")
-//        return !state.epIds.contentEquals(nextState.epIds)
-//    }
-
     override fun RBuilder.render() {
         if (state.name != undefined) {
             +"Conference id ${props.id} name ${state.name}"

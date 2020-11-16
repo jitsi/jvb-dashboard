@@ -34,7 +34,7 @@ external class Series {
     var name: String
     var data: Array<Point>
 
-    fun addPoint(point: Point, redraw: Boolean, shift: Boolean)
+    fun addPoint(point: Point, redraw: Boolean = definedExternally, shift: Boolean = definedExternally)
     fun setData(data: Array<dynamic /* Number? | String? | PointOptionsObject? | Array<dynamic /* Number? | String? */>? */>, redraw: Boolean = definedExternally, animation: Boolean = definedExternally, updatePoints: Boolean = definedExternally)
 }
 
@@ -125,32 +125,6 @@ open external class Chart {
 external class Highcharts {
     fun chart(renderTo: String, opts: Options): Chart
 }
-
-// fun foo() {
-//    val options = Options(
-//        title = Title("title"),
-//        series = arrayOf(
-//            SeriesOptions(
-//                type = "spline",
-//                name = "foo",
-//                data = arrayOf(
-//                    Point(1, 1),
-//                    Point(2, 2),
-//                    Point(3, 3),
-//                )
-//            )
-//        ),
-//        xAxis = XAxis("datetime"),
-//        chart = ChartOptions(
-//            events = ChartEventsOptions(
-//                load = { self ->
-//                    val series = self.series[0]
-//                    series.addPoint(Point(4, 4), true)
-//                }
-//            )
-//        )
-//    )
-// }
 
 @JsModule("HighCharts")
 @JsNonModule
