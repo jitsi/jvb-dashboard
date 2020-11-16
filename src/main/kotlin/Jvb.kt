@@ -5,6 +5,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import react.*
 import react.dom.p
+import kotlin.js.Date
 
 class Jvb : RComponent<JvbProps, JvbState>() {
     init {
@@ -24,8 +25,9 @@ class Jvb : RComponent<JvbProps, JvbState>() {
             +"No data received yet"
             return
         }
+        val date = Date(state.state.time.unsafeCast<Number>())
         p {
-            +"time: ${state.state.time}"
+            +date.toUTCString()
         }
         p {
             +"conferences: ${keys(state.state.conferences)}"
