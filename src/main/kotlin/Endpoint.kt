@@ -5,6 +5,7 @@ import kotlinx.html.js.onClickFunction
 import react.*
 import react.dom.button
 import react.dom.div
+import react.dom.key
 
 class Endpoint : RComponent<EpProps, EpState>() {
     // The Endpoint broadcasts its received data onto this channel for all the graphs to receive
@@ -79,6 +80,7 @@ class Endpoint : RComponent<EpProps, EpState>() {
         state.graphs.forEach { graph ->
             console.log("rendering graph ${graph.id}")
             div {
+                key = graph.id.toString()
                 button {
                     attrs.value = graph.id.toString()
                     attrs.text("Remove graph")
@@ -87,7 +89,7 @@ class Endpoint : RComponent<EpProps, EpState>() {
                     }
                 }
                 child(GraphFilter::class) {
-                    key = graph.id.toString()
+                    attrs.key = graph.id.toString()
                     attrs.name = "Graph ${graph.id}"
                     attrs.allKeys = availableGraphs
                     attrs.channel = graph.channel

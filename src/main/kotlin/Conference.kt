@@ -49,8 +49,8 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
         state.epIds.forEach { epId ->
             val epChannel = epChannels.getOrPut(epId) { Channel() }
             div {
+                key = epId
                 child(Endpoint::class) {
-                    key = epId
                     attrs {
                         id = epId
                         channel = epChannel

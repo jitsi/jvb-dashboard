@@ -129,4 +129,3 @@ external class Highcharts {
 @JsModule("HighCharts")
 @JsNonModule
 external val highcharts: Highcharts
-

@@ -34,6 +34,7 @@ class Jvb : RComponent<JvbProps, JvbState>() {
         }
         conferenceIds.forEach { confId ->
             child(Conference::class) {
+                key = confId
                 attrs {
                     baseUrl = props.url
                     id = confId
