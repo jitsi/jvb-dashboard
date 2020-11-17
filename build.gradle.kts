@@ -31,6 +31,11 @@ dependencies {
 }
 
 kotlin {
+    sourceSets.configureEach {
+        languageSettings.apply {
+            useExperimentalAnnotation("kotlinx.coroutines.ExperimentalCoroutinesApi")
+        }
+    }
     js {
         browser {
             webpackTask {
