@@ -9,6 +9,7 @@ import react.RComponent
 import react.RProps
 import react.RState
 import react.dom.div
+import reactselect.Components
 import reactselect.Option
 import reactselect.Select
 import styled.css
@@ -58,7 +59,7 @@ class GraphFilter : RComponent<GraphFilterProps, GraphFilterState>() {
                 value = it
                 label = it
             }
-        }.take(50).toTypedArray()
+        }.toTypedArray()
         styledDiv {
             css {
                 width = 50.pct
@@ -74,6 +75,13 @@ class GraphFilter : RComponent<GraphFilterProps, GraphFilterState>() {
                     state.graphedKeys = keys
                 }
                 attrs.isMulti = true
+                // TODO: tried this to disable the dropdown, since it's big and laggy, but then
+                // it won't show any of the results (even after typing)
+//                attrs.components = Components().apply {
+//                    DropdownIndicator = { null }
+//                    IndicatorSeparator = { null }
+//                    Menu = { null }
+//                }
             }
             div {
                 child(LiveGraphRef::class) {

@@ -13,5 +13,6 @@ external interface ReactSelectProps : RProps {
     var options: Array<Option>
     var onChange: OnChangeCallback
     var isMulti: Boolean
+    var components: Components
 }
 
