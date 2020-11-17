@@ -40,3 +40,8 @@ fun getValue(obj: dynamic, path: String): dynamic {
     return getValue(obj[paths.first()], paths.drop(1).joinToString("."))
 }
 
+inline fun jsObject(init: dynamic.() -> Unit): dynamic {
+    val o = js("{}")
+    init(o)
+    return o
+}
