@@ -5,6 +5,7 @@ import kotlinx.html.js.onClickFunction
 import react.*
 import react.dom.button
 import react.dom.div
+import react.dom.h3
 import react.dom.key
 
 class Endpoint : RComponent<EpProps, EpState>() {
@@ -18,6 +19,7 @@ class Endpoint : RComponent<EpProps, EpState>() {
     init {
         state.graphs = listOf()
         state.allKeys = listOf()
+        state.statsId = null
     }
 
     override fun componentWillUnmount() {
@@ -37,6 +39,12 @@ class Endpoint : RComponent<EpProps, EpState>() {
                             allKeys = availableGraphs
                         }
                     }
+                    if (state.statsId == null) {
+                        console.log("Setting stats id to ", epData.data.statsId)
+                        setState {
+                            statsId = epData.data.statsId.unsafeCast<String>()
+                        }
+                    }
                     // Pass the epData down to all graphs
                     broadcastChannel.send(epData)
                 }
@@ -47,11 +55,6 @@ class Endpoint : RComponent<EpProps, EpState>() {
                 console.log("endpoint data send loop error: ", t)
             }
         }
-    }
-
-    // Our props are static, so we don't re-update...all data updates come on the channel
-    override fun shouldComponentUpdate(nextProps: EpProps, nextState: EpState): Boolean {
-        return nextState.graphs != state.graphs
     }
 
     private fun addGraph() {
@@ -68,11 +71,17 @@ class Endpoint : RComponent<EpProps, EpState>() {
     }
 
     override fun RBuilder.render() {
-        +"Endpoint ${props.id}"
-        button {
-            attrs.text("Add graph")
-            attrs.onClickFunction = { event ->
-                addGraph()
+        h3 {
+            if (!state.statsId.isNullOrEmpty()) {
+                +"Endoint ${props.id} (${state.statsId})   "
+            } else {
+                +"Endpoint ${props.id}   "
+            }
+            button {
+                attrs.text("Add graph")
+                attrs.onClickFunction = { event ->
+                    addGraph()
+                }
             }
         }
         state.graphs.forEach { graph ->
@@ -112,6 +121,7 @@ data class EndpointData(
 external interface EpState : RState {
     var allKeys: List<String>
     var graphs: List<Graph>
+    var statsId: String?
 }
 
 data class Graph(
