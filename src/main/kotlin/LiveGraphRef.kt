@@ -5,7 +5,6 @@ import kotlinx.coroutines.channels.ReceiveChannel
 import react.*
 import react.dom.div
 import kotlin.js.Date
-import kotlin.time.seconds
 
 class LiveGraphRef : RComponent<LiveGraphRefProps, LiveGraphRefState>() {
     private var knownSeries = mutableSetOf<String>()
@@ -28,6 +27,10 @@ class LiveGraphRef : RComponent<LiveGraphRefProps, LiveGraphRefState>() {
         return false
     }
 
+    /**
+     * Get the [Series] with the name [seriesName] from [chart], or create and return it if it didn't
+     * already exist.
+     */
     private fun getOrCreateSeries(chart: Chart, seriesName: String): Series {
         return chart.series.find { it.name == seriesName } ?: run {
             if (seriesName in knownSeries) {
@@ -57,6 +60,10 @@ class LiveGraphRef : RComponent<LiveGraphRefProps, LiveGraphRefState>() {
         val now = Date()
         if (now.getSeconds() - windowStart.getSeconds() > state.currentTimeZoomSeconds) {
             series.xAxis.setExtremes(now.getTime() - state.currentTimeZoomSeconds * 1000)
+        } else {
+            // If there's no zoom set, we still need to update the minimum to match the oldest point,
+            // since we get rid of points that are too old
+            series.xAxis.setExtremes(series.data[0].x)
         }
     }
 
