@@ -1,3 +1,5 @@
+import graphs.GraphControl
+import graphs.LiveZoomAdjustment
 import highcharts.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
@@ -6,15 +8,18 @@ import react.*
 import react.dom.div
 import kotlin.js.Date
 
-class LiveGraphRef : RComponent<LiveGraphRefProps, LiveGraphRefState>() {
+class LiveGraphRef : RComponent<LiveGraphRefProps, RState>() {
     private var knownSeries = mutableSetOf<String>()
     private var job: Job? = null
+    private var myRef: ReactElement? = null
+    // The maximum amount of datapoints we'll track in the graph (one hour's worth)
+    private var maxPoints: Int = 60 * 60
 
-    init {
-        // Only track an hour's worth of data
-        state.maxPoints = 30 //60 * 60
-        state.currentTimeZoomSeconds = state.maxPoints
-    }
+    // How many seconds worth of live data we're currently displaying
+    private var currentTimeZoomSeconds: Int = maxPoints
+
+    private val chart: Chart
+        get() = myRef.asDynamic().chart.unsafeCast<Chart>()
 
     override fun componentWillUnmount() {
         console.log("live graph ${props.info.title} cancelling graph coro ${props.info.title}")
@@ -23,8 +28,12 @@ class LiveGraphRef : RComponent<LiveGraphRefProps, LiveGraphRefState>() {
         console.log("live graph ${props.info.title} coro canceled")
     }
 
-    override fun shouldComponentUpdate(nextProps: LiveGraphRefProps, nextState: LiveGraphRefState): Boolean {
+    override fun shouldComponentUpdate(nextProps: LiveGraphRefProps, nextState: RState): Boolean {
         return false
+    }
+
+    private fun log(msg: String) {
+        console.log("graph ${props.info.title}: $msg")
     }
 
     /**
@@ -48,37 +57,28 @@ class LiveGraphRef : RComponent<LiveGraphRefProps, LiveGraphRefState>() {
         }
     }
 
-    private fun addPoint(chart: Chart, point: TimeSeriesPoint) {
+    private fun addPoint(point: TimeSeriesPoint) {
         val series = getOrCreateSeries(chart, point.key)
         series.addPoint(Point(point.timestamp, point.value))
         // Limit how many points we store
-        while (series.data.size > state.maxPoints) {
+        while (series.data.size > maxPoints) {
             series.removePoint(0)
         }
         // Zoom to any requested live window
         val windowStart = Date(series.xAxis.min!!)
         val now = Date()
-        if (now.getSeconds() - windowStart.getSeconds() > state.currentTimeZoomSeconds) {
-            series.xAxis.setExtremes(now.getTime() - state.currentTimeZoomSeconds * 1000)
-        } else {
-            // If there's no zoom set, we still need to update the minimum to match the oldest point,
-            // since we get rid of points that are too old
-            series.xAxis.setExtremes(series.data[0].x)
-        }
+        // The minium displayed x value of the graph is either the now - the zoom window, or the oldest point, whichever
+        // is newer
+        val newMin = maxOf(now.getTime() - currentTimeZoomSeconds * 1000, series.data[0].x.toDouble())
+        series.xAxis.setExtremes(newMin)
     }
 
-    private suspend fun CoroutineScope.receiveMessages() {
+    private suspend fun CoroutineScope.handleMessages() {
         try {
-            val chart = state.myRef.asDynamic().chart.unsafeCast<Chart>()
             while (isActive) {
                 when (val msg = props.channel.receive()) {
-                    is NewDataMsg -> addPoint(chart, msg.timeSeriesPoint)
-                    is LiveZoomAdjustment -> {
-                        console.log("updating time zoom to ${msg.numSeconds} seconds")
-                        setState {
-                            currentTimeZoomSeconds = msg.numSeconds
-                        }
-                    }
+                    is NewDataMsg -> addPoint(msg.timeSeriesPoint)
+                    is GraphControl -> handleGraphControlMessage(msg)
                 }
             }
         } catch (c: CancellationException) {
@@ -91,10 +91,21 @@ class LiveGraphRef : RComponent<LiveGraphRefProps, LiveGraphRefState>() {
         }
     }
 
+    private fun handleGraphControlMessage(msg: GraphControl) {
+        when (msg) {
+            is LiveZoomAdjustment -> {
+                log("updating time zoom to ${msg.numSeconds} seconds")
+                setState {
+                    currentTimeZoomSeconds = msg.numSeconds
+                }
+            }
+        }
+    }
+
     override fun componentDidMount() {
-        console.log("ref", state.myRef)
-        console.log("chart: ", state.myRef.asDynamic().chart)
-        job = GlobalScope.launch { receiveMessages() }
+        console.log("ref", myRef)
+        console.log("chart: ", chart)
+        job = GlobalScope.launch { handleMessages() }
     }
 
     override fun RBuilder.render() {
@@ -119,7 +130,7 @@ class LiveGraphRef : RComponent<LiveGraphRefProps, LiveGraphRefState>() {
                 attrs.options = chartOpts
                 attrs.allowChartUpdate = true
                 ref {
-                    state.myRef = it
+                    myRef = it
                 }
             }
         }
@@ -128,21 +139,8 @@ class LiveGraphRef : RComponent<LiveGraphRefProps, LiveGraphRefState>() {
 
 external interface LiveGraphRefProps : RProps {
     var info: GraphInfo
-    var channel: ReceiveChannel<GraphMsg>
+    var channel: ReceiveChannel<Any>
 }
-
-external interface LiveGraphRefState : RState {
-    var myRef: ReactElement?
-    // The maximum amount of datapoints we'll track in the graph
-    var maxPoints: Int
-    // How many seconds worth of live data we're currently displaying
-    var currentTimeZoomSeconds: Int
-}
-
-sealed class GraphMsg
 
 // Pass a new TimeSeriesPoint to be rendered on the graph
-data class NewDataMsg(val timeSeriesPoint: TimeSeriesPoint) : GraphMsg()
-
-// Adjust how many seconds worth of live data the graph should display
-data class LiveZoomAdjustment(val numSeconds: Int) : GraphMsg()
+data class NewDataMsg(val timeSeriesPoint: TimeSeriesPoint)

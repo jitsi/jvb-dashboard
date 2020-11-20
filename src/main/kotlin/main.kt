@@ -9,23 +9,23 @@ import react.dom.render
 import kotlin.js.Date
 
 fun main() {
-    val channel = Channel<GraphMsg>()
-    MainScope().launch {
-        var i = 0
-        while (isActive) {
-            val now = Date()
-            channel.send(NewDataMsg(TimeSeriesPoint(now.getTime(), "key", i++)))
-            delay(1000)
-        }
-    }
+//    val channel = Channel<Any>()
+//    MainScope().launch {
+//        var i = 0
+//        while (isActive) {
+//            val now = Date()
+//            channel.send(NewDataMsg(TimeSeriesPoint(now.getTime(), "key", i++)))
+//            delay(1000)
+//        }
+//    }
 
     render(document.getElementById("root")) {
-//        child(App::class) {}
-        child(LiveGraphRef::class) {
-            attrs {
-                this.channel = channel
-                info = GraphInfo("name", listOf(SeriesInfo("key")))
-            }
-        }
+        child(App::class) {}
+//        child(LiveGraphRef::class) {
+//            attrs {
+//                this.channel = channel
+//                info = GraphInfo("name", listOf(SeriesInfo("key")))
+//            }
+//        }
     }
 }

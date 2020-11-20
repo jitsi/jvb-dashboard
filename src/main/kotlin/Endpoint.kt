@@ -1,3 +1,4 @@
+import graphs.LiveZoomAdjustment
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.ReceiveChannel
@@ -10,7 +11,7 @@ import react.dom.key
 
 class Endpoint : RComponent<EpProps, EpState>() {
     // The Endpoint broadcasts its received data onto this channel for all the graphs to receive
-    private val broadcastChannel = BroadcastChannel<EndpointData>(5)
+    private val broadcastChannel = BroadcastChannel<Any>(5)
     // A list of all possible key paths in the stats for this endpoint
     private var availableGraphs: List<String> = listOf()
     private var job: Job? = null
@@ -27,34 +28,36 @@ class Endpoint : RComponent<EpProps, EpState>() {
         broadcastChannel.close()
     }
 
-    override fun componentDidMount() {
-        job = GlobalScope.launch {
-            try {
-                while (isActive) {
-                    val epData = props.channel.receive()
-                    if (availableGraphs.isEmpty()) {
-                        availableGraphs = getAllKeys(epData.data)
-                        console.log("Got all keys: ", availableGraphs)
-                        setState {
-                            allKeys = availableGraphs
-                        }
+    private suspend fun CoroutineScope.handleMessages() {
+        try {
+            while (isActive) {
+                val epData = props.channel.receive()
+                if (availableGraphs.isEmpty()) {
+                    availableGraphs = getAllKeys(epData.data)
+                    console.log("Got all keys: ", availableGraphs)
+                    setState {
+                        allKeys = availableGraphs
                     }
-                    if (state.statsId == null) {
-                        console.log("Setting stats id to ", epData.data.statsId)
-                        setState {
-                            statsId = epData.data.statsId.unsafeCast<String>()
-                        }
-                    }
-                    // Pass the epData down to all graphs
-                    broadcastChannel.send(epData)
                 }
-            } catch (c: CancellationException) {
-                console.log("endpoint data send loop cancelled")
-                throw c
-            } catch (t: Throwable) {
-                console.log("endpoint data send loop error: ", t)
+                if (state.statsId == null) {
+                    console.log("Setting stats id to ", epData.data.statsId)
+                    setState {
+                        statsId = epData.data.statsId.unsafeCast<String>()
+                    }
+                }
+                // Pass the epData down to all graphs
+                broadcastChannel.send(epData)
             }
+        } catch (c: CancellationException) {
+            console.log("endpoint data send loop cancelled")
+            throw c
+        } catch (t: Throwable) {
+            console.log("endpoint data send loop error: ", t)
         }
+    }
+
+    override fun componentDidMount() {
+        job = GlobalScope.launch { handleMessages() }
     }
 
     private fun addGraph() {
@@ -80,8 +83,28 @@ class Endpoint : RComponent<EpProps, EpState>() {
             }
             button {
                 attrs.text("Add graph")
-                attrs.onClickFunction = { event ->
+                attrs.onClickFunction = { _ ->
                     addGraph()
+                }
+            }
+            button {
+                attrs {
+                    text("5 secs")
+                    onClickFunction = {
+                        GlobalScope.launch {
+                            broadcastChannel.send(LiveZoomAdjustment(5))
+                        }
+                    }
+                }
+            }
+            button {
+                attrs {
+                    text("30 secs")
+                    onClickFunction = {
+                        GlobalScope.launch {
+                            broadcastChannel.send(LiveZoomAdjustment(30))
+                        }
+                    }
                 }
             }
         }
@@ -128,6 +151,6 @@ external interface EpState : RState {
 
 data class Graph(
     val id: Int,
-    val channel: ReceiveChannel<EndpointData>
+    val channel: ReceiveChannel<Any>
 )
 

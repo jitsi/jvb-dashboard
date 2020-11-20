@@ -1,3 +1,4 @@
+import graphs.GraphControl
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
@@ -16,10 +17,10 @@ import styled.css
 import styled.styledDiv
 
 class GraphFilter : RComponent<GraphFilterProps, GraphFilterState>() {
-    private var graphChannel = Channel<GraphMsg>()
+    private var graphChannel = Channel<Any>()
     private var job: Job? = null
-    override fun GraphFilterState.init() {
-        this.graphedKeys = setOf()
+    init {
+        state.graphedKeys = setOf()
     }
 
     override fun componentWillUnmount() {
@@ -29,25 +30,34 @@ class GraphFilter : RComponent<GraphFilterProps, GraphFilterState>() {
         graphChannel.close()
     }
 
+    private suspend fun CoroutineScope.handleMessages() {
+        try {
+            while (isActive) {
+                when (val msg = props.channel.receive()) {
+                    is EndpointData -> {
+                        state.graphedKeys.forEach { key ->
+                            val value = getValue(msg.data, key)
+                            graphChannel.send(NewDataMsg(TimeSeriesPoint(msg.timestamp, key, value)))
+                        }
+                    }
+                    is GraphControl -> {
+                        graphChannel.send(msg)
+                    }
+                }
+            }
+        } catch (c: CancellationException) {
+            console.log("graph filter ${props.name} data send loop cancelled")
+            throw c
+        } catch (t: Throwable) {
+            console.log("graph filter ${props.name} loop error: ", t)
+        }
+    }
+
     override fun componentDidMount() {
         console.log("graph filter ${props.name} mounted")
         job = GlobalScope.launch {
             console.log("graph filter ${props.name} coro started")
-            try {
-                while (isActive) {
-                    val data = props.channel.receive()
-                    state.graphedKeys.forEach { key ->
-                        val value = getValue(data.data, key)
-                        graphChannel.send(NewDataMsg(TimeSeriesPoint(data.timestamp, key, value)))
-                    }
-                    delay(1000)
-                }
-            } catch (c: CancellationException) {
-                console.log("graph filter ${props.name} data send loop cancelled")
-                throw c
-            } catch (t: Throwable) {
-                console.log("graph filter ${props.name} loop error: ", t)
-            }
+            handleMessages()
         }
     }
 
@@ -99,5 +109,5 @@ external interface GraphFilterState : RState {
 external interface GraphFilterProps : RProps {
     var name: String
     var allKeys: List<String>
-    var channel: ReceiveChannel<EndpointData>
+    var channel: ReceiveChannel<Any>
 }
