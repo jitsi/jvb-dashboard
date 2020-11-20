@@ -41,8 +41,16 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
         }
     }
 
+    override fun shouldComponentUpdate(nextProps: ConferenceProps, nextState: ConferenceState): Boolean {
+        return (state.expanded != nextState.expanded) ||
+                (state.name != nextState.name) ||
+                (!state.epIds.contentEquals(nextState.epIds))
+    }
+
     override fun RBuilder.render() {
+        console.log("conference ${props.id} rendering")
         div {
+            key = props.id
             h2 {
                 if (state.expanded) {
                     +"▾"
@@ -57,7 +65,9 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
                 attrs {
                     onClickFunction = { _ ->
                         console.log("toggling expand")
-                        state.expanded = !state.expanded
+                        setState {
+                            expanded = !expanded
+                        }
                     }
                 }
             }

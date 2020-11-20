@@ -71,6 +71,7 @@ class Endpoint : RComponent<EpProps, EpState>() {
     }
 
     override fun RBuilder.render() {
+        console.log("endpoint ${props.id} rendering")
         h3 {
             if (!state.statsId.isNullOrEmpty()) {
                 +"Endoint ${props.id} (${state.statsId})   "
@@ -89,6 +90,7 @@ class Endpoint : RComponent<EpProps, EpState>() {
             div {
                 key = graph.id.toString()
                 button {
+                    key = "remove-graph-${graph.id}"
                     attrs.value = graph.id.toString()
                     attrs.text("Remove graph")
                     attrs.onClickFunction = { _ ->
@@ -96,7 +98,7 @@ class Endpoint : RComponent<EpProps, EpState>() {
                     }
                 }
                 child(GraphFilter::class) {
-                    attrs.key = graph.id.toString()
+                    key = "graph-filter-${graph.id}"
                     attrs.name = "Graph ${graph.id}"
                     attrs.allKeys = availableGraphs
                     attrs.channel = graph.channel
