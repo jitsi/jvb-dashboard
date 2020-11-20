@@ -44,6 +44,11 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
     override fun RBuilder.render() {
         div {
             h2 {
+                if (state.expanded) {
+                    +"▾"
+                } else {
+                    +"▸"
+                }
                 if (state.name != undefined) {
                     +"Conference \"${state.name}\" (${props.id})"
                 } else {
