@@ -11,9 +11,17 @@ class Jvb : RComponent<JvbProps, JvbState>() {
     init {
         GlobalScope.launch {
             while (true) {
-                val jvbData = fetchData()
-                setState {
-                    state = jvbData
+                try {
+                    val jvbData = fetchData()
+                    setState {
+                        state = jvbData
+                        error = null
+                    }
+                } catch (t: Throwable) {
+                    // TODO: add a maximum number of retries?
+                    setState {
+                        error = "Error retrieving JVB data: ${t.message}"
+                    }
                 }
                 delay(1000)
             }
@@ -21,6 +29,10 @@ class Jvb : RComponent<JvbProps, JvbState>() {
     }
 
     override fun RBuilder.render() {
+        if (state.error != null) {
+            +state.error!!
+            return
+        }
         if (!state.state) {
             +"No data received yet"
             return
@@ -62,6 +74,7 @@ class Jvb : RComponent<JvbProps, JvbState>() {
 
 external interface JvbState : RState {
     var state: dynamic
+    var error: String?
 }
 
 external interface JvbProps : RProps {
