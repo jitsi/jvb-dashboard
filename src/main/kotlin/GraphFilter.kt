@@ -16,7 +16,7 @@ import styled.css
 import styled.styledDiv
 
 class GraphFilter : RComponent<GraphFilterProps, GraphFilterState>() {
-    private var graphChannel = Channel<TimeSeriesPoint>()
+    private var graphChannel = Channel<GraphMsg>()
     private var job: Job? = null
     override fun GraphFilterState.init() {
         this.graphedKeys = setOf()
@@ -38,7 +38,7 @@ class GraphFilter : RComponent<GraphFilterProps, GraphFilterState>() {
                     val data = props.channel.receive()
                     state.graphedKeys.forEach { key ->
                         val value = getValue(data.data, key)
-                        graphChannel.send(TimeSeriesPoint(data.timestamp, key, value))
+                        graphChannel.send(NewDataMsg(TimeSeriesPoint(data.timestamp, key, value)))
                     }
                     delay(1000)
                 }

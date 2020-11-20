@@ -1,5 +1,6 @@
 package highcharts
 
+import jsObject
 import org.w3c.dom.events.Event
 
 data class Title(
@@ -10,17 +11,12 @@ data class XAxis(
     val type: String, /* "category" | "datetime" | "linear" | "logarithmic" | "treegrid" */
 )
 
-//data class Point(
-//    val x: Number,
-//    val y: Number
-//)
-
 external interface Point {
     var x: Number
     var y: Number
 }
 
-fun Point(): Point = js("{}")
+fun Point(x: Number, y: Number): Point = jsObject { this.x = x; this.y = y }.unsafeCast<Point>()
 
 data class SeriesOptions(
     val type: String,
@@ -33,8 +29,10 @@ external class Series {
     var type: String
     var name: String
     var data: Array<Point>
+    var xAxis: Axis
 
     fun addPoint(point: Point, redraw: Boolean = definedExternally, shift: Boolean = definedExternally)
+    fun removePoint(i: Number, redraw: Boolean = definedExternally, animation: Boolean = definedExternally)
     fun setData(data: Array<dynamic /* Number? | String? | PointOptionsObject? | Array<dynamic /* Number? | String? */>? */>, redraw: Boolean = definedExternally, animation: Boolean = definedExternally, updatePoints: Boolean = definedExternally)
 }
 

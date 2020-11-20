@@ -9,12 +9,12 @@ import react.dom.render
 import kotlin.js.Date
 
 fun main() {
-    val channel = Channel<TimeSeriesPoint>()
+    val channel = Channel<GraphMsg>()
     MainScope().launch {
         var i = 0
         while (isActive) {
             val now = Date()
-            channel.send(TimeSeriesPoint(now.getTime(), "key", i++))
+            channel.send(NewDataMsg(TimeSeriesPoint(now.getTime(), "key", i++)))
             delay(1000)
         }
     }
