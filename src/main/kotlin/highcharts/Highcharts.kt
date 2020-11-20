@@ -7,7 +7,7 @@ data class Title(
 )
 
 data class XAxis(
-    val type: String,
+    val type: String, /* "category" | "datetime" | "linear" | "logarithmic" | "treegrid" */
 )
 
 //data class Point(
@@ -36,6 +36,12 @@ external class Series {
 
     fun addPoint(point: Point, redraw: Boolean = definedExternally, shift: Boolean = definedExternally)
     fun setData(data: Array<dynamic /* Number? | String? | PointOptionsObject? | Array<dynamic /* Number? | String? */>? */>, redraw: Boolean = definedExternally, animation: Boolean = definedExternally, updatePoints: Boolean = definedExternally)
+}
+
+external class Axis {
+    var max: Number?
+    var min: Number?
+    fun setExtremes(newMin: Number = definedExternally, newMax: Number = definedExternally, redraw: Boolean = definedExternally, animation: Boolean = definedExternally, eventArguments: Any = definedExternally)
 }
 
 // Docs suggest that this callback is called with a context of 'Chart', but in practice
@@ -115,6 +121,9 @@ fun ChartOptions(): ChartOptions = js("{}")
 
 open external class Chart {
     var series: Array<Series>
+        get() = definedExternally
+        set(value) = definedExternally
+    var xAxis: Array<Axis>
         get() = definedExternally
         set(value) = definedExternally
     open fun redraw(animation: Boolean = definedExternally)

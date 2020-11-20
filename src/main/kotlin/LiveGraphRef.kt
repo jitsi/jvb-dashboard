@@ -4,11 +4,13 @@ import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.channels.ReceiveChannel
 import react.*
 import react.dom.div
+import kotlin.js.Date
 
 class LiveGraphRef : RComponent<LiveGraphRefProps, LiveGraphRefState>() {
     private var numDataPoints = 0
     private var knownSeries = mutableSetOf<String>()
     private var job: Job? = null
+    private var originalMin: Number = 0
 
     override fun componentWillUnmount() {
         console.log("live graph ${props.info.title} cancelling graph coro ${props.info.title}")
@@ -39,8 +41,24 @@ class LiveGraphRef : RComponent<LiveGraphRefProps, LiveGraphRefState>() {
                         )
                         knownSeries.add(point.key)
                     }
-                    val series = chart.series.find { it.name == point.key }
-                    series?.addPoint(Point().apply { x = point.timestamp; y = point.value }, true)
+                    // We just added it, so should be safe to assume
+                    val series = chart.series.find { it.name == point.key }!!
+                    series.addPoint(Point().apply { x = point.timestamp; y = point.value }, true)
+                    console.log("series data size is now ", series.data.size)
+                    if (series.data.size > 10 && series.data.size < 20) {
+                        val xAxis = series.chart.xAxis[0]
+                        val max = Date(xAxis.max!!)
+                        val min = Date(xAxis.min!!)
+                        if (originalMin == 0) {
+                            originalMin = min.getTime()
+                        }
+                        console.log("current max and min: ", max, min)
+                        console.log("setting min to ", max.getSeconds() - 10)
+                        xAxis.setExtremes(max.getTime() - 10000, redraw = true)
+                    } else if (series.data.size == 20) {
+                        val xAxis = series.chart.xAxis[0]
+                        xAxis.setExtremes(originalMin)
+                    }
                     numDataPoints++
                 }
             } catch (c: CancellationException) {
