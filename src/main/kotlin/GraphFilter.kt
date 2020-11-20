@@ -36,7 +36,6 @@ class GraphFilter : RComponent<GraphFilterProps, GraphFilterState>() {
             try {
                 while (isActive) {
                     val data = props.channel.receive()
-                    console.log("graph filter ${props.name} got data")
                     state.graphedKeys.forEach { key ->
                         val value = getValue(data.data, key)
                         graphChannel.send(TimeSeriesPoint(data.timestamp, key, value))

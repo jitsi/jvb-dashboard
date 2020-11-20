@@ -5,10 +5,7 @@ import kotlinx.html.js.onChangeFunction
 import kotlinx.html.js.onClickFunction
 import org.w3c.dom.HTMLInputElement
 import react.*
-import react.dom.button
-import react.dom.h1
-import react.dom.input
-import react.dom.p
+import react.dom.*
 
 class App : RComponent<RProps, AppState>() {
     init {
@@ -23,7 +20,7 @@ class App : RComponent<RProps, AppState>() {
             input(type = InputType.text) {
                 attrs {
                     id = "jvb-url"
-                    placeholder = "127.0.0.1:4443"
+                    defaultValue = "127.0.0.1:4443"
                 }
             }
             button {

@@ -30,7 +30,6 @@ class Endpoint : RComponent<EpProps, EpState>() {
             try {
                 while (isActive) {
                     val epData = props.channel.receive()
-                    console.log("ep got data")
                     if (availableGraphs.isEmpty()) {
                         availableGraphs = getAllKeys(epData.data)
                         console.log("Got all keys: ", availableGraphs)
@@ -40,7 +39,6 @@ class Endpoint : RComponent<EpProps, EpState>() {
                     }
                     // Pass the epData down to all graphs
                     broadcastChannel.send(epData)
-                    console.log("ep broadcasted data")
                 }
             } catch (c: CancellationException) {
                 console.log("endpoint data send loop cancelled")

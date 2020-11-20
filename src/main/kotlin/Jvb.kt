@@ -41,9 +41,6 @@ class Jvb : RComponent<JvbProps, JvbState>() {
         p {
             +date.toUTCString()
         }
-        p {
-            +"conferences: ${keys(state.state.conferences)}"
-        }
         conferenceIds.forEach { confId ->
             child(Conference::class) {
                 key = confId
