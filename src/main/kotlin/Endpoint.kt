@@ -2,12 +2,18 @@ import graphs.LiveZoomAdjustment
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.css.padding
+import kotlinx.css.paddingLeft
+import kotlinx.css.paddingTop
+import kotlinx.css.pct
 import kotlinx.html.js.onClickFunction
 import react.*
 import react.dom.button
 import react.dom.div
 import react.dom.h3
 import react.dom.key
+import styled.css
+import styled.styledDiv
 
 class Endpoint : RComponent<EpProps, EpState>() {
     // The Endpoint broadcasts its received data onto this channel for all the graphs to receive
@@ -77,66 +83,76 @@ class Endpoint : RComponent<EpProps, EpState>() {
 
     override fun RBuilder.render() {
         console.log("endpoint ${props.id} rendering")
-        h3 {
-            if (!state.statsId.isNullOrEmpty()) {
-                +"Endoint ${props.id} (${state.statsId})   "
-            } else {
-                +"Endpoint ${props.id}   "
-            }
-            button {
-                attrs.text("Add graph")
-                attrs.onClickFunction = { _ ->
-                    addGraph()
+        div {
+            h3 {
+                if (!state.statsId.isNullOrEmpty()) {
+                    +"Endoint ${props.id} (${state.statsId})   "
+                } else {
+                    +"Endpoint ${props.id}   "
                 }
             }
-            button {
-                attrs {
-                    text("1 min")
-                    onClickFunction = {
-                        GlobalScope.launch {
-                            broadcastChannel.send(LiveZoomAdjustment(60))
-                        }
-                    }
-                }
-            }
-            button {
-                attrs {
-                    text("5 mins")
-                    onClickFunction = {
-                        GlobalScope.launch {
-                            broadcastChannel.send(LiveZoomAdjustment(300))
-                        }
-                    }
-                }
-            }
-            button {
-                attrs {
-                    text("All")
-                    onClickFunction = {
-                        GlobalScope.launch {
-                            broadcastChannel.send(LiveZoomAdjustment(Int.MAX_VALUE))
-                        }
-                    }
-                }
-            }
-        }
-        state.graphs.forEach { graph ->
-            console.log("rendering graph ${graph.id}")
             div {
-                key = graph.id.toString()
                 button {
-                    key = "remove-graph-${graph.id}"
-                    attrs.value = graph.id.toString()
-                    attrs.text("Remove graph")
+                    attrs.text("Add graph")
                     attrs.onClickFunction = { _ ->
-                        removeGraph(graph.id)
+                        addGraph()
                     }
                 }
-                child(GraphFilter::class) {
-                    key = "graph-filter-${graph.id}"
-                    attrs.name = "Graph ${graph.id}"
-                    attrs.allKeys = availableGraphs
-                    attrs.channel = graph.channel
+                button {
+                    attrs {
+                        text("1 min")
+                        onClickFunction = {
+                            GlobalScope.launch {
+                                broadcastChannel.send(LiveZoomAdjustment(60))
+                            }
+                        }
+                    }
+                }
+                button {
+                    attrs {
+                        text("5 mins")
+                        onClickFunction = {
+                            GlobalScope.launch {
+                                broadcastChannel.send(LiveZoomAdjustment(300))
+                            }
+                        }
+                    }
+                }
+                button {
+                    attrs {
+                        text("All")
+                        onClickFunction = {
+                            GlobalScope.launch {
+                                broadcastChannel.send(LiveZoomAdjustment(Int.MAX_VALUE))
+                            }
+                        }
+                    }
+                }
+            }
+            styledDiv {
+                css {
+                    paddingLeft = 2.pct
+                    paddingTop = 2.pct
+                }
+                state.graphs.forEach { graph ->
+                    console.log("rendering graph ${graph.id}")
+                    div {
+                        key = graph.id.toString()
+                        button {
+                            key = "remove-graph-${graph.id}"
+                            attrs.value = graph.id.toString()
+                            attrs.text("Remove graph")
+                            attrs.onClickFunction = { _ ->
+                                removeGraph(graph.id)
+                            }
+                        }
+                        child(GraphFilter::class) {
+                            key = "graph-filter-${graph.id}"
+                            attrs.name = "Graph ${graph.id}"
+                            attrs.allKeys = availableGraphs
+                            attrs.channel = graph.channel
+                        }
+                    }
                 }
             }
         }
