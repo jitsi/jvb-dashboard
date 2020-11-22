@@ -33,8 +33,10 @@ class Endpoint : RComponent<EpProps, EpState>() {
             while (isActive) {
                 val epData = props.channel.receive()
                 if (availableGraphs.isEmpty()) {
-                    availableGraphs = getAllKeys(epData.data)
-                    console.log("Got all keys: ", availableGraphs)
+                    availableGraphs = getAllKeys(epData.data).filter {
+                        jsTypeOf(getValue(epData.data, it)) === "number"
+                    }
+                    console.log("Got all (numerical) keys: ", availableGraphs)
                     setState {
                         allKeys = availableGraphs
                     }
