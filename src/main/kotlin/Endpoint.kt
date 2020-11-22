@@ -89,20 +89,30 @@ class Endpoint : RComponent<EpProps, EpState>() {
             }
             button {
                 attrs {
-                    text("5 secs")
+                    text("1 min")
                     onClickFunction = {
                         GlobalScope.launch {
-                            broadcastChannel.send(LiveZoomAdjustment(5))
+                            broadcastChannel.send(LiveZoomAdjustment(60))
                         }
                     }
                 }
             }
             button {
                 attrs {
-                    text("30 secs")
+                    text("5 mins")
                     onClickFunction = {
                         GlobalScope.launch {
-                            broadcastChannel.send(LiveZoomAdjustment(30))
+                            broadcastChannel.send(LiveZoomAdjustment(300))
+                        }
+                    }
+                }
+            }
+            button {
+                attrs {
+                    text("All")
+                    onClickFunction = {
+                        GlobalScope.launch {
+                            broadcastChannel.send(LiveZoomAdjustment(Int.MAX_VALUE))
                         }
                     }
                 }

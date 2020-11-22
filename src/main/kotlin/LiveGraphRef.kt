@@ -67,7 +67,7 @@ class LiveGraphRef : RComponent<LiveGraphRefProps, RState>() {
         // Zoom to any requested live window
         val windowStart = Date(series.xAxis.min!!)
         val now = Date()
-        // The minium displayed x value of the graph is either the now - the zoom window, or the oldest point, whichever
+        // The minimum displayed x value of the graph is either the now - the zoom window, or the oldest point, whichever
         // is newer
         val newMin = maxOf(now.getTime() - currentTimeZoomSeconds * 1000, series.data[0].x.toDouble())
         series.xAxis.setExtremes(newMin)
@@ -96,7 +96,7 @@ class LiveGraphRef : RComponent<LiveGraphRefProps, RState>() {
             is LiveZoomAdjustment -> {
                 log("updating time zoom to ${msg.numSeconds} seconds")
                 setState {
-                    currentTimeZoomSeconds = msg.numSeconds
+                    currentTimeZoomSeconds = minOf(msg.numSeconds, maxPoints)
                 }
             }
         }
