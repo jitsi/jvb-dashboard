@@ -14,5 +14,7 @@ external interface ReactSelectProps : RProps {
     var onChange: OnChangeCallback
     var isMulti: Boolean
     var components: Components
+    var filterOption: () -> FilterFunc
+    var onInputChange: () -> OnInputChangeFunc
 }
 

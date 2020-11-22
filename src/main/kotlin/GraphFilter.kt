@@ -12,6 +12,7 @@ import react.RProps
 import react.RState
 import react.dom.div
 import react.setState
+import reactselect.AsyncSelect
 import reactselect.Components
 import reactselect.Option
 import reactselect.Select
@@ -61,6 +62,19 @@ class GraphFilter : RComponent<GraphFilterProps, RState>() {
         }
     }
 
+    private fun onSelectedKeysChange(newKeys: Set<String>) {
+        // New graphs will be added automatically when data with a new key is seen
+        // by the graph, but we need to remove graphs explicitly
+        val removedKeys = graphedKeys.filterNot(newKeys::contains)
+        if (removedKeys.isNotEmpty()) {
+            console.log("these graphs were removed: ", removedKeys)
+            GlobalScope.launch {
+                graphChannel.send(RemoveSeries(removedKeys))
+            }
+        }
+        graphedKeys = newKeys
+    }
+
     override fun RBuilder.render() {
         console.log("graph filter ${props.name} rendering")
         val options = props.allKeys.map {
@@ -73,33 +87,20 @@ class GraphFilter : RComponent<GraphFilterProps, RState>() {
             css {
                 width = 50.pct
             }
-            Select {
-                attrs.options = options
-                attrs.onChange = { event ->
-                    // TODO: when a key is removed here, the old points still remain on
-                    // the graph: would be better to remove them completely
-                    val keys = event.unsafeCast<Array<dynamic>>().map { evt ->
-                        evt.value.unsafeCast<String>()
-                    }.toSet()
-                    // New graphs will be added automatically when data with a new key is seen
-                    // by the graph, but we need to remove graphs explicitly
-                    val removedKeys = graphedKeys.filterNot(keys::contains)
-                    if (removedKeys.isNotEmpty()) {
-                        console.log("these graphs were removed: ", removedKeys)
-                        GlobalScope.launch {
-                            graphChannel.send(RemoveSeries(removedKeys))
-                        }
+            AsyncSelect {
+                attrs {
+                    loadOptions = { inputValue, callback ->
+                        val filtered = options.filter { it.value!!.contains(inputValue, ignoreCase = true) }.take(10).toTypedArray()
+                        callback(filtered)
                     }
-                    graphedKeys = keys
+                    isMulti = true
+                    onChange = { event ->
+                        val keys = event.unsafeCast<Array<dynamic>>().map { evt ->
+                            evt.value.unsafeCast<String>()
+                        }.toSet()
+                        onSelectedKeysChange(keys)
+                    }
                 }
-                attrs.isMulti = true
-                // TODO: tried this to disable the dropdown, since it's big and laggy, but then
-                // it won't show any of the results (even after typing)
-//                attrs.components = Components().apply {
-//                    DropdownIndicator = { null }
-//                    IndicatorSeparator = { null }
-//                    Menu = { null }
-//                }
             }
             div {
                 child(LiveGraphRef::class) {

@@ -13,7 +13,7 @@ external interface Option {
 
 fun Option(): Option = js("{}")
 
-typealias ComponentFactory = () -> dynamic
+typealias ComponentFactory = (dynamic) -> dynamic
 
 external interface Components {
     var DropdownIndicator: ComponentFactory?
@@ -25,8 +25,15 @@ external interface Components {
     var Menu: ComponentFactory?
         get() = definedExternally
         set(value) = definedExternally
+    var MenuList: ComponentFactory?
+        get() = definedExternally
+        set(value) = definedExternally
 }
 
 fun Components(): Components = js("{}")
 
 typealias OnChangeCallback = (event: Event) -> Unit
+
+typealias FilterFunc = (dynamic, String) -> dynamic
+typealias OnInputChangeFunc = () -> Unit
+
