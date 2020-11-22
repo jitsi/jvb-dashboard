@@ -1,5 +1,6 @@
 import graphs.GraphControl
 import graphs.LiveZoomAdjustment
+import graphs.RemoveSeries
 import highcharts.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
@@ -22,10 +23,10 @@ class LiveGraphRef : RComponent<LiveGraphRefProps, RState>() {
         get() = myRef.asDynamic().chart.unsafeCast<Chart>()
 
     override fun componentWillUnmount() {
-        console.log("live graph ${props.info.title} cancelling graph coro ${props.info.title}")
+        log("cancelling graph coro")
         job?.cancel()
         props.channel.cancel()
-        console.log("live graph ${props.info.title} coro canceled")
+        log("coro canceled")
     }
 
     override fun shouldComponentUpdate(nextProps: LiveGraphRefProps, nextState: RState): Boolean {
@@ -82,21 +83,28 @@ class LiveGraphRef : RComponent<LiveGraphRefProps, RState>() {
                 }
             }
         } catch (c: CancellationException) {
-            console.log("live graph ${props.info.title} data receive loop cancelled")
+            log("data receive loop cancelled")
             throw c
         } catch (c: ClosedReceiveChannelException) {
-            console.log("live graph ${props.info.title} receive channel closed")
+            log("receive channel closed")
         } catch (t: Throwable) {
-            console.log("live graph ${props.info.title} loop error: ", t)
+            log("loop error: $t")
         }
     }
 
     private fun handleGraphControlMessage(msg: GraphControl) {
         when (msg) {
             is LiveZoomAdjustment -> {
-                log("updating time zoom to ${msg.numSeconds} seconds")
+                log("Updating time zoom to ${msg.numSeconds} seconds")
                 setState {
                     currentTimeZoomSeconds = minOf(msg.numSeconds, maxPoints)
+                }
+            }
+            is RemoveSeries -> {
+                log("Remove series ${msg.series}")
+                msg.series.forEach { seriesName ->
+                    val series = chart.series.find { it.name == seriesName} ?: return@forEach
+                    series.remove(redraw = true)
                 }
             }
         }

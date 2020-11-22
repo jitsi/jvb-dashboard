@@ -34,6 +34,7 @@ external class Series {
     fun addPoint(point: Point, redraw: Boolean = definedExternally, shift: Boolean = definedExternally)
     fun removePoint(i: Number, redraw: Boolean = definedExternally, animation: Boolean = definedExternally)
     fun setData(data: Array<dynamic /* Number? | String? | PointOptionsObject? | Array<dynamic /* Number? | String? */>? */>, redraw: Boolean = definedExternally, animation: Boolean = definedExternally, updatePoints: Boolean = definedExternally)
+    fun remove(redraw: Boolean = definedExternally, animation: Boolean = definedExternally, withEvent: Boolean = definedExternally)
 }
 
 external class Axis {
@@ -124,9 +125,9 @@ open external class Chart {
     var xAxis: Array<Axis>
         get() = definedExternally
         set(value) = definedExternally
+    open fun get(id: String): dynamic /* Axis? | Point? | Series? */
     open fun redraw(animation: Boolean = definedExternally)
     open fun addSeries(options: SeriesOptions, redraw: Boolean = definedExternally, animation: Boolean = definedExternally): Series
-    open fun zoomOut()
 }
 
 external class Highcharts {

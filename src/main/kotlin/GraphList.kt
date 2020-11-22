@@ -5,6 +5,8 @@ import react.RState
 
 data class GraphInfo(
     val title: String,
+    // TODO: change this to be an 'initial' set of graphs that we pass as props to
+    // livegraph.  We won't use this to update which graphs are shown
     val series: List<SeriesInfo>
 )
 

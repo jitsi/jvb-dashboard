@@ -1,4 +1,5 @@
 import graphs.GraphControl
+import graphs.RemoveSeries
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
@@ -10,18 +11,17 @@ import react.RComponent
 import react.RProps
 import react.RState
 import react.dom.div
+import react.setState
 import reactselect.Components
 import reactselect.Option
 import reactselect.Select
 import styled.css
 import styled.styledDiv
 
-class GraphFilter : RComponent<GraphFilterProps, GraphFilterState>() {
+class GraphFilter : RComponent<GraphFilterProps, RState>() {
     private var graphChannel = Channel<Any>()
     private var job: Job? = null
-    init {
-        state.graphedKeys = setOf()
-    }
+    private var graphedKeys: Set<String> = setOf()
 
     override fun componentWillUnmount() {
         console.log("graph filter ${props.name} unmounted")
@@ -35,7 +35,7 @@ class GraphFilter : RComponent<GraphFilterProps, GraphFilterState>() {
             while (isActive) {
                 when (val msg = props.channel.receive()) {
                     is EndpointData -> {
-                        state.graphedKeys.forEach { key ->
+                        graphedKeys.forEach { key ->
                             val value = getValue(msg.data, key)
                             graphChannel.send(NewDataMsg(TimeSeriesPoint(msg.timestamp, key, value)))
                         }
@@ -81,7 +81,16 @@ class GraphFilter : RComponent<GraphFilterProps, GraphFilterState>() {
                     val keys = event.unsafeCast<Array<dynamic>>().map { evt ->
                         evt.value.unsafeCast<String>()
                     }.toSet()
-                    state.graphedKeys = keys
+                    // New graphs will be added automatically when data with a new key is seen
+                    // by the graph, but we need to remove graphs explicitly
+                    val removedKeys = graphedKeys.filterNot(keys::contains)
+                    if (removedKeys.isNotEmpty()) {
+                        console.log("these graphs were removed: ", removedKeys)
+                        GlobalScope.launch {
+                            graphChannel.send(RemoveSeries(removedKeys))
+                        }
+                    }
+                    graphedKeys = keys
                 }
                 attrs.isMulti = true
                 // TODO: tried this to disable the dropdown, since it's big and laggy, but then
@@ -95,15 +104,11 @@ class GraphFilter : RComponent<GraphFilterProps, GraphFilterState>() {
             div {
                 child(LiveGraphRef::class) {
                     attrs.channel = graphChannel
-                    attrs.info = GraphInfo(props.name, state.graphedKeys.map { SeriesInfo(it) })
+                    attrs.info = GraphInfo(props.name, listOf())
                 }
             }
         }
     }
-}
-
-external interface GraphFilterState : RState {
-    var graphedKeys: Set<String>
 }
 
 external interface GraphFilterProps : RProps {
