@@ -65,12 +65,13 @@ class LiveGraphRef : RComponent<LiveGraphRefProps, RState>() {
         while (series.data.size > maxPoints) {
             series.removePoint(0)
         }
-        // Zoom to any requested live window
-        val windowStart = Date(series.xAxis.min!!)
         val now = Date()
+        val currMin = chart.series.map { it.data.getOrNull(0)?.x?.toDouble() }.min() ?: return
+
         // The minimum displayed x value of the graph is either the now - the zoom window, or the oldest point, whichever
         // is newer
-        val newMin = maxOf(now.getTime() - currentTimeZoomSeconds * 1000, series.data[0].x.toDouble())
+//        val newMin = maxOf(now.getTime() - currentTimeZoomSeconds * 1000, series.data[0].x.toDouble())
+        val newMin = maxOf(now.getTime() - currentTimeZoomSeconds * 1000, currMin)
         series.xAxis.setExtremes(newMin)
     }
 
@@ -96,9 +97,7 @@ class LiveGraphRef : RComponent<LiveGraphRefProps, RState>() {
         when (msg) {
             is LiveZoomAdjustment -> {
                 log("Updating time zoom to ${msg.numSeconds} seconds")
-                setState {
-                    currentTimeZoomSeconds = minOf(msg.numSeconds, maxPoints)
-                }
+                currentTimeZoomSeconds = minOf(msg.numSeconds, maxPoints)
             }
             is RemoveSeries -> {
                 log("Remove series ${msg.series}")
@@ -152,3 +151,19 @@ external interface LiveGraphRefProps : RProps {
 
 // Pass a new TimeSeriesPoint to be rendered on the graph
 data class NewDataMsg(val timeSeriesPoint: TimeSeriesPoint)
+
+// TODO: i think I could do this with a reduce instead?  Would that be better?
+private fun List<Double?>.min(): Double? {
+    if (isEmpty()) {
+        return null
+    }
+    var min: Double? = null
+    for (item in this) {
+        when {
+            item == null -> continue
+            min == null -> min = item
+            item < min -> min = item
+        }
+    }
+    return min
+}
