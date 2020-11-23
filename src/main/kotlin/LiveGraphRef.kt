@@ -162,6 +162,12 @@ external interface LiveGraphRefProps : RProps {
     var channel: ReceiveChannel<Any>
 }
 
+data class TimeSeriesPoint(
+    val timestamp: Number,
+    val key: String,
+    val value: Number
+)
+
 // Pass a new TimeSeriesPoint to be rendered on the graph
 data class NewDataMsg(val timeSeriesPoint: TimeSeriesPoint)
 
