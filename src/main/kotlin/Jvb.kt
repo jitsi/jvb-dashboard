@@ -1,31 +1,36 @@
 import kotlinx.browser.window
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.await
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import react.*
+import react.dom.div
 import react.dom.p
 import kotlin.js.Date
 
 class Jvb : RComponent<JvbProps, JvbState>() {
-    init {
-        GlobalScope.launch {
-            while (true) {
-                try {
-                    val jvbData = fetchData()
-                    setState {
-                        state = jvbData
-                        error = null
-                    }
-                } catch (t: Throwable) {
-                    // TODO: add a maximum number of retries?
-                    setState {
-                        error = "Error retrieving JVB data: ${t.message}"
-                    }
+    private suspend fun CoroutineScope.fetchDataLoop() {
+        while (isActive) {
+            try {
+                val jvbData = fetchData()
+                setState {
+                    state = jvbData
+                    error = null
                 }
-                delay(1000)
+            } catch (t: Throwable) {
+                // TODO: add a maximum number of retries?
+                setState {
+                    error = "Error retrieving JVB data: ${t.message}"
+                }
             }
+            delay(props.updateIntervalMs ?: 1000)
         }
+    }
+
+    override fun componentDidMount() {
+        GlobalScope.launch { fetchDataLoop() }
     }
 
     override fun RBuilder.render() {
@@ -83,5 +88,6 @@ external interface JvbState : RState {
 
 external interface JvbProps : RProps {
     var url: String
+    var updateIntervalMs: Long?
 }
 
