@@ -58,6 +58,22 @@ class LiveGraphRef : RComponent<LiveGraphRefProps, RState>() {
         }
     }
 
+    /**
+     * Update the zoom level on the graph based on the available data and [currentTimeZoomSeconds].
+     */
+    private fun updateZoom() {
+        val now = Date()
+        // Finding nothing here means we don't have any data yet, so there's nothing to do
+        val currMin = chart.series.map { it.data.getOrNull(0)?.x?.toDouble() }.min() ?: return
+
+        // The minimum displayed x value of the graph is either the now - the zoom window, or the oldest point,
+        // whichever is newer
+        val newMin = maxOf(now.getTime() - currentTimeZoomSeconds * 1000, currMin)
+
+        chart.xAxis.forEach { it.setExtremes(newMin) }
+        chart.redraw()
+    }
+
     private fun addPoint(point: TimeSeriesPoint) {
         val series = getOrCreateSeries(chart, point.key)
         series.addPoint(Point(point.timestamp, point.value))
@@ -65,14 +81,7 @@ class LiveGraphRef : RComponent<LiveGraphRefProps, RState>() {
         while (series.data.size > maxPoints) {
             series.removePoint(0)
         }
-        val now = Date()
-        val currMin = chart.series.map { it.data.getOrNull(0)?.x?.toDouble() }.min() ?: return
-
-        // The minimum displayed x value of the graph is either the now - the zoom window, or the oldest point, whichever
-        // is newer
-//        val newMin = maxOf(now.getTime() - currentTimeZoomSeconds * 1000, series.data[0].x.toDouble())
-        val newMin = maxOf(now.getTime() - currentTimeZoomSeconds * 1000, currMin)
-        series.xAxis.setExtremes(newMin)
+        updateZoom()
     }
 
     private suspend fun CoroutineScope.handleMessages() {
@@ -98,11 +107,12 @@ class LiveGraphRef : RComponent<LiveGraphRefProps, RState>() {
             is LiveZoomAdjustment -> {
                 log("Updating time zoom to ${msg.numSeconds} seconds")
                 currentTimeZoomSeconds = minOf(msg.numSeconds, maxPoints)
+                updateZoom()
             }
             is RemoveSeries -> {
                 log("Remove series ${msg.series}")
                 msg.series.forEach { seriesName ->
-                    val series = chart.series.find { it.name == seriesName} ?: return@forEach
+                    val series = chart.series.find { it.name == seriesName } ?: return@forEach
                     series.remove(redraw = true)
                 }
             }
