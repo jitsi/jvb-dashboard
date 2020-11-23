@@ -90,7 +90,9 @@ class GraphFilter : RComponent<GraphFilterProps, RState>() {
             AsyncSelect {
                 attrs {
                     loadOptions = { inputValue, callback ->
-                        val filtered = options.filter { it.value!!.contains(inputValue, ignoreCase = true) }.take(10).toTypedArray()
+                        val filtered = options
+                            .filter { it.value!!.contains(inputValue, ignoreCase = true) }
+                            .take(50).toTypedArray()
                         callback(filtered)
                     }
                     isMulti = true
