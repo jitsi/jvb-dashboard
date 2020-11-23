@@ -137,9 +137,12 @@ class LiveGraphRef : RComponent<LiveGraphRefProps, RState>() {
             title = Title(props.info.title)
             series = seriesOptions
             xAxis = XAxis("datetime")
-            chart = ChartOptions().apply {
-                zoomType = "x"
-            }
+            // TODO: zoom doesn't work right now because of our manual 'live' zoom, so disable this for now.
+            // We'll need to be able to detect this method of zoom and, if it's active, disable our updating
+            // of setExtremes.
+//            chart = ChartOptions().apply {
+//                zoomType = "x"
+//            }
         }
         div {
             HighchartsReact {
