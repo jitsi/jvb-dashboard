@@ -53,6 +53,14 @@ class Jvb : RComponent<JvbProps, JvbState>() {
                 }
             }
         }
+        div {
+            child(FeatureToggle::class) {
+                attrs {
+                    featureName = "Pool Stats"
+                    url = "${props.url}/features/pool-stats"
+                }
+            }
+        }
         conferenceIds.forEach { confId ->
             child(Conference::class) {
                 key = confId
