@@ -110,8 +110,10 @@ class GraphFilter : RComponent<GraphFilterProps, RState>() {
             }
             div {
                 child(LiveGraphRef::class) {
-                    attrs.channel = graphChannel
-                    attrs.info = GraphInfo(props.name, listOf())
+                    attrs {
+                        graphTitle = this@GraphFilter.props.name
+                        channel = graphChannel
+                    }
                 }
             }
         }

@@ -34,7 +34,7 @@ class LiveGraphRef : RComponent<LiveGraphRefProps, RState>() {
     }
 
     private fun log(msg: String) {
-        console.log("graph ${props.info.title}: $msg")
+        console.log("graph ${props.graphTitle}: $msg")
     }
 
     /**
@@ -126,16 +126,8 @@ class LiveGraphRef : RComponent<LiveGraphRefProps, RState>() {
     }
 
     override fun RBuilder.render() {
-        val seriesOptions = props.info.series.map { seriesInfo ->
-            SeriesOptions(
-                type = "spline",
-                name = seriesInfo.name,
-                data = arrayOf()
-            )
-        }.toTypedArray()
         val chartOpts = Options().apply {
-            title = Title(props.info.title)
-            series = seriesOptions
+            title = Title(props.graphTitle)
             xAxis = XAxis("datetime")
             // TODO: zoom doesn't work right now because of our manual 'live' zoom, so disable this for now.
             // We'll need to be able to detect this method of zoom and, if it's active, disable our updating
@@ -158,7 +150,8 @@ class LiveGraphRef : RComponent<LiveGraphRefProps, RState>() {
 }
 
 external interface LiveGraphRefProps : RProps {
-    var info: GraphInfo
+    var graphTitle: String
+    // TODO: add support for a set of 'intial graphs' to support presets
     var channel: ReceiveChannel<Any>
 }
 
