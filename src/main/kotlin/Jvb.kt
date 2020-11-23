@@ -41,6 +41,13 @@ class Jvb : RComponent<JvbProps, JvbState>() {
         p {
             +date.toUTCString()
         }
+        div {
+            child(JvbStressStatusBadge::class) {
+                attrs {
+                    value = state.state["load-management"].stress.unsafeCast<Double>()
+                }
+            }
+        }
         conferenceIds.forEach { confId ->
             child(Conference::class) {
                 key = confId
