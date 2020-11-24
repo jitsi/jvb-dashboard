@@ -7,13 +7,8 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.css.BorderStyle
 import kotlinx.css.Display
-import kotlinx.css.border
-import kotlinx.css.borderStyle
 import kotlinx.css.display
-import kotlinx.css.px
-import kotlinx.css.width
 import kotlinx.html.js.onClickFunction
 import org.w3c.xhr.XMLHttpRequest
 import react.RBuilder
@@ -21,7 +16,6 @@ import react.RComponent
 import react.RProps
 import react.RState
 import react.dom.button
-import react.dom.div
 import react.dom.p
 import react.setState
 import styled.css

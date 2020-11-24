@@ -5,9 +5,13 @@ import kotlinx.coroutines.await
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import react.*
+import react.RBuilder
+import react.RComponent
+import react.RProps
+import react.RState
 import react.dom.div
 import react.dom.p
+import react.setState
 import kotlin.js.Date
 
 class Jvb : RComponent<JvbProps, JvbState>() {

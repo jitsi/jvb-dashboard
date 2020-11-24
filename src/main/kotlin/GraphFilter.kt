@@ -1,8 +1,13 @@
 import graphs.LiveGraphControlMsg
 import graphs.RemoveSeries
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.css.pct
 import kotlinx.css.width
 import react.RBuilder

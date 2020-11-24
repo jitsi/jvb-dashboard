@@ -1,13 +1,20 @@
 import kotlinx.browser.window
-import kotlinx.coroutines.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.await
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.css.paddingLeft
 import kotlinx.css.pct
 import kotlinx.html.js.onClickFunction
-import react.*
+import react.RBuilder
+import react.RComponent
+import react.RProps
+import react.RState
 import react.dom.div
 import react.dom.h2
 import react.dom.p
+import react.setState
 import styled.css
 import styled.styledDiv
 

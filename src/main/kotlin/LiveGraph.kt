@@ -1,11 +1,28 @@
 import graphs.LiveGraphControlMsg
 import graphs.LiveZoomAdjustment
 import graphs.RemoveSeries
-import highcharts.*
-import kotlinx.coroutines.*
+import highcharts.Chart
+import highcharts.HighchartsReact
+import highcharts.Options
+import highcharts.Point
+import highcharts.Series
+import highcharts.SeriesOptions
+import highcharts.Title
+import highcharts.XAxis
+import highcharts.highcharts
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.channels.ReceiveChannel
-import react.*
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import react.RBuilder
+import react.RComponent
+import react.RProps
+import react.RState
+import react.ReactElement
 import react.dom.div
 import kotlin.js.Date
 
@@ -142,7 +159,7 @@ class LiveGraph : RComponent<LiveGraphProps, RState>() {
                 attrs.options = chartOpts
                 attrs.allowChartUpdate = true
                 ref {
-                    myRef = it
+                    myRef = it.unsafeCast<ReactElement>()
                 }
             }
         }
@@ -151,7 +168,7 @@ class LiveGraph : RComponent<LiveGraphProps, RState>() {
 
 external interface LiveGraphProps : RProps {
     var graphTitle: String
-    // TODO: add support for a set of 'intial graphs' to support presets
+    // TODO: add support for a set of 'initial graphs' to support presets
     var channel: ReceiveChannel<Any>
 }
 
