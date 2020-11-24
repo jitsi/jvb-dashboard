@@ -37,6 +37,10 @@ class Endpoint : RComponent<EpProps, EpState>() {
         state.statsId = null
     }
 
+    override fun componentDidMount() {
+        job = GlobalScope.launch { handleMessages() }
+    }
+
     override fun componentWillUnmount() {
         job?.cancel("Unmounting")
         broadcastChannel.close()
@@ -50,7 +54,7 @@ class Endpoint : RComponent<EpProps, EpState>() {
                     availableGraphs = getAllKeys(epData.data).filter { key ->
                         isNumber(getValue(epData.data, key))
                     }
-                    console.log("Got all (numerical) keys: ", availableGraphs)
+                    console.log("Endpoint ${props.id}: Got all (numerical) keys: ", availableGraphs)
                     setState {
                         allKeys = availableGraphs
                     }
@@ -71,10 +75,6 @@ class Endpoint : RComponent<EpProps, EpState>() {
         }
     }
 
-    override fun componentDidMount() {
-        job = GlobalScope.launch { handleMessages() }
-    }
-
     private fun addGraph() {
         val newGraph = Graph(nextGraphId++, broadcastChannel.openSubscription())
         setState {
@@ -84,12 +84,12 @@ class Endpoint : RComponent<EpProps, EpState>() {
 
     private fun removeGraph(graphId: Int) {
         setState {
-            graphs = graphs.filter { it.id != graphId }
+            graphs = graphs.filterNot { it.id == graphId }
         }
     }
 
     override fun RBuilder.render() {
-        console.log("endpoint ${props.id} rendering")
+        console.log("Endpoint ${props.id}: rendering")
         div {
             h3 {
                 if (!state.statsId.isNullOrEmpty()) {
