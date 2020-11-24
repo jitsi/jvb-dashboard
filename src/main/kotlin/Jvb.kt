@@ -1,7 +1,9 @@
 import kotlinx.browser.window
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.await
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -15,26 +17,14 @@ import react.setState
 import kotlin.js.Date
 
 class Jvb : RComponent<JvbProps, JvbState>() {
-    private suspend fun CoroutineScope.fetchDataLoop() {
-        while (isActive) {
-            try {
-                val jvbData = fetchData()
-                setState {
-                    state = jvbData
-                    error = null
-                }
-            } catch (t: Throwable) {
-                // TODO: add a maximum number of retries?
-                setState {
-                    error = "Error retrieving JVB data: ${t.message}"
-                }
-            }
-            delay(props.updateIntervalMs ?: 1000)
-        }
-    }
+    private var job: Job? = null
 
     override fun componentDidMount() {
-        GlobalScope.launch { fetchDataLoop() }
+        job = GlobalScope.launch { fetchDataLoop() }
+    }
+
+    override fun componentWillUnmount() {
+        job?.cancel("Unmounting")
     }
 
     override fun RBuilder.render() {
@@ -84,12 +74,26 @@ class Jvb : RComponent<JvbProps, JvbState>() {
             return keys(state.state.conferences)
         }
 
-    private suspend fun fetchData(): dynamic {
-        return window.fetch(props.url)
-            .await()
-            .json()
-            .await()
-            .asDynamic()
+    private suspend fun CoroutineScope.fetchDataLoop() {
+        while (isActive) {
+            try {
+                val jvbData = window.fetch(props.url)
+                    .await()
+                    .json()
+                    .await()
+                    .asDynamic()
+                setState {
+                    state = jvbData
+                    error = null
+                }
+            } catch (t: Throwable) {
+                // TODO: add a maximum number of retries?
+                setState {
+                    error = "Error retrieving JVB data: ${t.message}"
+                }
+            }
+            delay(props.updateIntervalMs ?: 1000)
+        }
     }
 }
 
