@@ -15,6 +15,10 @@ import reactselect.Option
 import styled.css
 import styled.styledDiv
 
+/**
+ * Wraps a [LiveGraph] and presents all possible keys in a dropdown, notifying the
+ * [LiveGraph] which series to render.
+ */
 class GraphFilter : RComponent<GraphFilterProps, RState>() {
     private var graphChannel = Channel<Any>()
     private var job: Job? = null
@@ -102,7 +106,7 @@ class GraphFilter : RComponent<GraphFilterProps, RState>() {
                 }
             }
             div {
-                child(LiveGraphRef::class) {
+                child(LiveGraph::class) {
                     attrs {
                         graphTitle = this@GraphFilter.props.name
                         channel = graphChannel

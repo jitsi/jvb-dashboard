@@ -9,7 +9,7 @@ import react.*
 import react.dom.div
 import kotlin.js.Date
 
-class LiveGraphRef : RComponent<LiveGraphRefProps, RState>() {
+class LiveGraph : RComponent<LiveGraphProps, RState>() {
     private var knownSeries = mutableSetOf<String>()
     private var job: Job? = null
     private var myRef: ReactElement? = null
@@ -29,7 +29,7 @@ class LiveGraphRef : RComponent<LiveGraphRefProps, RState>() {
         log("coro canceled")
     }
 
-    override fun shouldComponentUpdate(nextProps: LiveGraphRefProps, nextState: RState): Boolean {
+    override fun shouldComponentUpdate(nextProps: LiveGraphProps, nextState: RState): Boolean {
         return false
     }
 
@@ -149,7 +149,7 @@ class LiveGraphRef : RComponent<LiveGraphRefProps, RState>() {
     }
 }
 
-external interface LiveGraphRefProps : RProps {
+external interface LiveGraphProps : RProps {
     var graphTitle: String
     // TODO: add support for a set of 'intial graphs' to support presets
     var channel: ReceiveChannel<Any>
