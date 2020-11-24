@@ -40,6 +40,11 @@ fun getValue(obj: dynamic, path: String): dynamic {
     return getValue(obj[paths.first()], paths.drop(1).joinToString("."))
 }
 
+@Suppress("UnsafeCastFromDynamic")
+fun isNumber(obj: dynamic): Boolean {
+    return jsTypeOf(obj) === "number"
+}
+
 inline fun jsObject(init: dynamic.() -> Unit): dynamic {
     val o = js("{}")
     init(o)

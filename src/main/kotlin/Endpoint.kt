@@ -3,6 +3,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.isActive
@@ -37,7 +38,7 @@ class Endpoint : RComponent<EpProps, EpState>() {
     }
 
     override fun componentWillUnmount() {
-        job?.cancel()
+        job?.cancel("Unmounting")
         broadcastChannel.close()
     }
 
@@ -46,8 +47,8 @@ class Endpoint : RComponent<EpProps, EpState>() {
             while (isActive) {
                 val epData = props.channel.receive()
                 if (availableGraphs.isEmpty()) {
-                    availableGraphs = getAllKeys(epData.data).filter {
-                        jsTypeOf(getValue(epData.data, it)) === "number"
+                    availableGraphs = getAllKeys(epData.data).filter { key ->
+                        isNumber(getValue(epData.data, key))
                     }
                     console.log("Got all (numerical) keys: ", availableGraphs)
                     setState {
@@ -63,7 +64,7 @@ class Endpoint : RComponent<EpProps, EpState>() {
                 broadcastChannel.send(epData)
             }
         } catch (c: CancellationException) {
-            console.log("endpoint data send loop cancelled")
+            console.log("endpoint data send loop cancelled: ${c.message}")
             throw c
         } catch (t: Throwable) {
             console.log("endpoint data send loop error: ", t)
