@@ -1,8 +1,7 @@
-import graphs.GraphControl
+import graphs.LiveGraphControlMsg
 import graphs.RemoveSeries
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.css.pct
 import kotlinx.css.width
@@ -11,11 +10,8 @@ import react.RComponent
 import react.RProps
 import react.RState
 import react.dom.div
-import react.setState
 import reactselect.AsyncSelect
-import reactselect.Components
 import reactselect.Option
-import reactselect.Select
 import styled.css
 import styled.styledDiv
 
@@ -37,11 +33,11 @@ class GraphFilter : RComponent<GraphFilterProps, RState>() {
                 when (val msg = props.channel.receive()) {
                     is EndpointData -> {
                         graphedKeys.forEach { key ->
-                            val value = getValue(msg.data, key)
+                            val value = getValue(msg.data, key).unsafeCast<Number>()
                             graphChannel.send(NewDataMsg(TimeSeriesPoint(msg.timestamp, key, value)))
                         }
                     }
-                    is GraphControl -> {
+                    is LiveGraphControlMsg -> {
                         graphChannel.send(msg)
                     }
                 }
@@ -67,7 +63,6 @@ class GraphFilter : RComponent<GraphFilterProps, RState>() {
         // by the graph, but we need to remove graphs explicitly
         val removedKeys = graphedKeys.filterNot(newKeys::contains)
         if (removedKeys.isNotEmpty()) {
-            console.log("these graphs were removed: ", removedKeys)
             GlobalScope.launch {
                 graphChannel.send(RemoveSeries(removedKeys))
             }
@@ -77,12 +72,7 @@ class GraphFilter : RComponent<GraphFilterProps, RState>() {
 
     override fun RBuilder.render() {
         console.log("graph filter ${props.name} rendering")
-        val options = props.allKeys.map {
-            Option().apply {
-                value = it
-                label = it
-            }
-        }.toTypedArray()
+        val allOptions = props.allKeys.map { Option(it) }.toTypedArray()
         styledDiv {
             css {
                 width = 50.pct
@@ -90,13 +80,16 @@ class GraphFilter : RComponent<GraphFilterProps, RState>() {
             AsyncSelect {
                 attrs {
                     loadOptions = { inputValue, callback ->
+                        // Since we don't show all keys by default, show them all if the user
+                        // searches for "*"
                         if (inputValue == "*") {
-                            callback(options)
+                            callback(allOptions)
                         } else {
-                            val filtered = options
+                            val filteredOptions = allOptions
                                 .filter { it.value!!.contains(inputValue, ignoreCase = true) }
-                                .take(50).toTypedArray()
-                            callback(filtered)
+                                .take(50)
+                                .toTypedArray()
+                            callback(filteredOptions)
                         }
                     }
                     isMulti = true

@@ -1,4 +1,4 @@
-import graphs.GraphControl
+import graphs.LiveGraphControlMsg
 import graphs.LiveZoomAdjustment
 import graphs.RemoveSeries
 import highcharts.*
@@ -89,7 +89,7 @@ class LiveGraphRef : RComponent<LiveGraphRefProps, RState>() {
             while (isActive) {
                 when (val msg = props.channel.receive()) {
                     is NewDataMsg -> addPoint(msg.timeSeriesPoint)
-                    is GraphControl -> handleGraphControlMessage(msg)
+                    is LiveGraphControlMsg -> handleGraphControlMessage(msg)
                 }
             }
         } catch (c: CancellationException) {
@@ -102,7 +102,7 @@ class LiveGraphRef : RComponent<LiveGraphRefProps, RState>() {
         }
     }
 
-    private fun handleGraphControlMessage(msg: GraphControl) {
+    private fun handleGraphControlMessage(msg: LiveGraphControlMsg) {
         when (msg) {
             is LiveZoomAdjustment -> {
                 log("Updating time zoom to ${msg.numSeconds} seconds")

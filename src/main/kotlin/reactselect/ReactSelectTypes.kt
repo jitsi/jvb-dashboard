@@ -11,7 +11,11 @@ external interface Option {
         set(value) = definedExternally
 }
 
-fun Option(): Option = js("{}")
+fun Option(value: String? = null, label: String? = null): Option =
+    js("{}").unsafeCast<Option>().also { opt ->
+        value?.let { opt.value = it }
+        label?.let { opt.label = it } ?: value?.let { opt.label = it }
+    }
 
 typealias ComponentFactory = (dynamic) -> dynamic
 
