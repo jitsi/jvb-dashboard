@@ -13,4 +13,4 @@ them locally is to run `python -m SimpleHTTPServer` in the `/build/distributions
 * The JVB's REST API is usually not publicly accessible, so the easiest way to have the UI connect to it is to create an
 SSH tunnel, and then have the UI connect to the local port of the tunnel.  For example, run:
 `ssh -L4443:localhost:8080 <jvb-ip>` and then tell the jvb-dashboard UI to connect to `http://127.0.0.1:4443`.
-* There is currently a CORS issue with accessing the JVB REST API in this way.  You can use [this chrome extension](https://chrome.google.com/webstore/detail/allow-cors-access-control/lhobafahddgcelffkeicbaginigeejlf) to work around this problem.
+* ~There is currently a CORS issue with accessing the JVB REST API in this way.  You can use [this chrome extension](https://chrome.google.com/webstore/detail/allow-cors-access-control/lhobafahddgcelffkeicbaginigeejlf) to work around this problem.~ No longer an issue for JVB versions >= `2.1-411-g9754898e`
