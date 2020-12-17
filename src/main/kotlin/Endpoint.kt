@@ -105,32 +105,34 @@ class Endpoint : RComponent<EpProps, EpState>() {
                         addGraph()
                     }
                 }
-                button {
-                    attrs {
-                        text("1 min")
-                        onClickFunction = {
-                            GlobalScope.launch {
-                                broadcastChannel.send(LiveZoomAdjustment(60))
+                if (state.graphs.isNotEmpty()) {
+                    button {
+                        attrs {
+                            text("1 min")
+                            onClickFunction = {
+                                GlobalScope.launch {
+                                    broadcastChannel.send(LiveZoomAdjustment(60))
+                                }
                             }
                         }
                     }
-                }
-                button {
-                    attrs {
-                        text("5 mins")
-                        onClickFunction = {
-                            GlobalScope.launch {
-                                broadcastChannel.send(LiveZoomAdjustment(300))
+                    button {
+                        attrs {
+                            text("5 mins")
+                            onClickFunction = {
+                                GlobalScope.launch {
+                                    broadcastChannel.send(LiveZoomAdjustment(300))
+                                }
                             }
                         }
                     }
-                }
-                button {
-                    attrs {
-                        text("All")
-                        onClickFunction = {
-                            GlobalScope.launch {
-                                broadcastChannel.send(LiveZoomAdjustment(Int.MAX_VALUE))
+                    button {
+                        attrs {
+                            text("All")
+                            onClickFunction = {
+                                GlobalScope.launch {
+                                    broadcastChannel.send(LiveZoomAdjustment(Int.MAX_VALUE))
+                                }
                             }
                         }
                     }
