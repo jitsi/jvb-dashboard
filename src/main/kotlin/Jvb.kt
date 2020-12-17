@@ -7,6 +7,9 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import org.w3c.fetch.CORS
+import org.w3c.fetch.RequestInit
+import org.w3c.fetch.RequestMode
 import react.RBuilder
 import react.RComponent
 import react.RProps
@@ -51,7 +54,31 @@ class Jvb : RComponent<JvbProps, JvbState>() {
             child(FeatureToggle::class) {
                 attrs {
                     featureName = "Pool Stats"
-                    url = "${props.url}/features/pool-stats"
+                    url = "${props.url}/features/jvb/pool-stats"
+                }
+            }
+            child(FeatureToggle::class) {
+                attrs {
+                    featureName = "Queue Stats"
+                    url = "${props.url}/features/jvb/queue-stats"
+                }
+            }
+            child(FeatureToggle::class) {
+                attrs {
+                    featureName = "Payload verification"
+                    url = "${props.url}/features/jvb/payload-verification"
+                }
+            }
+            child(FeatureToggle::class) {
+                attrs {
+                    featureName = "Node stats"
+                    url = "${props.url}/features/jvb/node-stats"
+                }
+            }
+            child(FeatureToggle::class) {
+                attrs {
+                    featureName = "Node tracing"
+                    url = "${props.url}/features/jvb/node-tracing"
                 }
             }
         }
@@ -77,7 +104,7 @@ class Jvb : RComponent<JvbProps, JvbState>() {
     private suspend fun CoroutineScope.fetchDataLoop() {
         while (isActive) {
             try {
-                val jvbData = window.fetch(props.url)
+                val jvbData = window.fetch(props.url, RequestInit(mode = RequestMode.CORS))
                     .await()
                     .json()
                     .await()
