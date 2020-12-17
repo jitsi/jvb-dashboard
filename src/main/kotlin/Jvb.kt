@@ -15,6 +15,7 @@ import react.RComponent
 import react.RProps
 import react.RState
 import react.dom.div
+import react.dom.hr
 import react.dom.p
 import react.setState
 import kotlin.js.Date
@@ -82,6 +83,7 @@ class Jvb : RComponent<JvbProps, JvbState>() {
                 }
             }
         }
+        hr {}
         conferenceIds.forEach { confId ->
             child(Conference::class) {
                 key = confId
