@@ -1,11 +1,18 @@
 import kotlinx.browser.document
 import kotlinx.html.InputType
 import kotlinx.html.id
-import kotlinx.html.js.onChangeFunction
 import kotlinx.html.js.onClickFunction
 import org.w3c.dom.HTMLInputElement
-import react.*
-import react.dom.*
+import react.RBuilder
+import react.RComponent
+import react.RProps
+import react.RState
+import react.dom.button
+import react.dom.defaultValue
+import react.dom.h1
+import react.dom.input
+import react.dom.p
+import react.setState
 
 class App : RComponent<RProps, AppState>() {
     init {

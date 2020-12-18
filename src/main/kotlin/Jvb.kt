@@ -36,7 +36,7 @@ class Jvb : RComponent<JvbProps, JvbState>() {
             +state.error!!
             return
         }
-        if (!state.state) {
+        if (!hasData()) {
             +"No data received yet"
             return
         }
@@ -97,11 +97,13 @@ class Jvb : RComponent<JvbProps, JvbState>() {
 
     private val conferenceIds: Array<String>
         get() {
-            if (!state.state) {
+            if (!hasData()) {
                 return arrayOf()
             }
             return keys(state.state.conferences)
         }
+
+    private fun hasData(): Boolean = state.state != undefined
 
     private suspend fun CoroutineScope.fetchDataLoop() {
         while (isActive) {

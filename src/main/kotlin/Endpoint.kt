@@ -93,7 +93,7 @@ class Endpoint : RComponent<EpProps, EpState>() {
         div {
             h3 {
                 if (!state.statsId.isNullOrEmpty()) {
-                    +"Endoint ${props.id} (${state.statsId})   "
+                    +"Endpoint ${props.id} (${state.statsId})   "
                 } else {
                     +"Endpoint ${props.id}   "
                 }
