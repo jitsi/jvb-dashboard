@@ -4,7 +4,11 @@ import graphs.RemoveSeries
 import highcharts.Chart
 import highcharts.HighchartsReact
 import highcharts.Options
+import highcharts.PlotLineOptions
+import highcharts.PlotOptions
+import highcharts.PlotSeriesOptions
 import highcharts.Point
+import highcharts.PointMarkerOptionsObject
 import highcharts.Series
 import highcharts.SeriesOptions
 import highcharts.Title
@@ -31,7 +35,7 @@ class LiveGraph : RComponent<LiveGraphProps, RState>() {
     private var job: Job? = null
     private var myRef: ReactElement? = null
     // The maximum amount of datapoints we'll track in the graph (one hour's worth)
-    private var maxPoints: Int = 60 * 60
+    private val maxPoints: Int = 60 * 60
 
     // How many seconds worth of live data we're currently displaying
     private var currentTimeZoomSeconds: Int = maxPoints
@@ -88,7 +92,6 @@ class LiveGraph : RComponent<LiveGraphProps, RState>() {
         val newMin = maxOf(now.getTime() - currentTimeZoomSeconds * 1000, currMin)
 
         chart.xAxis.forEach { it.setExtremes(newMin) }
-        chart.redraw()
     }
 
     private fun addPoint(point: TimeSeriesPoint) {
@@ -146,6 +149,15 @@ class LiveGraph : RComponent<LiveGraphProps, RState>() {
         val chartOpts = Options().apply {
             title = Title(props.graphTitle)
             xAxis = XAxis("datetime")
+            plotOptions = PlotOptions().apply {
+                series = PlotSeriesOptions().apply {
+                    marker = PointMarkerOptionsObject().apply {
+                        // The markers are nice, but they cause a big hit to performance
+                        enabled = false
+                    }
+                }
+            }
+
             // TODO: zoom doesn't work right now because of our manual 'live' zoom, so disable this for now.
             // We'll need to be able to detect this method of zoom and, if it's active, disable our updating
             // of setExtremes.
