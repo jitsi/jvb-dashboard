@@ -16,6 +16,25 @@ external interface Point {
     var y: Number
 }
 
+external interface AnimationOptionsObjectPartial {
+    var complete: Function<*>?
+        get() = definedExternally
+        set(value) = definedExternally
+    var defer: Number?
+        get() = definedExternally
+        set(value) = definedExternally
+    var duration: Number?
+        get() = definedExternally
+        set(value) = definedExternally
+    var easing: dynamic /* String? | Function<*>? */
+        get() = definedExternally
+        set(value) = definedExternally
+    var step: Function<*>?
+        get() = definedExternally
+        set(value) = definedExternally
+}
+
+
 fun Point(x: Number, y: Number): Point = jsObject { this.x = x; this.y = y }.unsafeCast<Point>()
 
 data class SeriesOptions(
@@ -32,6 +51,7 @@ external class Series {
     var xAxis: Axis
 
     fun addPoint(point: Point, redraw: Boolean = definedExternally, shift: Boolean = definedExternally)
+    fun addPoint(point: Point, redraw: Boolean = definedExternally, shift: Boolean = definedExternally, animation: AnimationOptionsObjectPartial = definedExternally, withEvent: Boolean = definedExternally)
     fun removePoint(i: Number, redraw: Boolean = definedExternally, animation: Boolean = definedExternally)
     fun setData(data: Array<dynamic /* Number? | String? | PointOptionsObject? | Array<dynamic /* Number? | String? */>? */>, redraw: Boolean = definedExternally, animation: Boolean = definedExternally, updatePoints: Boolean = definedExternally)
     fun remove(redraw: Boolean = definedExternally, animation: Boolean = definedExternally, withEvent: Boolean = definedExternally)
@@ -90,6 +110,44 @@ external interface ChartEventsOptions {
 
 fun ChartEventsOptions(): ChartEventsOptions = js("{}")
 
+external interface PointMarkerOptionsObject {
+    var enabled: Boolean?
+        get() = definedExternally
+        set(value) = definedExternally
+    var enabledThreshold: Number?
+        get() = definedExternally
+        set(value) = definedExternally
+}
+
+fun PointMarkerOptionsObject(): PointMarkerOptionsObject = js("{}")
+
+external interface PlotLineOptions {
+    var marker: PointMarkerOptionsObject?
+        get() = definedExternally
+        set(value) = definedExternally
+}
+
+fun PlotLineOptions(): PlotLineOptions = js("{}")
+
+external interface PlotSeriesOptions {
+    var marker: PointMarkerOptionsObject?
+        get() = definedExternally
+        set(value) = definedExternally
+}
+
+fun PlotSeriesOptions(): PlotSeriesOptions = js("{}")
+
+external interface PlotOptions {
+    var line: PlotLineOptions?
+        get() = definedExternally
+        set(value) = definedExternally
+    var series: PlotSeriesOptions?
+        get() = definedExternally
+        set(value) = definedExternally
+}
+
+fun PlotOptions(): PlotOptions = js("{}")
+
 external interface Options {
     var title: Title?
         get() = definedExternally
@@ -101,6 +159,9 @@ external interface Options {
         get() = definedExternally
         set(value) = definedExternally
     var chart: ChartOptions?
+        get() = definedExternally
+        set(value) = definedExternally
+    var plotOptions: PlotOptions?
         get() = definedExternally
         set(value) = definedExternally
 }
@@ -128,6 +189,7 @@ open external class Chart {
     open fun get(id: String): dynamic /* Axis? | Point? | Series? */
     open fun redraw(animation: Boolean = definedExternally)
     open fun addSeries(options: SeriesOptions, redraw: Boolean = definedExternally, animation: Boolean = definedExternally): Series
+    open fun update(options: Options, redraw: Boolean = definedExternally, oneToOne: Boolean = definedExternally, animation: Boolean = definedExternally)
 }
 
 external class Highcharts {
