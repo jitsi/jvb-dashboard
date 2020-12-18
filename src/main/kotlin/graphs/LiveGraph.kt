@@ -1,8 +1,5 @@
-import graphs.GraphMsg
-import graphs.LiveGraphControlMsg
-import graphs.LiveZoomAdjustment
-import graphs.NewDataMsg
-import graphs.RemoveSeries
+package graphs
+
 import highcharts.Chart
 import highcharts.HighchartsReact
 import highcharts.Options

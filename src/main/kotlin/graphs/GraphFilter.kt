@@ -1,7 +1,7 @@
-import graphs.GraphMsg
-import graphs.LiveGraphControlMsg
-import graphs.NewDataMsg
-import graphs.RemoveSeries
+package graphs
+
+import EndpointData
+import getValue
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope

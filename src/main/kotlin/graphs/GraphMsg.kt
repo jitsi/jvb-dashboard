@@ -1,7 +1,5 @@
 package graphs
 
-import TimeSeriesPoint
-
 /**
  * Message handled by a Graph
  */
@@ -20,7 +18,7 @@ data class LiveZoomAdjustment(val numSeconds: Int) : LiveGraphControlMsg()
 /**
  * Remove series whose names are in the given list from the graph
  *
- * (New series can be added automatically by passing a TimeSeriesPoint with
+ * (New series can be added automatically by passing a graphs.TimeSeriesPoint with
  * a new key, but series need to be removed explicitly)
  */
 data class RemoveSeries(val series: List<String>) : LiveGraphControlMsg()

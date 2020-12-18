@@ -1,3 +1,4 @@
+import graphs.GraphFilter
 import graphs.LiveZoomAdjustment
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
