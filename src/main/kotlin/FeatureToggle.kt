@@ -9,6 +9,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.css.Display
 import kotlinx.css.display
+import kotlinx.css.margin
 import kotlinx.html.js.onClickFunction
 import org.w3c.xhr.XMLHttpRequest
 import react.RBuilder
@@ -16,7 +17,7 @@ import react.RComponent
 import react.RProps
 import react.RState
 import react.dom.button
-import react.dom.p
+import react.dom.div
 import react.setState
 import styled.css
 import styled.styledDiv
@@ -53,9 +54,10 @@ class FeatureToggle : RComponent<FeatureToggleProps, FeatureToggleState>() {
         styledDiv {
             css {
                 display = Display.inlineBlock
+                margin = "10px"
             }
             +props.featureName
-            p {
+            div {
                 button {
                     val isEnabled: Boolean = state.enabled
                     attrs {
