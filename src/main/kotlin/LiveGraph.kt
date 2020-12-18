@@ -1,10 +1,11 @@
+import graphs.GraphMsg
 import graphs.LiveGraphControlMsg
 import graphs.LiveZoomAdjustment
+import graphs.NewDataMsg
 import graphs.RemoveSeries
 import highcharts.Chart
 import highcharts.HighchartsReact
 import highcharts.Options
-import highcharts.PlotLineOptions
 import highcharts.PlotOptions
 import highcharts.PlotSeriesOptions
 import highcharts.Point
@@ -180,8 +181,8 @@ class LiveGraph : RComponent<LiveGraphProps, RState>() {
 
 external interface LiveGraphProps : RProps {
     var graphTitle: String
-    // TODO: add support for a set of 'initial graphs' to support presets
-    var channel: ReceiveChannel<Any>
+    // TODO: add support for a set of 'initial series' to support presets
+    var channel: ReceiveChannel<GraphMsg>
 }
 
 data class TimeSeriesPoint(
@@ -189,9 +190,6 @@ data class TimeSeriesPoint(
     val key: String,
     val value: Number
 )
-
-// Pass a new TimeSeriesPoint to be rendered on the graph
-data class NewDataMsg(val timeSeriesPoint: TimeSeriesPoint)
 
 // TODO: i think I could do this with a reduce instead?  Would that be better?
 private fun List<Double?>.min(): Double? {

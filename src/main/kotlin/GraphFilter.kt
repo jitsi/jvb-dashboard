@@ -1,4 +1,6 @@
+import graphs.GraphMsg
 import graphs.LiveGraphControlMsg
+import graphs.NewDataMsg
 import graphs.RemoveSeries
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -25,7 +27,7 @@ import styled.styledDiv
  * [LiveGraph] which series to render.
  */
 class GraphFilter : RComponent<GraphFilterProps, RState>() {
-    private var graphChannel = Channel<Any>()
+    private var graphChannel = Channel<GraphMsg>()
     private var job: Job? = null
     private var graphedKeys: Set<String> = setOf()
 
