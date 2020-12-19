@@ -34,7 +34,6 @@ external interface AnimationOptionsObjectPartial {
         set(value) = definedExternally
 }
 
-
 fun Point(x: Number, y: Number): Point = jsObject { this.x = x; this.y = y }.unsafeCast<Point>()
 
 data class SeriesOptions(
