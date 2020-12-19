@@ -182,6 +182,7 @@ external interface LiveGraphProps : RProps {
     var channel: ReceiveChannel<GraphMsg>
 }
 
+// TODO: can we define this better w.r.t the definition of TimeSeries used by Graph?
 data class TimeSeriesPoint(
     val timestamp: Number,
     val key: String,
