@@ -33,7 +33,7 @@ class Endpoint : RComponent<EpProps, EpState>() {
     private var nextGraphId: Int = 0
 
     init {
-        state.graphs = listOf()
+        state.graphInfos = listOf()
         state.allKeys = listOf()
         state.statsId = null
     }
@@ -77,15 +77,15 @@ class Endpoint : RComponent<EpProps, EpState>() {
     }
 
     private fun addGraph() {
-        val newGraph = Graph(nextGraphId++, broadcastChannel.openSubscription())
+        val newGraph = GraphInfo(nextGraphId++, broadcastChannel.openSubscription())
         setState {
-            graphs += newGraph
+            graphInfos += newGraph
         }
     }
 
     private fun removeGraph(graphId: Int) {
         setState {
-            graphs = graphs.filterNot { it.id == graphId }
+            graphInfos = graphInfos.filterNot { it.id == graphId }
         }
     }
 
@@ -106,7 +106,7 @@ class Endpoint : RComponent<EpProps, EpState>() {
                         addGraph()
                     }
                 }
-                if (state.graphs.isNotEmpty()) {
+                if (state.graphInfos.isNotEmpty()) {
                     button {
                         attrs {
                             text("1 min")
@@ -144,7 +144,7 @@ class Endpoint : RComponent<EpProps, EpState>() {
                     paddingLeft = 2.pct
                     paddingTop = 2.pct
                 }
-                state.graphs.forEach { graph ->
+                state.graphInfos.forEach { graph ->
                     console.log("rendering graph ${graph.id}")
                     div {
                         key = graph.id.toString()
@@ -183,11 +183,11 @@ data class EndpointData(
 // request and updates the props of the ep components
 external interface EpState : RState {
     var allKeys: List<String>
-    var graphs: List<Graph>
+    var graphInfos: List<GraphInfo>
     var statsId: String?
 }
 
-data class Graph(
+data class GraphInfo(
     val id: Int,
     val channel: ReceiveChannel<Any>
 )
