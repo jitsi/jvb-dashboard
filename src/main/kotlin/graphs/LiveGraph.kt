@@ -150,18 +150,12 @@ class LiveGraph : RComponent<LiveGraphProps, RState>() {
             plotOptions = PlotOptions().apply {
                 series = PlotSeriesOptions().apply {
                     marker = PointMarkerOptionsObject().apply {
-                        // The markers are nice, but they cause a big hit to performance
+                        // The markers are nice, but they cause a big hit to performance with
+                        // live graphs
                         enabled = false
                     }
                 }
             }
-
-            // TODO: zoom doesn't work right now because of our manual 'live' zoom, so disable this for now.
-            // We'll need to be able to detect this method of zoom and, if it's active, disable our updating
-            // of setExtremes.
-//            chart = ChartOptions().apply {
-//                zoomType = "x"
-//            }
         }
         div {
             HighchartsReact {

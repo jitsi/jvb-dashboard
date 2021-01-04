@@ -52,6 +52,9 @@ class Endpoint : RComponent<EpProps, EpState>() {
             while (isActive) {
                 val epData = props.channel.receive()
                 if (availableGraphs.isEmpty()) {
+                    // Build the list of available keys the first time we get data.
+                    // NOTE: This means keys that didn't show up later won't be displayed,
+                    // if we need to cover that then we can add any missing ones each time
                     availableGraphs = getAllKeys(epData.data).filter { key ->
                         isNumber(getValue(epData.data, key))
                     }
@@ -60,6 +63,7 @@ class Endpoint : RComponent<EpProps, EpState>() {
                         allKeys = availableGraphs
                     }
                 }
+                // Set the stats ID if it isn't already set
                 if (state.statsId == null) {
                     setState {
                         statsId = epData.data.statsId.unsafeCast<String>()
