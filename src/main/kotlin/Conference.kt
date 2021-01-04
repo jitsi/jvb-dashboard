@@ -92,7 +92,9 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
                         key = epId
                         child(Endpoint::class) {
                             attrs {
+                                confId = props.id
                                 id = epId
+                                baseRestApiUrl = props.baseRestApiUrl
                                 channel = epChannel
                             }
                         }
@@ -105,7 +107,7 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
     private suspend fun CoroutineScope.fetchDataLoop() {
         while (isActive) {
             try {
-                val jvbData = window.fetch("${props.baseUrl}/${props.id}")
+                val jvbData = window.fetch("${props.baseRestApiUrl}/${props.id}")
                     .await()
                     .json()
                     .await()
@@ -143,6 +145,6 @@ external interface ConferenceState : RState {
 }
 
 external interface ConferenceProps : RProps {
-    var baseUrl: String
+    var baseRestApiUrl: String
     var id: String
 }

@@ -100,6 +100,14 @@ class Endpoint : RComponent<EpProps, EpState>() {
                 }
             }
             div {
+                child(FeatureToggle::class) {
+                    attrs {
+                        featureName = "PCAP dump"
+                        url = "${props.baseRestApiUrl}/features/endpoint/${props.confId}/${props.id}/pcap-dump"
+                    }
+                }
+            }
+            div {
                 button {
                     attrs.text("Add graph")
                     attrs.onClickFunction = { _ ->
@@ -170,7 +178,9 @@ class Endpoint : RComponent<EpProps, EpState>() {
 }
 
 external interface EpProps : RProps {
+    var confId: String
     var id: String
+    var baseRestApiUrl: String
     var channel: ReceiveChannel<EndpointData>
 }
 

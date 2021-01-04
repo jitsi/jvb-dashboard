@@ -88,7 +88,7 @@ class Jvb : RComponent<JvbProps, JvbState>() {
             child(Conference::class) {
                 key = confId
                 attrs {
-                    baseUrl = props.url
+                    baseRestApiUrl = props.url
                     id = confId
                 }
             }
