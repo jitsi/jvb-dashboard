@@ -40,6 +40,8 @@ fun getValue(obj: dynamic, path: String): dynamic {
     return getValue(obj[paths.first()], paths.drop(1).joinToString("."))
 }
 
+fun <T> getValueAs(obj: dynamic, path: String): T = getValue(obj, path) as T
+
 @Suppress("UnsafeCastFromDynamic")
 fun isNumber(obj: dynamic): Boolean {
     return jsTypeOf(obj) === "number"
