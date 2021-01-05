@@ -1,5 +1,6 @@
 package graphs
 
+import EndpointData
 import highcharts.Chart
 import highcharts.HighchartsReact
 import highcharts.Options
@@ -85,7 +86,7 @@ class LiveGraph : RComponent<LiveGraphProps, RState>() {
         // Finding nothing here means we don't have any data yet, so there's nothing to do
         val currMin = chart.series.map { it.data.getOrNull(0)?.x?.toDouble() }.min() ?: return
 
-        // The minimum displayed x value of the graph is either the now - the zoom window, or the oldest point,
+        // The minimum displayed x value of the graph is either now - the zoom window, or the oldest point,
         // whichever is newer
         val newMin = maxOf(now.getTime() - currentTimeZoomSeconds * 1000, currMin)
 

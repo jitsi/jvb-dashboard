@@ -104,10 +104,12 @@ class Endpoint : RComponent<EpProps, EpState>() {
                 }
             }
             div {
-                child(FeatureToggle::class) {
-                    attrs {
-                        featureName = "PCAP dump"
-                        url = "${props.baseRestApiUrl}/features/endpoint/${props.confId}/${props.id}/pcap-dump"
+                props.baseRestApiUrl?.let { baseRestApiUrl ->
+                    child(FeatureToggle::class) {
+                        attrs {
+                            featureName = "PCAP dump"
+                            url = "$baseRestApiUrl/features/endpoint/${props.confId}/${props.id}/pcap-dump"
+                        }
                     }
                 }
             }
@@ -184,8 +186,10 @@ class Endpoint : RComponent<EpProps, EpState>() {
 external interface EpProps : RProps {
     var confId: String
     var id: String
-    var baseRestApiUrl: String
+    var baseRestApiUrl: String?
     var channel: ReceiveChannel<EndpointData>
+    // An optional property to pass pre-existing data (e.g. from a dump file)
+    var data: List<EndpointData>?
 }
 
 data class EndpointData(

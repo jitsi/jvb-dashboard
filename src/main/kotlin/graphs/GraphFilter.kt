@@ -2,6 +2,7 @@ package graphs
 
 import EndpointData
 import getValue
+import getValueAs
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
@@ -44,7 +45,7 @@ class GraphFilter : RComponent<GraphFilterProps, RState>() {
                 when (val msg = props.channel.receive()) {
                     is EndpointData -> {
                         graphedKeys.forEach { key ->
-                            val value = getValue(msg.data, key).unsafeCast<Number>()
+                            val value = getValueAs<Number>(msg.data, key)
                             graphChannel.send(NewDataMsg(TimeSeriesPoint(msg.timestamp, key, value)))
                         }
                     }
@@ -76,6 +77,21 @@ class GraphFilter : RComponent<GraphFilterProps, RState>() {
         if (removedKeys.isNotEmpty()) {
             GlobalScope.launch {
                 graphChannel.send(RemoveSeries(removedKeys))
+            }
+        }
+        // We need to determine which keys were added so we can add values from pre-existing
+        // data
+        val addedKeys = newKeys.filterNot(graphedKeys::contains)
+        props.data?.forEach { epDataEntry ->
+            addedKeys.forEach { addedKey ->
+                val point = TimeSeriesPoint(
+                    timestamp = epDataEntry.timestamp,
+                    key = addedKey,
+                    value = getValueAs<Number>(epDataEntry.data, addedKey)
+                )
+                GlobalScope.launch {
+                    graphChannel.send(NewDataMsg(point))
+                }
             }
         }
         graphedKeys = newKeys
@@ -128,4 +144,6 @@ external interface GraphFilterProps : RProps {
     var name: String
     var allKeys: List<String>
     var channel: ReceiveChannel<Any>
+    // An optional property to pass pre-existing data (e.g. from a dump file)
+    var data: List<EndpointData>?
 }
