@@ -1,5 +1,3 @@
-import graphs.Timeseries
-import highcharts.Point
 import org.w3c.files.File
 import org.w3c.files.FileReader
 import react.RBuilder
@@ -15,32 +13,36 @@ class DumpViewer : RComponent<DumpViewerProps, DumpViewerState>() {
     }
     override fun RBuilder.render() {
         console.log("DumpViewer rendering")
-        if (state.error != null) {
-            +"Error parsing dump file: '${state.error}'"
-        } else if (state.data == null) {
-            val reader = FileReader().apply {
-                onload = { event ->
-                    val rawData = (event.target as FileReader).result as String
-                    try {
-                        val data = rawData.split("\r\n", "\n")
-                            .filter { it.isNotEmpty() }
-                            .map { JSON.parse<dynamic>(it) }
-                            .toList()
+        when {
+            state.error != null -> {
+                +"Error parsing dump file: '${state.error}'"
+            }
+            state.data == null -> {
+                val reader = FileReader().apply {
+                    onload = { event ->
+                        val rawData = (event.target as FileReader).result as String
+                        try {
+                            val data = rawData.split("\r\n", "\n")
+                                .filter { it.isNotEmpty() }
+                                .map { JSON.parse<dynamic>(it) }
+                                .toList()
 
-                        setState {
-                            error = null
-                            this.data = data
-                        }
-                    } catch (t: Throwable) {
-                        setState {
-                            error = t.message
+                            setState {
+                                error = null
+                                this.data = data
+                            }
+                        } catch (t: Throwable) {
+                            setState {
+                                error = t.message
+                            }
                         }
                     }
                 }
+                reader.readAsText(props.file)
             }
-            reader.readAsText(props.file)
-        } else {
-            console.log("got data ", state.data)
+            else -> {
+                console.log("got data ", state.data)
+            }
         }
     }
 }
