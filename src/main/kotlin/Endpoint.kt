@@ -108,12 +108,12 @@ class Endpoint : RComponent<EpProps, EpState>() {
                     +"Endpoint ${props.id}   "
                 }
             }
-            div {
-                props.baseRestApiUrl?.let { baseRestApiUrl ->
+            if (usingLiveData()) {
+                div {
                     child(FeatureToggle::class) {
                         attrs {
                             featureName = "PCAP dump"
-                            url = "$baseRestApiUrl/features/endpoint/${props.confId}/${props.id}/pcap-dump"
+                            url = "${props.baseRestApiUrl}/features/endpoint/${props.confId}/${props.id}/pcap-dump"
                         }
                     }
                 }
@@ -125,7 +125,7 @@ class Endpoint : RComponent<EpProps, EpState>() {
                         addGraph()
                     }
                 }
-                if (state.graphInfos.isNotEmpty()) {
+                if (usingLiveData() && state.graphInfos.isNotEmpty()) {
                     button {
                         attrs {
                             text("1 min")
@@ -189,6 +189,8 @@ class Endpoint : RComponent<EpProps, EpState>() {
             }
         }
     }
+
+    private fun usingLiveData(): Boolean = props.baseRestApiUrl != null
 }
 
 external interface EpProps : RProps {
