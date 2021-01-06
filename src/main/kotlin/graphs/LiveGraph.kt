@@ -94,14 +94,13 @@ class LiveGraph : RComponent<LiveGraphProps, RState>() {
     }
 
     private fun addPoint(point: TimeSeriesPoint) {
-//        console.log("Got new time series point: ", point)
         val series = getOrCreateSeries(chart, point.key)
         series.addPoint(Point(point.timestamp, point.value))
         // Limit how many points we store
         while (series.data.size > maxPoints) {
             series.removePoint(0)
         }
-//        updateZoom()
+        updateZoom()
     }
 
     private fun setTimeseries(timeseries: Timeseries) {
