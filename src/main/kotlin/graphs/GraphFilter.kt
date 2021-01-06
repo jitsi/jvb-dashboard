@@ -136,11 +136,14 @@ class GraphFilter : RComponent<GraphFilterProps, RState>() {
                     attrs {
                         graphTitle = this@GraphFilter.props.name
                         channel = graphChannel
+                        enableZoom = !usingLiveData()
                     }
                 }
             }
         }
     }
+
+    private fun usingLiveData(): Boolean = props.data == null
 }
 
 external interface GraphFilterProps : RProps {

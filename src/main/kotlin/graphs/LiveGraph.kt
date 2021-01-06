@@ -2,6 +2,7 @@ package graphs
 
 import EndpointData
 import highcharts.Chart
+import highcharts.ChartOptions
 import highcharts.HighchartsReact
 import highcharts.Options
 import highcharts.PlotOptions
@@ -163,6 +164,11 @@ class LiveGraph : RComponent<LiveGraphProps, RState>() {
                     }
                 }
             }
+            if (props.enableZoom) {
+                chart = ChartOptions().apply {
+                    zoomType = "x"
+                }
+            }
         }
         div {
             HighchartsReact {
@@ -179,8 +185,12 @@ class LiveGraph : RComponent<LiveGraphProps, RState>() {
 
 external interface LiveGraphProps : RProps {
     var graphTitle: String
-    // TODO: add support for a set of 'initial series' to support presets
     var channel: ReceiveChannel<GraphMsg>
+    // Zooming (via the highcharts click and drag) doesn't currently work well
+    // with live data, since we do our own manual zoom there (I think this can
+    // be fixed, but it isn't done yet).  If viewing a dump, though, then we want
+    // to enable the highcharts zoom
+    var enableZoom: Boolean
 }
 
 // TODO: can we define this better w.r.t the definition of TimeSeries used by Graph?
