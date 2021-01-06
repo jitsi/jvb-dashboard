@@ -94,13 +94,19 @@ class LiveGraph : RComponent<LiveGraphProps, RState>() {
     }
 
     private fun addPoint(point: TimeSeriesPoint) {
+//        console.log("Got new time series point: ", point)
         val series = getOrCreateSeries(chart, point.key)
         series.addPoint(Point(point.timestamp, point.value))
         // Limit how many points we store
         while (series.data.size > maxPoints) {
             series.removePoint(0)
         }
-        updateZoom()
+//        updateZoom()
+    }
+
+    private fun setTimeseries(timeseries: Timeseries) {
+        val series = getOrCreateSeries(chart, timeseries.name)
+        series.setData(timeseries.points.toTypedArray())
     }
 
     private suspend fun CoroutineScope.handleMessages() {
@@ -108,6 +114,7 @@ class LiveGraph : RComponent<LiveGraphProps, RState>() {
             while (isActive) {
                 when (val msg = props.channel.receive()) {
                     is NewDataMsg -> addPoint(msg.timeSeriesPoint)
+                    is SetDataMsg -> setTimeseries(msg.timeseries)
                     is LiveGraphControlMsg -> handleGraphControlMessage(msg)
                 }
             }

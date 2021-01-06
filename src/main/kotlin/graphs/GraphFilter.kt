@@ -1,8 +1,8 @@
 package graphs
 
 import EndpointData
-import getValue
 import getValueAs
+import highcharts.Point
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
@@ -82,16 +82,19 @@ class GraphFilter : RComponent<GraphFilterProps, RState>() {
         // We need to determine which keys were added so we can add values from pre-existing
         // data
         val addedKeys = newKeys.filterNot(graphedKeys::contains)
+        val dataByKey = mutableMapOf<String, MutableList<Point>>()
         props.data?.forEach { epDataEntry ->
+            console.log("looking at ep data entry ", epDataEntry)
             addedKeys.forEach { addedKey ->
-                val point = TimeSeriesPoint(
-                    timestamp = epDataEntry.timestamp,
-                    key = addedKey,
-                    value = getValueAs<Number>(epDataEntry.data, addedKey)
-                )
-                GlobalScope.launch {
-                    graphChannel.send(NewDataMsg(point))
-                }
+                console.log("looking at added key ", addedKey)
+                console.log("timestamp: ", epDataEntry.timestamp, " value: ", getValueAs<Number>(epDataEntry.data, addedKey))
+                val points = dataByKey.getOrPut(addedKey) { mutableListOf() }
+                points.add(Point(epDataEntry.timestamp, getValueAs<Number>(epDataEntry.data, addedKey)))
+            }
+        }
+        dataByKey.forEach { (key, points) ->
+            GlobalScope.launch {
+                graphChannel.send(SetDataMsg(Timeseries(key, points)))
             }
         }
         graphedKeys = newKeys

@@ -26,4 +26,7 @@ data class RemoveSeries(val series: List<String>) : LiveGraphControlMsg()
 /**
  * Pass a new [TimeSeriesPoint] to be rendered on the graph
  */
+// TODO: rename to new TimeSeriesPointMsg or something
 data class NewDataMsg(val timeSeriesPoint: TimeSeriesPoint) : GraphMsg()
+
+data class SetDataMsg(val timeseries: Timeseries) : GraphMsg()

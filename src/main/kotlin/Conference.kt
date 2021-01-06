@@ -33,12 +33,34 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
         state.dataByEp = null
     }
 
-    // TODO: if we wanted to use different components for live vs dump viewing, keying off the
-    //  presence of a URL would be a good way to do it...
     override fun componentDidMount() {
         // Start the fetch data job if there's a URL to query
         props.baseRestApiUrl?.let { baseRestApiUrl ->
             job = GlobalScope.launch { fetchDataLoop(baseRestApiUrl) }
+        }
+        if ((state.epIds == undefined || state.epIds.isEmpty()) && props.confData != null) {
+            val confData = props.confData!!
+            // We need to extract all epIds present in all the data
+            val allEpIds = confData.flatMap {
+                val epIds = getEpIds(it).toList()
+                epIds
+            }.toSet()
+            val dataByEp = mutableMapOf<String, MutableList<EndpointData>>()
+            confData.forEach { confDataEntry ->
+                val timestamp = confDataEntry.timestamp as Number
+                val epIds = getEpIds(confDataEntry)
+                epIds.forEach { epId ->
+                    val epData = confDataEntry.endpoints[epId]
+                    val existingEpData = dataByEp.getOrPut(epId) { mutableListOf() }
+                    existingEpData.add(EndpointData(timestamp, epData))
+                }
+            }
+            val name = confData.asSequence().map { it.name }.first { it != undefined } ?: "No conf name found"
+            setState {
+                epIds = allEpIds.toTypedArray()
+                this.dataByEp = dataByEp
+                this.name = name
+            }
         }
     }
 
@@ -59,42 +81,8 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
             (!state.epIds.contentEquals(nextState.epIds))
     }
 
-    private fun handlePreExistingData() {
-        props.confData?.let { confData ->
-            // We have pre-existing data (e.g. from a dump file), push the endpoint data
-            // down.  Transform the data from List<ConfData> to Map<EpId, List<EpData>>
-            // TODO: will need to set this as state
-            val dataByEp = mutableMapOf<String, MutableList<EndpointData>>()
-            confData.forEach { confDataEntry ->
-                val timestamp = confDataEntry.timestamp
-                val epIds = getEpIds(confDataEntry.data)
-                epIds.forEach { epId ->
-                    val epData = confDataEntry.data.endpints[epId]
-                    val existingEpData = dataByEp.getOrPut(epId) { mutableListOf() }
-                    existingEpData.add(epData)
-                }
-            }
-            setState {
-                this.dataByEp = dataByEp
-            }
-        }
-    }
-
     override fun RBuilder.render() {
         console.log("conference ${props.id} renderingz")
-        if ((state.epIds == undefined || state.epIds.isEmpty()) && props.confData != null) {
-            // We need to extract all epIds present in all the data
-            val allEpIds = props.confData!!.flatMap {
-//                getEpIds(it.data).toList()
-                console.log("looking at confData", it)
-                val epIds = getEpIds(it).toList()
-                console.log("got ep ids ", epIds)
-                epIds
-            }.toSet()
-            setState {
-                epIds = allEpIds.toTypedArray()
-            }
-        }
         div {
             key = props.id
             h2 {
@@ -137,6 +125,7 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
                                 baseRestApiUrl = props.baseRestApiUrl
                                 channel = epChannel
                                 state.dataByEp?.get(epId)?.let { existingEpData ->
+                                    console.log("have data for ep ", epId)
                                     data = existingEpData
                                 }
                             }

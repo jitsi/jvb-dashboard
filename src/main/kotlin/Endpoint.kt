@@ -27,8 +27,6 @@ import styled.styledDiv
 class Endpoint : RComponent<EpProps, EpState>() {
     // The Endpoint broadcasts its received data onto this channel for all the graphs to receive
     private val broadcastChannel = BroadcastChannel<Any>(5)
-    // A list of all possible key paths in the stats for this endpoint
-    private var availableGraphs: List<String> = listOf()
     private var job: Job? = null
     private var nextGraphId: Int = 0
 
@@ -40,6 +38,13 @@ class Endpoint : RComponent<EpProps, EpState>() {
 
     override fun componentDidMount() {
         job = GlobalScope.launch { handleMessages() }
+        if (state.allKeys.isEmpty() && props.data != undefined) {
+            console.log("ep allkeys is not set, and we have data in props, filling out there")
+            setState {
+                // TODO: find all keys from all entries, not just the first one
+                allKeys = getAllKeys(props.data!!.first().data)
+            }
+        }
     }
 
     override fun componentWillUnmount() {
@@ -51,16 +56,16 @@ class Endpoint : RComponent<EpProps, EpState>() {
         try {
             while (isActive) {
                 val epData = props.channel.receive()
-                if (availableGraphs.isEmpty()) {
+                if (state.allKeys.isEmpty()) {
                     // Build the list of available keys the first time we get data.
                     // NOTE: This means keys that didn't show up later won't be displayed,
                     // if we need to cover that then we can add any missing ones each time
-                    availableGraphs = getAllKeys(epData.data).filter { key ->
+                    val allKeys = getAllKeys(epData.data).filter { key ->
                         isNumber(getValue(epData.data, key))
                     }
-                    console.log("Endpoint ${props.id}: Got all (numerical) keys: ", availableGraphs)
+                    console.log("Endpoint ${props.id}: Got all (numerical) keys: ", allKeys)
                     setState {
-                        allKeys = availableGraphs
+                        this.allKeys = allKeys
                     }
                 }
                 // Set the stats ID if it isn't already set
@@ -172,9 +177,12 @@ class Endpoint : RComponent<EpProps, EpState>() {
                         }
                         child(GraphFilter::class) {
                             key = "graph-filter-${graph.id}"
-                            attrs.name = "Graph ${graph.id}"
-                            attrs.allKeys = availableGraphs
-                            attrs.channel = graph.channel
+                            attrs {
+                                name = "Graph ${graph.id}"
+                                allKeys = state.allKeys
+                                channel = graph.channel
+                                data = props.data
+                            }
                         }
                     }
                 }

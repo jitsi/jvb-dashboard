@@ -41,10 +41,27 @@ class DumpViewer : RComponent<DumpViewerProps, DumpViewerState>() {
                 reader.readAsText(props.file)
             }
             else -> {
-                console.log("got data ", state.data)
+                child(Conference::class) {
+                    attrs {
+                        id = getConfId(state.data)
+                        confData = state.data
+                    }
+                }
             }
         }
     }
+}
+
+private fun getConfId(data: List<dynamic>?): String {
+    return data?.asSequence()
+        ?.map { it.id }
+        ?.first { it != undefined } as? String ?: "No conf ID found"
+}
+
+private fun getConfName(data: List<dynamic>?): String {
+    return data?.asSequence()
+        ?.map { it.name }
+        ?.first { it != undefined } as? String ?: "No conf name found"
 }
 
 external interface DumpViewerState : RState {
