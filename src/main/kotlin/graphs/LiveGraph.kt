@@ -1,6 +1,5 @@
 package graphs
 
-import EndpointData
 import highcharts.Chart
 import highcharts.ChartOptions
 import highcharts.HighchartsReact
@@ -11,6 +10,7 @@ import highcharts.Point
 import highcharts.PointMarkerOptionsObject
 import highcharts.Series
 import highcharts.SeriesOptions
+import highcharts.SeriesOptionsType
 import highcharts.Title
 import highcharts.XAxis
 import highcharts.highcharts
@@ -68,11 +68,11 @@ class LiveGraph : RComponent<LiveGraphProps, RState>() {
                 console.warn("Series $seriesName wasn't in chart but was in known series")
             }
             chart.addSeries(
-                SeriesOptions(
-                    type = "spline",
-                    name = seriesName,
+                SeriesOptions().apply {
+                    type = "spline"
+                    name = seriesName
                     data = arrayOf()
-                )
+                }
             ).also {
                 knownSeries.add(seriesName)
             }
@@ -198,6 +198,11 @@ data class TimeSeriesPoint(
     val timestamp: Number,
     val key: String,
     val value: Number
+)
+
+data class Timeseries(
+    val name: String,
+    val points: List<Point>
 )
 
 // TODO: i think I could do this with a reduce instead?  Would that be better?
