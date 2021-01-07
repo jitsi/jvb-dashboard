@@ -36,6 +36,9 @@ fun getValue(obj: dynamic, path: String): dynamic {
     if (path.isBlank()) {
         return obj
     }
+    if (obj == undefined) {
+        return undefined
+    }
     val paths = path.split(".")
     return getValue(obj[paths.first()], paths.drop(1).joinToString("."))
 }
