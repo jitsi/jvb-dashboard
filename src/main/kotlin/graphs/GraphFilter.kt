@@ -84,10 +84,7 @@ class GraphFilter : RComponent<GraphFilterProps, RState>() {
         val addedKeys = newKeys.filterNot(graphedKeys::contains)
         val dataByKey = mutableMapOf<String, MutableList<Point>>()
         props.data?.forEach { epDataEntry ->
-            console.log("looking at ep data entry ", epDataEntry)
             addedKeys.forEach { addedKey ->
-                console.log("looking at added key ", addedKey)
-                console.log("timestamp: ", epDataEntry.timestamp, " value: ", getValueAs<Number>(epDataEntry.data, addedKey))
                 val points = dataByKey.getOrPut(addedKey) { mutableListOf() }
                 points.add(Point(epDataEntry.timestamp, getValueAs<Number>(epDataEntry.data, addedKey)))
             }
