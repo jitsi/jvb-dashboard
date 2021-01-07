@@ -32,17 +32,17 @@ class Endpoint : RComponent<EpProps, EpState>() {
 
     init {
         state.graphInfos = listOf()
-        state.allKeys = listOf()
+        state.numericalKeys = listOf()
         state.statsId = null
     }
 
     override fun componentDidMount() {
         job = GlobalScope.launch { handleMessages() }
-        if (state.allKeys.isEmpty() && props.data != undefined) {
+        if (state.numericalKeys.isEmpty() && props.data != undefined) {
             console.log("ep allkeys is not set, and we have data in props, filling out there")
             setState {
                 // TODO: find all keys from all entries, not just the first one
-                allKeys = getAllKeys(props.data!!.first().data)
+                numericalKeys = getAllKeys(props.data!!.first().data)
             }
         }
     }
@@ -56,7 +56,7 @@ class Endpoint : RComponent<EpProps, EpState>() {
         try {
             while (isActive) {
                 val epData = props.channel.receive()
-                if (state.allKeys.isEmpty()) {
+                if (state.numericalKeys.isEmpty()) {
                     // Build the list of available keys the first time we get data.
                     // NOTE: This means keys that didn't show up later won't be displayed,
                     // if we need to cover that then we can add any missing ones each time
@@ -65,7 +65,7 @@ class Endpoint : RComponent<EpProps, EpState>() {
                     }
                     console.log("Endpoint ${props.id}: Got all (numerical) keys: ", allKeys)
                     setState {
-                        this.allKeys = allKeys
+                        this.numericalKeys = allKeys
                     }
                 }
                 // Set the stats ID if it isn't already set
@@ -179,7 +179,7 @@ class Endpoint : RComponent<EpProps, EpState>() {
                             key = "graph-filter-${graph.id}"
                             attrs {
                                 name = "Graph ${graph.id}"
-                                allKeys = state.allKeys
+                                allKeys = state.numericalKeys
                                 channel = graph.channel
                                 data = props.data
                             }
@@ -210,7 +210,7 @@ data class EndpointData(
 // Endpoints don't retrieve their own data, the conference makes a single
 // request and updates the props of the ep components
 external interface EpState : RState {
-    var allKeys: List<String>
+    var numericalKeys: List<String>
     var graphInfos: List<GraphInfo>
     var statsId: String?
 }
