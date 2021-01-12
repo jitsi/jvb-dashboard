@@ -256,15 +256,10 @@ external interface EpProps : RProps {
     var confId: String
     var id: String
     var baseRestApiUrl: String?
-    var channel: ReceiveChannel<EndpointData>
+    var channel: ReceiveChannel<dynamic>
     // An optional property to pass pre-existing data (e.g. from a dump file)
     var data: List<dynamic>?
 }
-
-data class EndpointData(
-    val timestamp: Number,
-    val data: dynamic
-)
 
 // Endpoints don't retrieve their own data, the conference makes a single
 // request and updates the props of the ep components

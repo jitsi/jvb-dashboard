@@ -179,7 +179,7 @@ external interface ConferenceState : RState {
     var epIds: Array<String>
     var name: String
     var expanded: Boolean
-    var dataByEp: MutableMap<String, MutableList<EndpointData>>?
+    var dataByEp: MutableMap<String, MutableList<dynamic>>?
 }
 
 data class ConfData(
