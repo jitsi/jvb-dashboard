@@ -61,7 +61,9 @@ class GraphSelection : RComponent<GraphSelectionProps, RState>() {
                 graphType = props.graphType ?: "line"
             }
             ref {
-                graph = it.unsafeCast<Graph>()
+                if (it != null) {
+                    graph = it as Graph
+                }
             }
         }
     }
