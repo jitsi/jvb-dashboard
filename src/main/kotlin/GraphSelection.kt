@@ -31,11 +31,14 @@ class GraphSelection : RComponent<GraphSelectionProps, RState>() {
                     // entry to have a 'timestamp' field.
                     val timestamp = dataEntry.timestamp.unsafeCast<Number>()
                     val value = getValue(dataEntry, addedKey)
-                    console.log("Got value ", value, " for key ", addedKey, " from obj ", dataEntry)
-                    if (props.graphType.equals("timeline", ignoreCase = true)) {
-                        timeseries.add(Event(timestamp, value.toString()))
-                    } else {
-                        timeseries.add(Point(timestamp, value as Number))
+                    if (value != undefined) {
+                        // Not all chunks will have an entry for every key, since duplicates are filtered out)
+                        console.log("Got value ", value, " for key ", addedKey, " from obj ", dataEntry)
+                        if (props.graphType.equals("timeline", ignoreCase = true)) {
+                            timeseries.add(Event(timestamp, value.toString()))
+                        } else {
+                            timeseries.add(Point(timestamp, value as Number))
+                        }
                     }
                 }
             }
