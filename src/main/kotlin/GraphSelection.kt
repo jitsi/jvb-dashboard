@@ -33,7 +33,6 @@ class GraphSelection : RComponent<GraphSelectionProps, RState>() {
                     val value = getValue(dataEntry, addedKey)
                     if (value != undefined) {
                         // Not all chunks will have an entry for every key, since duplicates are filtered out)
-                        console.log("Got value ", value, " for key ", addedKey, " from obj ", dataEntry)
                         if (props.graphType.equals("timeline", ignoreCase = true)) {
                             timeseries.add(Event(timestamp, value.toString()))
                         } else {
