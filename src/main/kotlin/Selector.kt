@@ -7,7 +7,7 @@ import reactselect.Option
 
 class Selector : RComponent<SelectorProps, RState>() {
     override fun RBuilder.render() {
-        val allOptions = props.allKeys.map { Option(it) }.toTypedArray()
+        val allOptions = props.allKeys?.map { Option(it) }?.toTypedArray() ?: emptyArray()
         AsyncSelect {
             attrs {
                 loadOptions = { inputValue, callback ->
@@ -29,7 +29,7 @@ class Selector : RComponent<SelectorProps, RState>() {
                     val keys = event.unsafeCast<Array<dynamic>>().map { evt ->
                         evt.value.unsafeCast<String>()
                     }.toList()
-                    props.onSelectedKeysChange(keys)
+                    props.onSelectedKeysChange?.invoke(keys)
                 }
             }
         }
@@ -37,6 +37,6 @@ class Selector : RComponent<SelectorProps, RState>() {
 }
 
 external interface SelectorProps : RProps {
-    var allKeys: List<String>
-    var onSelectedKeysChange: (List<String>) -> Unit
+    var allKeys: List<String>?
+    var onSelectedKeysChange: ((List<String>) -> Unit)?
 }
