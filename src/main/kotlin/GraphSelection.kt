@@ -1,6 +1,6 @@
 import graphs.Graph
+import highcharts.Event
 import highcharts.Point
-import highcharts.TimeseriesPoint
 import react.RBuilder
 import react.RComponent
 import react.RProps
@@ -30,9 +30,10 @@ class GraphSelection : RComponent<GraphSelectionProps, RState>() {
                     // As of now, the 'x' value is always the timestamp, and we expect the
                     // entry to have a 'timestamp' field.
                     val timestamp = dataEntry.timestamp.unsafeCast<Number>()
-                    val value = getValue(dataEntry.data, addedKey)
+                    val value = getValue(dataEntry, addedKey)
+                    console.log("Got value ", value, " for key ", addedKey, " from obj ", dataEntry)
                     if (props.graphType.equals("timeline", ignoreCase = true)) {
-                        timeseries.add(TimeseriesPoint(timestamp, value.toString()))
+                        timeseries.add(Event(timestamp, value.toString()))
                     } else {
                         timeseries.add(Point(timestamp, value as Number))
                     }
@@ -43,6 +44,7 @@ class GraphSelection : RComponent<GraphSelectionProps, RState>() {
     }
 
     override fun RBuilder.render() {
+        console.log("graph selection rendering")
         child(Selector::class) {
             attrs {
                 onSelectedKeysChange = this@GraphSelection::selectedKeysChanged
@@ -60,6 +62,21 @@ class GraphSelection : RComponent<GraphSelectionProps, RState>() {
             }
             ref {
                 graph = it.unsafeCast<Graph>()
+            }
+        }
+    }
+
+    fun addData(data: dynamic) {
+        val timestamp = data.timestamp as Number
+        currentlyGraphedKeys.forEach { key ->
+            console.log("Adding data for key $key")
+            val value = getValue(data, key)
+            if (value != undefined) {
+                if (value is Number) {
+                    graph?.addPoint(key, Point(timestamp, value))
+                } else {
+                    graph?.addPoint(key, Event(timestamp, value.toString()))
+                }
             }
         }
     }
@@ -88,10 +105,6 @@ external interface GraphSelectionProps : RProps {
     var title: String?
     var allKeys: List<String>?
     // An optional property which can contain stored data to be graphed
-    // TODO: these types are actually EndpointData.  In order to not make these
-    // classes endpoint-specific, we should embed the timestamp in the object alongside
-    // the other data and pass that down, so this class just cares about receiving an
-    // object with a timestamp field in it
     var data: List<dynamic>?
     var graphType: String?
 }

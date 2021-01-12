@@ -51,8 +51,11 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
                 val epIds = getEpIds(confDataEntry)
                 epIds.forEach { epId ->
                     val epData = confDataEntry.endpoints[epId]
+                    // Set the timestamp in the object we'll pass down, since it's at a higher
+                    // level
+                    epData.timestamp = timestamp
                     val existingEpData = dataByEp.getOrPut(epId) { mutableListOf() }
-                    existingEpData.add(EndpointData(timestamp, epData))
+                    existingEpData.add(epData)
                 }
             }
             val name = confData.asSequence().map { it.name }.first { it != undefined } ?: "No conf name found"
@@ -154,7 +157,8 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
                 }
                 epChannels.forEach { (epId, epChannel) ->
                     val epData = confData.endpoints[epId]
-                    epChannel.send(EndpointData(now, epData))
+                    epData.timestamp = now
+                    epChannel.send(epData)
                 }
                 delay(1000)
             } catch (c: CancellationException) {

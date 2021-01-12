@@ -28,6 +28,23 @@ fun getAllKeys(obj: dynamic): List<String> {
     }
 }
 
+fun getAllKeysWithValuesThat(obj: dynamic, predicate: (Any) -> Boolean): List<String> {
+    if (obj == undefined) {
+        return listOf()
+    }
+    return keys(obj).flatMap { key ->
+        when {
+            jsTypeOf(obj[key]) == "object" -> {
+                (getAllKeys(obj[key]).map { "$key.$it" })
+            }
+            predicate(obj[key]) -> {
+                listOf(key)
+            }
+            else -> emptyList()
+        }
+    }
+}
+
 /**
  * Get the value of a dot-separated path
  */

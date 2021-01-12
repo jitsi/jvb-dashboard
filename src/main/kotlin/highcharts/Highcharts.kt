@@ -43,7 +43,7 @@ external interface AnimationOptionsObjectPartial {
 
 fun Point(x: Number, y: Number): Point = jsObject { this.x = x; this.y = y }.unsafeCast<Point>()
 
-fun TimeseriesPoint(x: Number, name: String): Point = jsObject { this.x = x; this.name = name }.unsafeCast<Point>()
+fun Event(x: Number, name: String): Point = jsObject { this.x = x; this.name = name }.unsafeCast<Point>()
 
 external interface SeriesOptionsType {
     var type: String?

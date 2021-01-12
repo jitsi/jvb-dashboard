@@ -1,5 +1,3 @@
-import graphs.GraphFilter
-import graphs.LiveZoomAdjustment
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
@@ -7,6 +5,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.css.paddingLeft
@@ -23,12 +22,14 @@ import react.dom.h3
 import react.setState
 import styled.css
 import styled.styledDiv
+import kotlin.js.Date
 
 class Endpoint : RComponent<EpProps, EpState>() {
     // The Endpoint broadcasts its received data onto this channel for all the graphs to receive
     private val broadcastChannel = BroadcastChannel<Any>(5)
     private var job: Job? = null
     private var nextGraphId: Int = 0
+    private var graphSelectors: MutableMap<Int, GraphSelection> = mutableMapOf()
 
     init {
         state.chartInfos = listOf()
@@ -37,14 +38,30 @@ class Endpoint : RComponent<EpProps, EpState>() {
     }
 
     override fun componentDidMount() {
-        job = GlobalScope.launch { handleMessages() }
+//        job = GlobalScope.launch { handleMessages() }
         if (state.numericalKeys.isEmpty() && props.data != undefined) {
-            console.log("ep allkeys is not set, and we have data in props, filling out there")
-            setState {
-                // TODO: find all keys from all entries, not just the first one
-                numericalKeys = getAllKeys(props.data!!.first().data).filter { getValue(props.data!!.first().data, it) is Number }
-                nonNumericalKeys = getAllKeys(props.data!!.first().data).filterNot { getValue(props.data!!.first().data, it) is Number }
+            extractKeys(props.data!!.first())
+        }
+        GlobalScope.launch {
+            repeat(20) {
+                val now = Date.now()
+                val data = jsObject {
+                    key1 = 1 * it
+                    key2 = 2 * it
+                    key3 = it % 2 == 0
+                    timestamp = now
+                }
+                addData(data)
+                delay(2000)
             }
+        }
+    }
+
+    private fun extractKeys(data: dynamic) {
+        console.log("Extracting keys from ", data)
+        setState {
+            numericalKeys = getAllKeysWithValuesThat(data) { it is Number }
+            nonNumericalKeys = getAllKeysWithValuesThat(data) { it !is Number }
         }
     }
 
@@ -106,6 +123,19 @@ class Endpoint : RComponent<EpProps, EpState>() {
         }
     }
 
+    fun addData(data: dynamic) {
+        if (usingLiveData()) {
+            console.log("adding data ", data)
+            if (state.numericalKeys.isEmpty()) {
+                extractKeys(data)
+            }
+            console.log("sending data to selectors")
+            graphSelectors.forEach { (_, selector) ->
+                selector.addData(data)
+            }
+        }
+    }
+
     override fun RBuilder.render() {
         console.log("Endpoint ${props.id}: rendering")
         div {
@@ -143,31 +173,19 @@ class Endpoint : RComponent<EpProps, EpState>() {
                     button {
                         attrs {
                             text("1 min")
-                            onClickFunction = {
-                                GlobalScope.launch {
-                                    broadcastChannel.send(LiveZoomAdjustment(60))
-                                }
-                            }
+                            onClickFunction = {}
                         }
                     }
                     button {
                         attrs {
                             text("5 mins")
-                            onClickFunction = {
-                                GlobalScope.launch {
-                                    broadcastChannel.send(LiveZoomAdjustment(300))
-                                }
-                            }
+                            onClickFunction = {}
                         }
                     }
                     button {
                         attrs {
                             text("All")
-                            onClickFunction = {
-                                GlobalScope.launch {
-                                    broadcastChannel.send(LiveZoomAdjustment(Int.MAX_VALUE))
-                                }
-                            }
+                            onClickFunction = {}
                         }
                     }
                 }
@@ -200,6 +218,11 @@ class Endpoint : RComponent<EpProps, EpState>() {
 //                                    channel = chart.channel
                                         data = props.data
                                     }
+                                    ref {
+                                        if (it != null) {
+                                            graphSelectors[chart.id] = it as GraphSelection
+                                        }
+                                    }
                                 }
                             }
                             is TimelineInfo -> {
@@ -211,6 +234,11 @@ class Endpoint : RComponent<EpProps, EpState>() {
 //                                    channel = chart.channel
                                         data = props.data
                                         graphType = "timeline"
+                                    }
+                                    ref {
+                                        if (it != null) {
+                                            graphSelectors[chart.id] = it as GraphSelection
+                                        }
                                     }
                                 }
                             }
@@ -230,7 +258,7 @@ external interface EpProps : RProps {
     var baseRestApiUrl: String?
     var channel: ReceiveChannel<EndpointData>
     // An optional property to pass pre-existing data (e.g. from a dump file)
-    var data: List<EndpointData>?
+    var data: List<dynamic>?
 }
 
 data class EndpointData(

@@ -70,7 +70,6 @@ class Graph : RComponent<GraphProps, RState>() {
         return chart.series.find { it.name == seriesName } ?: run {
             chart.addSeries(
                 SeriesOptions().apply {
-//                    type = "spline"
                     name = seriesName
                     data = arrayOf()
                 }
@@ -105,6 +104,11 @@ class Graph : RComponent<GraphProps, RState>() {
         val newMin = maxOf(now.getTime() - currentTimeZoomSeconds * 1000, currMin)
 
         chart.xAxis.forEach { it.setExtremes(newMin) }
+    }
+
+    fun setZoom(zoomSeconds: Int) {
+        currentTimeZoomSeconds = zoomSeconds
+        updateZoom()
     }
 
     /**
