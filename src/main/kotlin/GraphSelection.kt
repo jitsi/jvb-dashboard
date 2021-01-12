@@ -32,7 +32,7 @@ class GraphSelection : RComponent<GraphSelectionProps, RState>() {
                     val timestamp = dataEntry.timestamp.unsafeCast<Number>()
                     val value = getValue(dataEntry, addedKey)
                     if (props.graphType.equals("timeline", ignoreCase = true)) {
-                        timeseries.add(TimeseriesPoint(timestamp, value as String))
+                        timeseries.add(TimeseriesPoint(timestamp, value.toString()))
                     } else {
                         timeseries.add(Point(timestamp, value as Number))
                     }
