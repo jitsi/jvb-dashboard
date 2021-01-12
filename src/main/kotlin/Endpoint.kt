@@ -1,13 +1,10 @@
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
 import kotlinx.css.paddingLeft
 import kotlinx.css.paddingTop
 import kotlinx.css.pct
@@ -22,7 +19,6 @@ import react.dom.h3
 import react.setState
 import styled.css
 import styled.styledDiv
-import kotlin.js.Date
 
 class Endpoint : RComponent<EpProps, EpState>() {
     // The Endpoint broadcasts its received data onto this channel for all the graphs to receive
@@ -41,19 +37,6 @@ class Endpoint : RComponent<EpProps, EpState>() {
 //        job = GlobalScope.launch { handleMessages() }
         if (state.numericalKeys.isEmpty() && props.data != undefined) {
             extractKeys(props.data!!.first())
-        }
-        GlobalScope.launch {
-            repeat(20) {
-                val now = Date.now()
-                val data = jsObject {
-                    key1 = 1 * it
-                    key2 = 2 * it
-                    key3 = it % 2 == 0
-                    timestamp = now
-                }
-                addData(data)
-                delay(2000)
-            }
         }
     }
 
@@ -118,6 +101,7 @@ class Endpoint : RComponent<EpProps, EpState>() {
     }
 
     private fun removeChart(chartId: Int) {
+        graphSelectors.remove(chartId)
         setState {
             chartInfos = chartInfos.filterNot { it.id == chartId }
         }
@@ -125,11 +109,9 @@ class Endpoint : RComponent<EpProps, EpState>() {
 
     fun addData(data: dynamic) {
         if (usingLiveData()) {
-            console.log("adding data ", data)
             if (state.numericalKeys.isEmpty()) {
                 extractKeys(data)
             }
-            console.log("sending data to selectors")
             graphSelectors.forEach { (_, selector) ->
                 selector.addData(data)
             }
