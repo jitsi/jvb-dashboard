@@ -15,6 +15,7 @@ class Dump : RComponent<RProps, DumpState>() {
         state.file = null
     }
     override fun RBuilder.render() {
+        console.log("blah")
         if (state.file == null) {
             div {
                 input(type = InputType.file) {

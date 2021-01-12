@@ -73,7 +73,6 @@ class GraphSelection : RComponent<GraphSelectionProps, RState>() {
     fun addData(data: dynamic) {
         val timestamp = data.timestamp as Number
         currentlyGraphedKeys.forEach { key ->
-            console.log("Adding data for key $key")
             val value = getValue(data, key)
             if (value != undefined) {
                 if (value is Number) {

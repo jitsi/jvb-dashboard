@@ -28,6 +28,7 @@ dependencies {
     implementation(npm("styled-components", "~5.1.1"))
     implementation(npm("inline-style-prefixer", "~6.0.0"))
     implementation(npm("react-select", "~3.1.0"))
+    implementation("org.jetbrains:kotlin-react-router-dom:5.2.0-pre.136-kotlin-1.4.10")
 }
 
 kotlin {
