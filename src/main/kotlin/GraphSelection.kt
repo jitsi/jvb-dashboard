@@ -30,7 +30,7 @@ class GraphSelection : RComponent<GraphSelectionProps, RState>() {
                     // As of now, the 'x' value is always the timestamp, and we expect the
                     // entry to have a 'timestamp' field.
                     val timestamp = dataEntry.timestamp.unsafeCast<Number>()
-                    val value = getValue(dataEntry, addedKey)
+                    val value = getValue(dataEntry.data, addedKey)
                     if (props.graphType.equals("timeline", ignoreCase = true)) {
                         timeseries.add(TimeseriesPoint(timestamp, value.toString()))
                     } else {
@@ -88,6 +88,10 @@ external interface GraphSelectionProps : RProps {
     var title: String?
     var allKeys: List<String>?
     // An optional property which can contain stored data to be graphed
+    // TODO: these types are actually EndpointData.  In order to not make these
+    // classes endpoint-specific, we should embed the timestamp in the object alongside
+    // the other data and pass that down, so this class just cares about receiving an
+    // object with a timestamp field in it
     var data: List<dynamic>?
     var graphType: String?
 }

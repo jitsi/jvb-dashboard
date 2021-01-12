@@ -31,7 +31,7 @@ class Endpoint : RComponent<EpProps, EpState>() {
     private var nextGraphId: Int = 0
 
     init {
-        state.graphInfos = listOf()
+        state.chartInfos = listOf()
         state.numericalKeys = listOf()
         state.statsId = null
     }
@@ -42,7 +42,8 @@ class Endpoint : RComponent<EpProps, EpState>() {
             console.log("ep allkeys is not set, and we have data in props, filling out there")
             setState {
                 // TODO: find all keys from all entries, not just the first one
-                numericalKeys = getAllKeys(props.data!!.first().data)
+                numericalKeys = getAllKeys(props.data!!.first().data).filter { getValue(props.data!!.first().data, it) is Number }
+                nonNumericalKeys = getAllKeys(props.data!!.first().data).filterNot { getValue(props.data!!.first().data, it) is Number }
             }
         }
     }
@@ -88,13 +89,20 @@ class Endpoint : RComponent<EpProps, EpState>() {
     private fun addGraph() {
         val newGraph = GraphInfo(nextGraphId++, broadcastChannel.openSubscription())
         setState {
-            graphInfos += newGraph
+            chartInfos += newGraph
         }
     }
 
-    private fun removeGraph(graphId: Int) {
+    private fun addTimeline() {
+        val newTimeline = TimelineInfo(nextGraphId++, broadcastChannel.openSubscription())
         setState {
-            graphInfos = graphInfos.filterNot { it.id == graphId }
+            chartInfos += newTimeline
+        }
+    }
+
+    private fun removeChart(chartId: Int) {
+        setState {
+            chartInfos = chartInfos.filterNot { it.id == chartId }
         }
     }
 
@@ -125,7 +133,13 @@ class Endpoint : RComponent<EpProps, EpState>() {
                         addGraph()
                     }
                 }
-                if (usingLiveData() && state.graphInfos.isNotEmpty()) {
+                button {
+                    attrs.text("Add Timeline")
+                    attrs.onClickFunction = { _ ->
+                        addTimeline()
+                    }
+                }
+                if (usingLiveData() && state.chartInfos.isNotEmpty()) {
                     button {
                         attrs {
                             text("1 min")
@@ -163,25 +177,42 @@ class Endpoint : RComponent<EpProps, EpState>() {
                     paddingLeft = 2.pct
                     paddingTop = 2.pct
                 }
-                state.graphInfos.forEach { graph ->
-                    console.log("rendering graph ${graph.id}")
+                state.chartInfos.forEach { chart ->
+                    console.log("rendering chart ${chart.id}")
                     div {
-                        key = graph.id.toString()
+                        key = chart.id.toString()
                         button {
-                            key = "remove-graph-${graph.id}"
-                            attrs.value = graph.id.toString()
-                            attrs.text("Remove graph")
+                            key = "remove-graph-${chart.id}"
+                            attrs.value = chart.id.toString()
+                            attrs.text("Remove chart")
                             attrs.onClickFunction = { _ ->
-                                removeGraph(graph.id)
+                                removeChart(chart.id)
                             }
                         }
-                        child(GraphFilter::class) {
-                            key = "graph-filter-${graph.id}"
-                            attrs {
-                                name = "Graph ${graph.id}"
-                                allKeys = state.numericalKeys
-                                channel = graph.channel
-                                data = props.data
+                        when (chart) {
+                            is GraphInfo -> {
+                                child(GraphSelection::class) {
+                                    key = "graph-filter-${chart.id}"
+                                    attrs {
+                                        title = "Graph ${chart.id}"
+                                        allKeys = state.numericalKeys
+                                        graphType = "spline"
+//                                    channel = chart.channel
+                                        data = props.data
+                                    }
+                                }
+                            }
+                            is TimelineInfo -> {
+                                child(GraphSelection::class) {
+                                    key = "graph-filter-${chart.id}"
+                                    attrs {
+                                        title = "Graph ${chart.id}"
+                                        allKeys = state.nonNumericalKeys
+//                                    channel = chart.channel
+                                        data = props.data
+                                        graphType = "timeline"
+                                    }
+                                }
                             }
                         }
                     }
@@ -211,12 +242,22 @@ data class EndpointData(
 // request and updates the props of the ep components
 external interface EpState : RState {
     var numericalKeys: List<String>
-    var graphInfos: List<GraphInfo>
+    var nonNumericalKeys: List<String>
+    var chartInfos: List<ChartInfo>
     var statsId: String?
 }
 
-data class GraphInfo(
+sealed class ChartInfo(
     val id: Int,
     val channel: ReceiveChannel<Any>
 )
 
+class GraphInfo(
+    id: Int,
+    channel: ReceiveChannel<Any>
+) : ChartInfo(id, channel)
+
+class TimelineInfo(
+    id: Int,
+    channel: ReceiveChannel<Any>
+) : ChartInfo(id, channel)

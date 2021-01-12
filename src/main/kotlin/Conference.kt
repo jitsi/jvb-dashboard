@@ -24,7 +24,7 @@ import styled.css
 import styled.styledDiv
 
 class Conference : RComponent<ConferenceProps, ConferenceState>() {
-    private val epChannels: MutableMap<String, Channel<EndpointData>> = mutableMapOf()
+    private val epChannels: MutableMap<String, Channel<dynamic>> = mutableMapOf()
     private var job: Job? = null
 
     init {
@@ -45,7 +45,7 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
                 val epIds = getEpIds(it).toList()
                 epIds
             }.toSet()
-            val dataByEp = mutableMapOf<String, MutableList<EndpointData>>()
+            val dataByEp = mutableMapOf<String, MutableList<dynamic>>()
             confData.forEach { confDataEntry ->
                 val timestamp = confDataEntry.timestamp as Number
                 val epIds = getEpIds(confDataEntry)
