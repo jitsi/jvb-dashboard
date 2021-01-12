@@ -25,6 +25,7 @@ import styled.styledDiv
 
 class Conference : RComponent<ConferenceProps, ConferenceState>() {
     private val epChannels: MutableMap<String, Channel<dynamic>> = mutableMapOf()
+    private val eps: MutableMap<String, Endpoint> = mutableMapOf()
     private var job: Job? = null
 
     init {
@@ -132,6 +133,11 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
                                     data = existingEpData
                                 }
                             }
+                            ref {
+                                if (it != null) {
+                                    eps[epId] = it
+                                }
+                            }
                         }
                     }
                 }
@@ -155,10 +161,10 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
                     this.name = confData.name.unsafeCast<String>().substringBefore('@')
                     this.epIds = epIds
                 }
-                epChannels.forEach { (epId, epChannel) ->
+                eps.forEach { (epId, ep) ->
                     val epData = confData.endpoints[epId]
                     epData.timestamp = now
-                    epChannel.send(epData)
+                    ep.addData(epData)
                 }
                 delay(1000)
             } catch (c: CancellationException) {
