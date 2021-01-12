@@ -24,7 +24,6 @@ import styled.css
 import styled.styledDiv
 
 class Conference : RComponent<ConferenceProps, ConferenceState>() {
-    private val epChannels: MutableMap<String, Channel<dynamic>> = mutableMapOf()
     private val eps: MutableMap<String, Endpoint> = mutableMapOf()
     private var job: Job? = null
 
@@ -70,9 +69,6 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
 
     override fun componentWillUnmount() {
         job?.cancel("Unmounting")
-        epChannels.forEach { (_, channel) ->
-            channel.close()
-        }
     }
 
     // TODO: we need this function because react doesn't do a deep comparison on the epIds array to know whether
@@ -116,7 +112,6 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
                     }
                 }
                 state.epIds.forEach { epId ->
-                    val epChannel = epChannels.getOrPut(epId) { Channel() }
                     styledDiv {
                         css {
                             paddingLeft = 2.pct
@@ -127,9 +122,7 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
                                 confId = props.id
                                 id = epId
                                 baseRestApiUrl = props.baseRestApiUrl
-                                channel = epChannel
                                 state.dataByEp?.get(epId)?.let { existingEpData ->
-                                    console.log("have data for ep ", epId)
                                     data = existingEpData
                                 }
                             }
@@ -187,11 +180,6 @@ external interface ConferenceState : RState {
     var expanded: Boolean
     var dataByEp: MutableMap<String, MutableList<dynamic>>?
 }
-
-data class ConfData(
-    val timestamp: Number,
-    val data: dynamic
-)
 
 external interface ConferenceProps : RProps {
     var baseRestApiUrl: String?

@@ -1,10 +1,5 @@
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.isActive
 import kotlinx.css.paddingLeft
 import kotlinx.css.paddingTop
 import kotlinx.css.pct
@@ -22,7 +17,6 @@ import styled.styledDiv
 
 class Endpoint : RComponent<EpProps, EpState>() {
     // The Endpoint broadcasts its received data onto this channel for all the graphs to receive
-    private val broadcastChannel = BroadcastChannel<Any>(5)
     private var job: Job? = null
     private var nextGraphId: Int = 0
     private var graphSelectors: MutableMap<Int, GraphSelection> = mutableMapOf()
@@ -34,7 +28,6 @@ class Endpoint : RComponent<EpProps, EpState>() {
     }
 
     override fun componentDidMount() {
-//        job = GlobalScope.launch { handleMessages() }
         if (state.numericalKeys.isEmpty() && props.data != undefined) {
             extractKeys(props.data!!.first())
         }
@@ -48,53 +41,17 @@ class Endpoint : RComponent<EpProps, EpState>() {
         }
     }
 
-    override fun componentWillUnmount() {
-        job?.cancel("Unmounting")
-        broadcastChannel.close()
-    }
-
-    private suspend fun CoroutineScope.handleMessages() {
-        try {
-            while (isActive) {
-                val epData = props.channel.receive()
-                if (state.numericalKeys.isEmpty()) {
-                    // Build the list of available keys the first time we get data.
-                    // NOTE: This means keys that didn't show up later won't be displayed,
-                    // if we need to cover that then we can add any missing ones each time
-                    val allKeys = getAllKeys(epData.data).filter { key ->
-                        isNumber(getValue(epData.data, key))
-                    }
-                    console.log("Endpoint ${props.id}: Got all (numerical) keys: ", allKeys)
-                    setState {
-                        this.numericalKeys = allKeys
-                    }
-                }
-                // Set the stats ID if it isn't already set
-                if (state.statsId == null) {
-                    setState {
-                        statsId = epData.data.statsId.unsafeCast<String>()
-                    }
-                }
-                // Pass the epData down to all graphs
-                broadcastChannel.send(epData)
-            }
-        } catch (c: CancellationException) {
-            console.log("endpoint data send loop cancelled: ${c.message}")
-            throw c
-        } catch (t: Throwable) {
-            console.log("endpoint data send loop error: ", t)
-        }
-    }
+    override fun componentWillUnmount() {}
 
     private fun addGraph() {
-        val newGraph = GraphInfo(nextGraphId++, broadcastChannel.openSubscription())
+        val newGraph = GraphInfo(nextGraphId++)
         setState {
             chartInfos += newGraph
         }
     }
 
     private fun addTimeline() {
-        val newTimeline = TimelineInfo(nextGraphId++, broadcastChannel.openSubscription())
+        val newTimeline = TimelineInfo(nextGraphId++)
         setState {
             chartInfos += newTimeline
         }
@@ -238,7 +195,6 @@ external interface EpProps : RProps {
     var confId: String
     var id: String
     var baseRestApiUrl: String?
-    var channel: ReceiveChannel<dynamic>
     // An optional property to pass pre-existing data (e.g. from a dump file)
     var data: List<dynamic>?
 }
@@ -252,17 +208,8 @@ external interface EpState : RState {
     var statsId: String?
 }
 
-sealed class ChartInfo(
-    val id: Int,
-    val channel: ReceiveChannel<Any>
-)
+sealed class ChartInfo(val id: Int)
 
-class GraphInfo(
-    id: Int,
-    channel: ReceiveChannel<Any>
-) : ChartInfo(id, channel)
+class GraphInfo(id: Int) : ChartInfo(id)
 
-class TimelineInfo(
-    id: Int,
-    channel: ReceiveChannel<Any>
-) : ChartInfo(id, channel)
+class TimelineInfo(id: Int) : ChartInfo(id)
