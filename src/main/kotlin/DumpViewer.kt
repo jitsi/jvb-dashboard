@@ -11,6 +11,7 @@ class DumpViewer : RComponent<DumpViewerProps, DumpViewerState>() {
         state.data = null
         state.error = null
     }
+
     override fun RBuilder.render() {
         console.log("DumpViewer rendering")
         when {
@@ -18,6 +19,7 @@ class DumpViewer : RComponent<DumpViewerProps, DumpViewerState>() {
                 +"Error parsing dump file: '${state.error}'"
             }
             state.data == null -> {
+                +"Loading..."
                 val reader = FileReader().apply {
                     onload = { event ->
                         val rawData = (event.target as FileReader).result as String
