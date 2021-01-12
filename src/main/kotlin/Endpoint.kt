@@ -112,19 +112,25 @@ class Endpoint : RComponent<EpProps, EpState>() {
                     button {
                         attrs {
                             text("1 min")
-                            onClickFunction = {}
+                            onClickFunction = {
+                                graphSelectors.values.forEach { it.setZoom(60) }
+                            }
                         }
                     }
                     button {
                         attrs {
                             text("5 mins")
-                            onClickFunction = {}
+                            onClickFunction = {
+                                graphSelectors.values.forEach { it.setZoom(300) }
+                            }
                         }
                     }
                     button {
                         attrs {
                             text("All")
-                            onClickFunction = {}
+                            onClickFunction = {
+                                graphSelectors.values.forEach { it.setZoom(Int.MAX_VALUE) }
+                            }
                         }
                     }
                 }

@@ -70,6 +70,10 @@ class GraphSelection : RComponent<GraphSelectionProps, RState>() {
         }
     }
 
+    fun setZoom(zoomSeconds: Int) {
+        graph?.setZoom(zoomSeconds)
+    }
+
     fun addData(data: dynamic) {
         val timestamp = data.timestamp as Number
         currentlyGraphedKeys.forEach { key ->

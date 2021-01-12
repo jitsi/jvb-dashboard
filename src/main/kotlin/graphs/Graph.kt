@@ -25,7 +25,7 @@ class Graph : RComponent<GraphProps, RState>() {
     private var chartRef: ReactElement? = null
     private val maxPoints: Int = 60 * 60
     // How many seconds worth of live data we're currently displaying
-    private var currentTimeZoomSeconds: Int = maxPoints
+    private var currentTimeZoomSeconds: Long = maxPoints.toLong()
 
     private val chart: Chart
         get() = chartRef.asDynamic().chart.unsafeCast<Chart>()
@@ -107,7 +107,8 @@ class Graph : RComponent<GraphProps, RState>() {
     }
 
     fun setZoom(zoomSeconds: Int) {
-        currentTimeZoomSeconds = zoomSeconds
+        console.log("Setting zoom to $zoomSeconds seconds")
+        currentTimeZoomSeconds = zoomSeconds.toLong()
         updateZoom()
     }
 
