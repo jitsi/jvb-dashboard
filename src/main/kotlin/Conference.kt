@@ -35,10 +35,10 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
 
     override fun componentDidMount() {
         // Start the fetch data job if there's a URL to query
-        props.baseRestApiUrl?.let { baseRestApiUrl ->
-            job = GlobalScope.launch { fetchDataLoop(baseRestApiUrl) }
+        if (usingLiveData()) {
+            job = GlobalScope.launch { fetchDataLoop(props.baseRestApiUrl!!) }
         }
-        if ((state.epIds == undefined || state.epIds.isEmpty()) && props.confData != null) {
+        if ((state.epIds == undefined || state.epIds.isEmpty()) && !usingLiveData()) {
             val confData = props.confData!!
             // We need to extract all epIds present in all the data
             val allEpIds = confData.flatMap {
@@ -82,7 +82,7 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
     }
 
     override fun RBuilder.render() {
-        console.log("conference ${props.id} renderingz")
+        console.log("conference ${props.id} rendering")
         div {
             key = props.id
             h2 {
@@ -168,6 +168,8 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
             }
         }
     }
+
+    private fun usingLiveData(): Boolean = props.baseRestApiUrl != null
 }
 
 private fun getEpIds(confData: dynamic): Array<String> {

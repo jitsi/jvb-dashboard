@@ -160,7 +160,6 @@ class Endpoint : RComponent<EpProps, EpState>() {
                                         title = "Graph ${chart.id}"
                                         allKeys = state.numericalKeys
                                         graphType = "spline"
-//                                    channel = chart.channel
                                         data = props.data
                                     }
                                     ref {
@@ -176,7 +175,6 @@ class Endpoint : RComponent<EpProps, EpState>() {
                                     attrs {
                                         title = "Graph ${chart.id}"
                                         allKeys = state.nonNumericalKeys
-//                                    channel = chart.channel
                                         data = props.data
                                         graphType = "timeline"
                                     }
