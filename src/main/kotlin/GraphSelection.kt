@@ -1,4 +1,4 @@
-import graphs.Graph
+import graphs.Chart
 import highcharts.Event
 import highcharts.Point
 import react.RBuilder
@@ -10,7 +10,7 @@ import react.RState
 class GraphSelection : RComponent<GraphSelectionProps, RState>() {
     private var currentlyGraphedKeys = listOf<String>()
     private var selector: Selector? = null
-    private var graph: Graph? = null
+    private var chart: Chart? = null
 
     override fun componentDidMount() {}
 
@@ -18,7 +18,7 @@ class GraphSelection : RComponent<GraphSelectionProps, RState>() {
         val removedKeys = currentlyGraphedKeys.filterNot(newKeys::contains)
         val addedKeys = newKeys.filterNot(currentlyGraphedKeys::contains)
         currentlyGraphedKeys = newKeys
-        removedKeys.forEach { graph?.removeSeries(it) }
+        removedKeys.forEach { chart?.removeSeries(it) }
         // If we're using stored data, then we'll add the timeseries for the new keys
         // immediately.
         ifHaveStoredData { storedData ->
@@ -41,7 +41,7 @@ class GraphSelection : RComponent<GraphSelectionProps, RState>() {
                     }
                 }
             }
-            allTimeseries.forEach { (seriesName, timeseries) -> graph?.addTimeseries(seriesName, timeseries) }
+            allTimeseries.forEach { (seriesName, timeseries) -> chart?.addTimeseries(seriesName, timeseries) }
         }
     }
 
@@ -56,7 +56,7 @@ class GraphSelection : RComponent<GraphSelectionProps, RState>() {
                 selector = it.unsafeCast<Selector>()
             }
         }
-        child(Graph::class) {
+        child(Chart::class) {
             attrs {
                 title = props.title
                 enableZoom = haveStoredData()
@@ -64,14 +64,14 @@ class GraphSelection : RComponent<GraphSelectionProps, RState>() {
             }
             ref {
                 if (it != null) {
-                    graph = it as Graph
+                    chart = it as Chart
                 }
             }
         }
     }
 
     fun setZoom(zoomSeconds: Int) {
-        graph?.setZoom(zoomSeconds)
+        chart?.setZoom(zoomSeconds)
     }
 
     fun addData(data: dynamic) {
@@ -80,9 +80,9 @@ class GraphSelection : RComponent<GraphSelectionProps, RState>() {
             val value = getValue(data, key)
             if (value != undefined) {
                 if (value is Number) {
-                    graph?.addPoint(key, Point(timestamp, value))
+                    chart?.addPoint(key, Point(timestamp, value))
                 } else {
-                    graph?.addPoint(key, Event(timestamp, value.toString()))
+                    chart?.addPoint(key, Event(timestamp, value.toString()))
                 }
             }
         }

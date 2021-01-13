@@ -21,7 +21,7 @@ import react.ReactElement
 import react.dom.div
 import kotlin.js.Date
 
-class Graph : RComponent<GraphProps, RState>() {
+class Chart : RComponent<GraphProps, RState>() {
     private var chartRef: ReactElement? = null
     private val maxPoints: Int = 60 * 60
     // How many seconds worth of live data we're currently displaying
