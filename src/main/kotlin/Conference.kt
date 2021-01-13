@@ -128,7 +128,7 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
                             }
                             ref {
                                 if (it != null) {
-                                    eps[epId] = it
+                                    eps[epId] = it as Endpoint
                                 }
                             }
                         }

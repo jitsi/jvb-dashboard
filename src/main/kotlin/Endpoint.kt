@@ -1,5 +1,4 @@
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.css.paddingLeft
 import kotlinx.css.paddingTop
 import kotlinx.css.pct
@@ -98,38 +97,17 @@ class Endpoint : RComponent<EpProps, EpState>() {
             div {
                 button {
                     attrs.text("Add graph")
-                    attrs.onClickFunction = { _ ->
-                        addGraph()
-                    }
+                    attrs.onClickFunction = { addGraph() }
                 }
                 button {
                     attrs.text("Add Timeline")
-                    attrs.onClickFunction = { _ ->
-                        addTimeline()
-                    }
+                    attrs.onClickFunction = { addTimeline() }
                 }
                 if (usingLiveData() && state.chartInfos.isNotEmpty()) {
-                    button {
+                    child(ChartZoomButtons::class) {
                         attrs {
-                            text("1 min")
-                            onClickFunction = {
-                                graphSelectors.values.forEach { it.setZoom(60) }
-                            }
-                        }
-                    }
-                    button {
-                        attrs {
-                            text("5 mins")
-                            onClickFunction = {
-                                graphSelectors.values.forEach { it.setZoom(300) }
-                            }
-                        }
-                    }
-                    button {
-                        attrs {
-                            text("All")
-                            onClickFunction = {
-                                graphSelectors.values.forEach { it.setZoom(Int.MAX_VALUE) }
+                            onZoomChange = { zoomSeconds ->
+                                graphSelectors.values.forEach { it.setZoom(zoomSeconds) }
                             }
                         }
                     }
