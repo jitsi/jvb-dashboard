@@ -16,7 +16,6 @@ import styled.styledDiv
 
 class Endpoint : RComponent<EpProps, EpState>() {
     // The Endpoint broadcasts its received data onto this channel for all the graphs to receive
-    private var job: Job? = null
     private var nextGraphId: Int = 0
     private var graphSelectors: MutableMap<Int, GraphSelection> = mutableMapOf()
 
