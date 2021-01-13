@@ -1,3 +1,4 @@
+import graphs.ChartCollection
 import kotlinx.browser.window
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -10,6 +11,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.css.paddingLeft
+import kotlinx.css.paddingTop
 import kotlinx.css.pct
 import kotlinx.html.js.onClickFunction
 import react.RBuilder
@@ -25,12 +27,15 @@ import styled.styledDiv
 
 class Conference : RComponent<ConferenceProps, ConferenceState>() {
     private val eps: MutableMap<String, Endpoint> = mutableMapOf()
+    private var chartCollection: ChartCollection? = null
     private var job: Job? = null
 
     init {
         state.epIds = arrayOf()
         state.expanded = false
         state.dataByEp = null
+        state.numericalKeys = emptyList()
+        state.nonNumericalKeys = emptyList()
     }
 
     override fun componentDidMount() {
@@ -38,6 +43,11 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
         if (usingLiveData()) {
             job = GlobalScope.launch { fetchDataLoop(props.baseRestApiUrl!!) }
         }
+        // TODO: do we know that when this method runs state.numericalKeys will always be empty?
+        if (state.numericalKeys.isEmpty() && props.confData != undefined) {
+            extractKeys(props.confData!!.first())
+        }
+
         if ((state.epIds == undefined || state.epIds.isEmpty()) && !usingLiveData()) {
             val confData = props.confData!!
             // We need to extract all epIds present in all the data
@@ -67,6 +77,14 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
         }
     }
 
+    private fun extractKeys(data: dynamic) {
+        console.log("Extracting keys from ", data)
+        setState {
+            numericalKeys = getAllKeysWithValuesThat(data) { it is Number }
+            nonNumericalKeys = getAllKeysWithValuesThat(data) { it !is Number }
+        }
+    }
+
     override fun componentWillUnmount() {
         job?.cancel("Unmounting")
     }
@@ -78,7 +96,9 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
     override fun shouldComponentUpdate(nextProps: ConferenceProps, nextState: ConferenceState): Boolean {
         return (state.expanded != nextState.expanded) ||
             (state.name != nextState.name) ||
-            (!state.epIds.contentEquals(nextState.epIds))
+            (!state.epIds.contentEquals(nextState.epIds) ||
+            (state.numericalKeys != nextState.numericalKeys) ||
+            (state.nonNumericalKeys != nextState.nonNumericalKeys))
     }
 
     override fun RBuilder.render() {
@@ -109,6 +129,24 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
                     p {
                         +"No data received yet"
                         return
+                    }
+                }
+                styledDiv {
+                    css {
+                        paddingLeft = 2.pct
+                        paddingTop = 2.pct
+                    }
+                    child(ChartCollection::class) {
+                        attrs {
+                            numericalKeys = state.numericalKeys
+                            nonNumericalKeys = state.nonNumericalKeys
+                            data = props.confData
+                        }
+                        ref {
+                            if (it != null) {
+                                chartCollection = it as ChartCollection
+                            }
+                        }
                     }
                 }
                 state.epIds.forEach { epId ->
@@ -149,6 +187,11 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
                     .asDynamic()
                 val now = jvbData.time.unsafeCast<Number>()
                 val confData = jvbData.conferences[props.id]
+                if (state.numericalKeys.isEmpty()) {
+                    extractKeys(confData)
+                }
+                confData.timestamp = now
+                chartCollection?.addData(confData)
                 val epIds = getEpIds(confData)
                 setState {
                     this.name = confData.name.unsafeCast<String>().substringBefore('@')
@@ -180,6 +223,8 @@ external interface ConferenceState : RState {
     var epIds: Array<String>
     var name: String
     var expanded: Boolean
+    var numericalKeys: List<String>
+    var nonNumericalKeys: List<String>
     var dataByEp: MutableMap<String, MutableList<dynamic>>?
 }
 
