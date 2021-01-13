@@ -16,6 +16,7 @@ import styled.styledDiv
 
 class ChartCollection : RComponent<ChartCollectionProps, ChartCollectionState>() {
     private var chartSelectors: MutableMap<Int, ChartSelection> = mutableMapOf()
+    private var zoomButtons: ChartZoomButtons? = null
     private var nextGraphId: Int = 0
 
     init {
@@ -51,19 +52,30 @@ class ChartCollection : RComponent<ChartCollectionProps, ChartCollectionState>()
 
     override fun RBuilder.render() {
         div {
-            button {
-                attrs.text("Add graph")
-                attrs.onClickFunction = { addGraph() }
+            div {
+                button {
+                    attrs.text("Add graph")
+                    attrs.onClickFunction = { addGraph() }
+                }
+                button {
+                    attrs.text("Add Timeline")
+                    attrs.onClickFunction = { addTimeline() }
+                }
             }
-            button {
-                attrs.text("Add Timeline")
-                attrs.onClickFunction = { addTimeline() }
-            }
+
             if (usingLiveData() && state.chartInfos.isNotEmpty()) {
-                child(ChartZoomButtons::class) {
-                    attrs {
-                        onZoomChange = { zoomSeconds ->
-                            chartSelectors.values.forEach { it.setZoom(zoomSeconds) }
+                div {
+                    child(ChartZoomButtons::class) {
+                        attrs {
+                            onZoomChange = { zoomSeconds ->
+                                chartSelectors.values.forEach { it.setZoom(zoomSeconds) }
+                            }
+                        }
+                        ref {
+                            if (it != null) {
+                                console.log("Assigning zoom buttons ref")
+                                zoomButtons = it as ChartZoomButtons
+                            }
                         }
                     }
                 }
@@ -86,10 +98,15 @@ class ChartCollection : RComponent<ChartCollectionProps, ChartCollectionState>()
                                 child(ChartSelection::class) {
                                     key = "graph-filter-${chart.id}"
                                     attrs {
+                                        console.log("setting startZoomSeconds to ", zoomButtons?.currZoomSeconds())
                                         title = "Graph ${chart.id}"
                                         allKeys = props.numericalKeys
                                         graphType = "spline"
                                         data = props.data
+                                        // TODO: ideally we'd always pull the start zoom from the value in the
+                                        //  buttons, but we may not have a reference to the buttons component
+                                        //  yet
+                                        startZoomSeconds = zoomButtons?.currZoomSeconds() ?: 60
                                     }
                                     ref {
                                         if (it != null) {
@@ -106,6 +123,10 @@ class ChartCollection : RComponent<ChartCollectionProps, ChartCollectionState>()
                                         allKeys = props.nonNumericalKeys
                                         data = props.data
                                         graphType = "timeline"
+                                        // TODO: ideally we'd always pull the start zoom from the value in the
+                                        //  buttons, but we may not have a reference to the buttons component
+                                        //  yet
+                                        startZoomSeconds = zoomButtons?.currZoomSeconds() ?: 60
                                     }
                                     ref {
                                         if (it != null) {

@@ -61,6 +61,7 @@ class ChartSelection : RComponent<GraphSelectionProps, RState>() {
                 title = props.title
                 enableZoom = haveStoredData()
                 graphType = props.graphType ?: "line"
+                startZoomSeconds = props.startZoomSeconds
             }
             ref {
                 if (it != null) {
@@ -114,6 +115,7 @@ external interface GraphSelectionProps : RProps {
     // An optional property which can contain stored data to be graphed
     var data: List<dynamic>?
     var graphType: String?
+    var startZoomSeconds: Int?
 }
 
 // See comment above about defaultProps

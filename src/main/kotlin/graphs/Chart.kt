@@ -30,6 +30,12 @@ class Chart : RComponent<GraphProps, RState>() {
     private val chart: Chart
         get() = chartRef.asDynamic().chart.unsafeCast<Chart>()
 
+    override fun componentDidMount() {
+        props.startZoomSeconds?.let {
+            currentTimeZoomSeconds = it.toLong()
+        }
+    }
+
     override fun RBuilder.render() {
         val options = Options().apply {
             title = Title(props.title ?: "untitled")
@@ -133,6 +139,7 @@ external interface GraphProps : RProps {
     var title: String?
     var enableZoom: Boolean
     var graphType: String?
+    var startZoomSeconds: Int?
 }
 
 // TODO: i think I could do this with a reduce instead?  Would that be better?
