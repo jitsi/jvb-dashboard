@@ -1,30 +1,24 @@
+import graphs.ChartCollection
 import kotlinx.css.paddingLeft
 import kotlinx.css.paddingTop
 import kotlinx.css.pct
-import kotlinx.html.js.onClickFunction
-import react.RBuilder
-import react.RComponent
-import react.RProps
-import react.RState
-import react.dom.button
+import react.*
 import react.dom.div
 import react.dom.h3
-import react.setState
 import styled.css
 import styled.styledDiv
 
 class Endpoint : RComponent<EpProps, EpState>() {
-    // The Endpoint broadcasts its received data onto this channel for all the graphs to receive
-    private var nextGraphId: Int = 0
-    private var chartSelectors: MutableMap<Int, ChartSelection> = mutableMapOf()
+    private var chartCollection: ChartCollection? = null
 
     init {
-        state.chartInfos = listOf()
-        state.numericalKeys = listOf()
+        state.numericalKeys = emptyList()
+        state.nonNumericalKeys = emptyList()
         state.statsId = null
     }
 
     override fun componentDidMount() {
+        // TODO: do we know that when this method runs state.numericalKeys will always be empty?
         if (state.numericalKeys.isEmpty() && props.data != undefined) {
             extractKeys(props.data!!.first())
         }
@@ -40,35 +34,12 @@ class Endpoint : RComponent<EpProps, EpState>() {
 
     override fun componentWillUnmount() {}
 
-    private fun addGraph() {
-        val newGraph = GraphInfo(nextGraphId++)
-        setState {
-            chartInfos += newGraph
-        }
-    }
-
-    private fun addTimeline() {
-        val newTimeline = TimelineInfo(nextGraphId++)
-        setState {
-            chartInfos += newTimeline
-        }
-    }
-
-    private fun removeChart(chartId: Int) {
-        chartSelectors.remove(chartId)
-        setState {
-            chartInfos = chartInfos.filterNot { it.id == chartId }
-        }
-    }
-
     fun addData(data: dynamic) {
         if (usingLiveData()) {
             if (state.numericalKeys.isEmpty()) {
                 extractKeys(data)
             }
-            chartSelectors.forEach { (_, selector) ->
-                selector.addData(data)
-            }
+            chartCollection?.addData(data)
         }
     }
 
@@ -92,75 +63,20 @@ class Endpoint : RComponent<EpProps, EpState>() {
                     }
                 }
             }
-            div {
-                button {
-                    attrs.text("Add graph")
-                    attrs.onClickFunction = { addGraph() }
-                }
-                button {
-                    attrs.text("Add Timeline")
-                    attrs.onClickFunction = { addTimeline() }
-                }
-                if (usingLiveData() && state.chartInfos.isNotEmpty()) {
-                    child(ChartZoomButtons::class) {
-                        attrs {
-                            onZoomChange = { zoomSeconds ->
-                                chartSelectors.values.forEach { it.setZoom(zoomSeconds) }
-                            }
-                        }
-                    }
-                }
-            }
             styledDiv {
                 css {
                     paddingLeft = 2.pct
                     paddingTop = 2.pct
                 }
-                state.chartInfos.forEach { chart ->
-                    console.log("rendering chart ${chart.id}")
-                    div {
-                        key = chart.id.toString()
-                        button {
-                            key = "remove-graph-${chart.id}"
-                            attrs.value = chart.id.toString()
-                            attrs.text("Remove chart")
-                            attrs.onClickFunction = { _ ->
-                                removeChart(chart.id)
-                            }
-                        }
-                        when (chart) {
-                            is GraphInfo -> {
-                                child(ChartSelection::class) {
-                                    key = "graph-filter-${chart.id}"
-                                    attrs {
-                                        title = "Graph ${chart.id}"
-                                        allKeys = state.numericalKeys
-                                        graphType = "spline"
-                                        data = props.data
-                                    }
-                                    ref {
-                                        if (it != null) {
-                                            chartSelectors[chart.id] = it as ChartSelection
-                                        }
-                                    }
-                                }
-                            }
-                            is TimelineInfo -> {
-                                child(ChartSelection::class) {
-                                    key = "graph-filter-${chart.id}"
-                                    attrs {
-                                        title = "Graph ${chart.id}"
-                                        allKeys = state.nonNumericalKeys
-                                        data = props.data
-                                        graphType = "timeline"
-                                    }
-                                    ref {
-                                        if (it != null) {
-                                            chartSelectors[chart.id] = it as ChartSelection
-                                        }
-                                    }
-                                }
-                            }
+                child(ChartCollection::class) {
+                    attrs {
+                        numericalKeys = state.numericalKeys
+                        nonNumericalKeys = state.nonNumericalKeys
+                        data = props.data
+                    }
+                    ref {
+                        if (it != null) {
+                            chartCollection = it as ChartCollection
                         }
                     }
                 }
@@ -184,7 +100,6 @@ external interface EpProps : RProps {
 external interface EpState : RState {
     var numericalKeys: List<String>
     var nonNumericalKeys: List<String>
-    var chartInfos: List<ChartInfo>
     var statsId: String?
 }
 
