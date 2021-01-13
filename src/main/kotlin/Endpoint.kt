@@ -1,4 +1,3 @@
-import kotlinx.coroutines.Job
 import kotlinx.css.paddingLeft
 import kotlinx.css.paddingTop
 import kotlinx.css.pct
@@ -17,7 +16,7 @@ import styled.styledDiv
 class Endpoint : RComponent<EpProps, EpState>() {
     // The Endpoint broadcasts its received data onto this channel for all the graphs to receive
     private var nextGraphId: Int = 0
-    private var graphSelectors: MutableMap<Int, GraphSelection> = mutableMapOf()
+    private var chartSelectors: MutableMap<Int, ChartSelection> = mutableMapOf()
 
     init {
         state.chartInfos = listOf()
@@ -56,7 +55,7 @@ class Endpoint : RComponent<EpProps, EpState>() {
     }
 
     private fun removeChart(chartId: Int) {
-        graphSelectors.remove(chartId)
+        chartSelectors.remove(chartId)
         setState {
             chartInfos = chartInfos.filterNot { it.id == chartId }
         }
@@ -67,7 +66,7 @@ class Endpoint : RComponent<EpProps, EpState>() {
             if (state.numericalKeys.isEmpty()) {
                 extractKeys(data)
             }
-            graphSelectors.forEach { (_, selector) ->
+            chartSelectors.forEach { (_, selector) ->
                 selector.addData(data)
             }
         }
@@ -106,7 +105,7 @@ class Endpoint : RComponent<EpProps, EpState>() {
                     child(ChartZoomButtons::class) {
                         attrs {
                             onZoomChange = { zoomSeconds ->
-                                graphSelectors.values.forEach { it.setZoom(zoomSeconds) }
+                                chartSelectors.values.forEach { it.setZoom(zoomSeconds) }
                             }
                         }
                     }
@@ -131,7 +130,7 @@ class Endpoint : RComponent<EpProps, EpState>() {
                         }
                         when (chart) {
                             is GraphInfo -> {
-                                child(GraphSelection::class) {
+                                child(ChartSelection::class) {
                                     key = "graph-filter-${chart.id}"
                                     attrs {
                                         title = "Graph ${chart.id}"
@@ -141,13 +140,13 @@ class Endpoint : RComponent<EpProps, EpState>() {
                                     }
                                     ref {
                                         if (it != null) {
-                                            graphSelectors[chart.id] = it as GraphSelection
+                                            chartSelectors[chart.id] = it as ChartSelection
                                         }
                                     }
                                 }
                             }
                             is TimelineInfo -> {
-                                child(GraphSelection::class) {
+                                child(ChartSelection::class) {
                                     key = "graph-filter-${chart.id}"
                                     attrs {
                                         title = "Graph ${chart.id}"
@@ -157,7 +156,7 @@ class Endpoint : RComponent<EpProps, EpState>() {
                                     }
                                     ref {
                                         if (it != null) {
-                                            graphSelectors[chart.id] = it as GraphSelection
+                                            chartSelectors[chart.id] = it as ChartSelection
                                         }
                                     }
                                 }

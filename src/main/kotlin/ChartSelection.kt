@@ -7,7 +7,7 @@ import react.RProps
 import react.RState
 
 // Defines a selector and the graph itself, and acts as the 'go between' between the two
-class GraphSelection : RComponent<GraphSelectionProps, RState>() {
+class ChartSelection : RComponent<GraphSelectionProps, RState>() {
     private var currentlyGraphedKeys = listOf<String>()
     private var selector: Selector? = null
     private var chart: Chart? = null
@@ -49,7 +49,7 @@ class GraphSelection : RComponent<GraphSelectionProps, RState>() {
         console.log("graph selection rendering")
         child(Selector::class) {
             attrs {
-                onSelectedKeysChange = this@GraphSelection::selectedKeysChanged
+                onSelectedKeysChange = this@ChartSelection::selectedKeysChanged
                 allKeys = props.allKeys
             }
             ref {
