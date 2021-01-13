@@ -9,7 +9,8 @@ data class Title(
 
 data class XAxis(
     val type: String, /* "category" | "datetime" | "linear" | "logarithmic" | "treegrid" */
-    val visible: Boolean = true
+    val visible: Boolean = true,
+    val gridLineWidth: Int = 1
 )
 
 external interface Point {
