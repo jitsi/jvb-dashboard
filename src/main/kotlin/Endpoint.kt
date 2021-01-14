@@ -18,7 +18,15 @@ class Endpoint : RComponent<EpProps, EpState>() {
     }
 
     override fun componentDidMount() {
-        // TODO: do we know that when this method runs state.numericalKeys will always be empty?
+        if (props.data != null) {
+            extractKeys(props.data!!.first())
+            val statsId = props.data!!.findFirstValueFor("statsId")
+            if (statsId != undefined) {
+                setState {
+                    this.statsId = statsId
+                }
+            }
+        }
         if (state.numericalKeys.isEmpty() && props.data != undefined) {
             extractKeys(props.data!!.first())
         }
@@ -38,6 +46,11 @@ class Endpoint : RComponent<EpProps, EpState>() {
         if (usingLiveData()) {
             if (state.numericalKeys.isEmpty()) {
                 extractKeys(data)
+            }
+            if (state.statsId == null && data.statsId != undefined) {
+                setState {
+                    statsId = data.statsId
+                }
             }
             chartCollection?.addData(data)
         }

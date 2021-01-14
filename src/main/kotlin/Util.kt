@@ -45,6 +45,11 @@ fun getAllKeysWithValuesThat(obj: dynamic, predicate: (Any) -> Boolean): List<St
     }
 }
 
+fun List<dynamic>.findFirstValueFor(key: String): dynamic {
+    val firstEntryWithKey = firstOrNull { it[key] != undefined } ?: return undefined
+    return firstEntryWithKey[key]
+}
+
 /**
  * Get the value of a dot-separated path
  */
