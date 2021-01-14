@@ -14,7 +14,6 @@ import react.dom.button
 import react.dom.div
 import styled.css
 import styled.styledDiv
-import kotlin.time.Duration
 import kotlin.time.minutes
 import kotlin.time.seconds
 
@@ -66,7 +65,6 @@ class ChartCollection : RComponent<ChartCollectionProps, ChartCollectionState>()
                     attrs.onClickFunction = { addTimeline() }
                 }
             }
-
             if (usingLiveData() && state.chartInfos.isNotEmpty()) {
                 div {
                     child(ChartZoomButtons::class) {
@@ -81,9 +79,7 @@ class ChartCollection : RComponent<ChartCollectionProps, ChartCollectionState>()
                             )
                         }
                         ref {
-                            if (it != null) {
-                                zoomButtons = it as ChartZoomButtons
-                            }
+                            zoomButtons = it as? ChartZoomButtons
                         }
                     }
                 }
@@ -104,9 +100,8 @@ class ChartCollection : RComponent<ChartCollectionProps, ChartCollectionState>()
                         when (chart) {
                             is GraphInfo -> {
                                 child(ChartSelection::class) {
-                                    key = "graph-filter-${chart.id}"
+                                    key = "chart-selection-${chart.id}"
                                     attrs {
-                                        console.log("setting startZoomSeconds to ", zoomButtons?.currZoomSeconds())
                                         title = "Graph ${chart.id}"
                                         allKeys = props.numericalKeys
                                         graphType = "spline"
@@ -125,7 +120,7 @@ class ChartCollection : RComponent<ChartCollectionProps, ChartCollectionState>()
                             }
                             is TimelineInfo -> {
                                 child(ChartSelection::class) {
-                                    key = "graph-filter-${chart.id}"
+                                    key = "chart-selection-${chart.id}"
                                     attrs {
                                         title = "Timeline ${chart.id}"
                                         allKeys = props.nonNumericalKeys

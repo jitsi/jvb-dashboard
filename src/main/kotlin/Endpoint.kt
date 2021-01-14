@@ -2,9 +2,13 @@ import graphs.ChartCollection
 import kotlinx.css.paddingLeft
 import kotlinx.css.paddingTop
 import kotlinx.css.pct
-import react.*
+import react.RBuilder
+import react.RComponent
+import react.RProps
+import react.RState
 import react.dom.div
 import react.dom.h3
+import react.setState
 import styled.css
 import styled.styledDiv
 

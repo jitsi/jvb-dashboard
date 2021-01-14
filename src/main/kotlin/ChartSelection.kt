@@ -53,7 +53,7 @@ class ChartSelection : RComponent<GraphSelectionProps, RState>() {
                 allKeys = props.allKeys
             }
             ref {
-                selector = it.unsafeCast<Selector>()
+                selector = it as? Selector
             }
         }
         child(Chart::class) {
@@ -64,9 +64,7 @@ class ChartSelection : RComponent<GraphSelectionProps, RState>() {
                 startZoomSeconds = props.startZoomSeconds
             }
             ref {
-                if (it != null) {
-                    chart = it as Chart
-                }
+                chart = it as? Chart
             }
         }
     }

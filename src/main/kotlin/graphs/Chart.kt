@@ -113,7 +113,6 @@ class Chart : RComponent<GraphProps, RState>() {
     }
 
     fun setZoom(zoomSeconds: Int) {
-        console.log("Setting zoom to $zoomSeconds seconds")
         currentTimeZoomSeconds = zoomSeconds.toLong()
         updateZoom()
     }
