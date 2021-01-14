@@ -1,9 +1,14 @@
 import kotlinx.css.FontWeight
 import kotlinx.css.fontWeight
 import kotlinx.html.js.onClickFunction
-import react.*
+import react.RBuilder
+import react.RComponent
+import react.RProps
+import react.RState
+import react.setState
 import styled.css
 import styled.styledButton
+import kotlin.time.Duration
 
 class ChartZoomButtons : RComponent<ChartZoomProps, ChartZoomState>() {
     init {
@@ -13,51 +18,21 @@ class ChartZoomButtons : RComponent<ChartZoomProps, ChartZoomState>() {
 
     override fun RBuilder.render() {
         +"Zoom level "
-        styledButton {
-            if (state.currZoomSeconds == 60) {
-                css {
-                    this.fontWeight = FontWeight.bold
-                }
-            }
-            attrs {
-                text("1 min")
-                onClickFunction = {
-                    setState {
-                        currZoomSeconds = 60
+        props.buttons?.forEach { buttonDesc ->
+            styledButton {
+                if (state.currZoomSeconds == buttonDesc.zoomSeconds) {
+                    css {
+                        this.fontWeight = FontWeight.bold
                     }
-                    props.onZoomChange?.invoke(60)
                 }
-            }
-        }
-        styledButton {
-            if (state.currZoomSeconds == 300) {
-                css {
-                    this.fontWeight = FontWeight.bold
-                }
-            }
-            attrs {
-                text("5 min")
-                onClickFunction = {
-                    setState {
-                        currZoomSeconds = 300
+                attrs {
+                    text(buttonDesc.title)
+                    onClickFunction = {
+                        setState {
+                            currZoomSeconds = buttonDesc.zoomSeconds
+                        }
+                        props.onZoomChange?.invoke(buttonDesc.zoomSeconds)
                     }
-                    props.onZoomChange?.invoke(300)
-                }
-            }
-        }
-        styledButton {
-            if (state.currZoomSeconds == Int.MAX_VALUE) {
-                css {
-                    this.fontWeight = FontWeight.bold
-                }
-            }
-            attrs {
-                text("All")
-                onClickFunction = {
-                    setState {
-                        currZoomSeconds = Int.MAX_VALUE
-                    }
-                    props.onZoomChange?.invoke(Int.MAX_VALUE)
                 }
             }
         }
@@ -72,5 +47,14 @@ external interface ChartZoomState : RState {
 
 external interface ChartZoomProps : RProps {
     var onZoomChange: ((Int) -> Unit)?
-    var startingZoomSeconds: Int?
+    var buttons: List<ZoomButtonDesc>?
 }
+
+data class ZoomButtonDesc(
+    val title: String,
+    val zoomSeconds: Int,
+    val default: Boolean = false
+)
+
+fun ZoomButtonDesc(title: String, size: Duration): ZoomButtonDesc =
+    ZoomButtonDesc(title, size.inSeconds.toInt())

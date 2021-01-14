@@ -35,6 +35,7 @@ kotlin {
     sourceSets.configureEach {
         languageSettings.apply {
             useExperimentalAnnotation("kotlinx.coroutines.ExperimentalCoroutinesApi")
+            useExperimentalAnnotation("kotlin.time.ExperimentalTime")
         }
     }
     js {

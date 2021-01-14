@@ -5,6 +5,7 @@ import ChartSelection
 import ChartZoomButtons
 import GraphInfo
 import TimelineInfo
+import ZoomButtonDesc
 import kotlinx.css.paddingLeft
 import kotlinx.css.pct
 import kotlinx.html.js.onClickFunction
@@ -13,6 +14,9 @@ import react.dom.button
 import react.dom.div
 import styled.css
 import styled.styledDiv
+import kotlin.time.Duration
+import kotlin.time.minutes
+import kotlin.time.seconds
 
 class ChartCollection : RComponent<ChartCollectionProps, ChartCollectionState>() {
     private var chartSelectors: MutableMap<Int, ChartSelection> = mutableMapOf()
@@ -70,10 +74,14 @@ class ChartCollection : RComponent<ChartCollectionProps, ChartCollectionState>()
                             onZoomChange = { zoomSeconds ->
                                 chartSelectors.values.forEach { it.setZoom(zoomSeconds) }
                             }
+                            buttons = listOf(
+                                ZoomButtonDesc("1 min", 1.minutes),
+                                ZoomButtonDesc("5 mins", 5.minutes),
+                                ZoomButtonDesc("All", Int.MAX_VALUE.seconds),
+                            )
                         }
                         ref {
                             if (it != null) {
-                                console.log("Assigning zoom buttons ref")
                                 zoomButtons = it as ChartZoomButtons
                             }
                         }
