@@ -28,6 +28,28 @@ fun getAllKeys(obj: dynamic): List<String> {
     }
 }
 
+fun getAllKeysWithValuesThat(obj: dynamic, predicate: (Any) -> Boolean): List<String> {
+    if (obj == undefined) {
+        return listOf()
+    }
+    return keys(obj).flatMap { key ->
+        when {
+            jsTypeOf(obj[key]) == "object" -> {
+                (getAllKeys(obj[key]).map { "$key.$it" })
+            }
+            predicate(obj[key]) -> {
+                listOf(key)
+            }
+            else -> emptyList()
+        }
+    }
+}
+
+fun List<dynamic>.findFirstValueFor(key: String): dynamic {
+    val firstEntryWithKey = firstOrNull { it[key] != undefined } ?: return undefined
+    return firstEntryWithKey[key]
+}
+
 /**
  * Get the value of a dot-separated path
  */
@@ -36,9 +58,14 @@ fun getValue(obj: dynamic, path: String): dynamic {
     if (path.isBlank()) {
         return obj
     }
+    if (obj == undefined) {
+        return undefined
+    }
     val paths = path.split(".")
     return getValue(obj[paths.first()], paths.drop(1).joinToString("."))
 }
+
+fun <T> getValueAs(obj: dynamic, path: String): T = getValue(obj, path) as T
 
 @Suppress("UnsafeCastFromDynamic")
 fun isNumber(obj: dynamic): Boolean {

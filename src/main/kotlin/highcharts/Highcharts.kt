@@ -9,9 +9,17 @@ data class Title(
 
 data class XAxis(
     val type: String, /* "category" | "datetime" | "linear" | "logarithmic" | "treegrid" */
+    val visible: Boolean = true,
+    val gridLineWidth: Int = 1
 )
 
 external interface Point {
+    var name: dynamic /* Number? | String? */
+        get() = definedExternally
+        set(value) = definedExternally
+    var description: String?
+        get() = definedExternally
+        set(value) = definedExternally
     var x: Number
     var y: Number
 }
@@ -36,11 +44,21 @@ external interface AnimationOptionsObjectPartial {
 
 fun Point(x: Number, y: Number): Point = jsObject { this.x = x; this.y = y }.unsafeCast<Point>()
 
-data class SeriesOptions(
-    val type: String,
-    val name: String,
-    val data: Array<Point>
-)
+fun Event(x: Number, name: String): Point = jsObject { this.x = x; this.name = name }.unsafeCast<Point>()
+
+external interface SeriesOptionsType {
+    var type: String?
+        get() = definedExternally
+        set(value) = definedExternally
+    var name: String?
+        get() = definedExternally
+        set(value) = definedExternally
+    var data: Array<Point>?
+        get() = definedExternally
+        set(value) = definedExternally
+}
+
+fun SeriesOptions(): SeriesOptionsType = js("{}")
 
 external class Series {
     var chart: Chart
@@ -154,7 +172,7 @@ external interface Options {
     var xAxis: XAxis?
         get() = definedExternally
         set(value) = definedExternally
-    var series: Array<SeriesOptions>?
+    var series: Array<SeriesOptionsType>?
         get() = definedExternally
         set(value) = definedExternally
     var chart: ChartOptions?
@@ -169,6 +187,9 @@ fun Options(): Options = js("{}")
 
 external interface ChartOptions {
     var events: ChartEventsOptions?
+        get() = definedExternally
+        set(value) = definedExternally
+    var type: String?
         get() = definedExternally
         set(value) = definedExternally
     var zoomType: String? /* "x" | "xy" | "y" */
@@ -187,7 +208,7 @@ open external class Chart {
         set(value) = definedExternally
     open fun get(id: String): dynamic /* Axis? | Point? | Series? */
     open fun redraw(animation: Boolean = definedExternally)
-    open fun addSeries(options: SeriesOptions, redraw: Boolean = definedExternally, animation: Boolean = definedExternally): Series
+    open fun addSeries(options: SeriesOptionsType, redraw: Boolean = definedExternally, animation: Boolean = definedExternally): Series
     open fun update(options: Options, redraw: Boolean = definedExternally, oneToOne: Boolean = definedExternally, animation: Boolean = definedExternally)
 }
 

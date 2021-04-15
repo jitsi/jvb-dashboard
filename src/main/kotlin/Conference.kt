@@ -1,3 +1,4 @@
+import graphs.ChartCollection
 import kotlinx.browser.window
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -10,6 +11,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.css.paddingLeft
+import kotlinx.css.paddingTop
 import kotlinx.css.pct
 import kotlinx.html.js.onClickFunction
 import react.RBuilder
@@ -24,33 +26,79 @@ import styled.css
 import styled.styledDiv
 
 class Conference : RComponent<ConferenceProps, ConferenceState>() {
-    private val epChannels: MutableMap<String, Channel<EndpointData>> = mutableMapOf()
+    private val eps: MutableMap<String, Endpoint> = mutableMapOf()
+    private var chartCollection: ChartCollection? = null
     private var job: Job? = null
 
     init {
         state.epIds = arrayOf()
         state.expanded = false
+        state.dataByEp = null
+        state.numericalKeys = emptyList()
+        state.nonNumericalKeys = emptyList()
     }
 
     override fun componentDidMount() {
-        job = GlobalScope.launch { fetchDataLoop() }
+        // Start the fetch data job if there's a URL to query
+        if (usingLiveData()) {
+            job = GlobalScope.launch { fetchDataLoop(props.baseRestApiUrl!!) }
+        }
+        // TODO: do we know that when this method runs state.numericalKeys will always be empty?
+        if (state.numericalKeys.isEmpty() && props.confData != undefined) {
+            extractKeys(props.confData!!.first())
+        }
+
+        if ((state.epIds == undefined || state.epIds.isEmpty()) && !usingLiveData()) {
+            val confData = props.confData!!
+            // We need to extract all epIds present in all the data
+            val allEpIds = confData.flatMap {
+                val epIds = getEpIds(it).toList()
+                epIds
+            }.toSet()
+            val dataByEp = mutableMapOf<String, MutableList<dynamic>>()
+            confData.forEach { confDataEntry ->
+                val timestamp = confDataEntry.timestamp as Number
+                val epIds = getEpIds(confDataEntry)
+                epIds.forEach { epId ->
+                    val epData = confDataEntry.endpoints[epId]
+                    // Set the timestamp in the object we'll pass down, since it's at a higher
+                    // level
+                    epData.timestamp = timestamp
+                    val existingEpData = dataByEp.getOrPut(epId) { mutableListOf() }
+                    existingEpData.add(epData)
+                }
+            }
+            val name = confData.asSequence().map { it.name }.first { it != undefined } ?: "No conf name found"
+            setState {
+                epIds = allEpIds.toTypedArray()
+                this.dataByEp = dataByEp
+                this.name = name
+            }
+        }
+    }
+
+    private fun extractKeys(data: dynamic) {
+        console.log("Extracting keys from ", data)
+        setState {
+            numericalKeys = getAllKeysWithValuesThat(data) { it is Number }
+            nonNumericalKeys = getAllKeysWithValuesThat(data) { it !is Number }
+        }
     }
 
     override fun componentWillUnmount() {
         job?.cancel("Unmounting")
-        epChannels.forEach { (_, channel) ->
-            channel.close()
-        }
     }
 
     // TODO: we need this function because react doesn't do a deep comparison on the epIds array to know whether
-    // or not it changed.  We could introduce an 'EndpointList' component whose only state was the IDs, and then
-    // get rid of this override here and move it there (which would be a bit cleaner, since here we may add more state
-    // and would have to remember to take it into account in this method)
+    //  or not it changed.  We could introduce an 'EndpointList' component whose only state was the IDs, and then
+    //  get rid of this override here and move it there (which would be a bit cleaner, since here we may add more state
+    //  and would have to remember to take it into account in this method)
     override fun shouldComponentUpdate(nextProps: ConferenceProps, nextState: ConferenceState): Boolean {
         return (state.expanded != nextState.expanded) ||
             (state.name != nextState.name) ||
-            (!state.epIds.contentEquals(nextState.epIds))
+            (!state.epIds.contentEquals(nextState.epIds) ||
+            (state.numericalKeys != nextState.numericalKeys) ||
+            (state.nonNumericalKeys != nextState.nonNumericalKeys))
     }
 
     override fun RBuilder.render() {
@@ -83,8 +131,25 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
                         return
                     }
                 }
+                styledDiv {
+                    css {
+                        paddingLeft = 2.pct
+                        paddingTop = 2.pct
+                    }
+                    child(ChartCollection::class) {
+                        attrs {
+                            numericalKeys = state.numericalKeys
+                            nonNumericalKeys = state.nonNumericalKeys
+                            data = props.confData
+                        }
+                        ref {
+                            if (it != null) {
+                                chartCollection = it as ChartCollection
+                            }
+                        }
+                    }
+                }
                 state.epIds.forEach { epId ->
-                    val epChannel = epChannels.getOrPut(epId) { Channel() }
                     styledDiv {
                         css {
                             paddingLeft = 2.pct
@@ -95,7 +160,14 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
                                 confId = props.id
                                 id = epId
                                 baseRestApiUrl = props.baseRestApiUrl
-                                channel = epChannel
+                                state.dataByEp?.get(epId)?.let { existingEpData ->
+                                    data = existingEpData
+                                }
+                            }
+                            ref {
+                                if (it != null) {
+                                    eps[epId] = it as Endpoint
+                                }
                             }
                         }
                     }
@@ -104,24 +176,31 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
         }
     }
 
-    private suspend fun CoroutineScope.fetchDataLoop() {
+    // The baseRestApiUrl in props may be null, so we call this (with a non-null version) only when it isn't null
+    private suspend fun CoroutineScope.fetchDataLoop(baseRestApiUrl: String) {
         while (isActive) {
             try {
-                val jvbData = window.fetch("${props.baseRestApiUrl}/${props.id}")
+                val jvbData = window.fetch("$baseRestApiUrl/${props.id}")
                     .await()
                     .json()
                     .await()
                     .asDynamic()
                 val now = jvbData.time.unsafeCast<Number>()
                 val confData = jvbData.conferences[props.id]
+                if (state.numericalKeys.isEmpty()) {
+                    extractKeys(confData)
+                }
+                confData.timestamp = now
+                chartCollection?.addData(confData)
                 val epIds = getEpIds(confData)
                 setState {
                     this.name = confData.name.unsafeCast<String>().substringBefore('@')
                     this.epIds = epIds
                 }
-                epChannels.forEach { (epId, epChannel) ->
+                eps.forEach { (epId, ep) ->
                     val epData = confData.endpoints[epId]
-                    epChannel.send(EndpointData(now, epData))
+                    epData.timestamp = now
+                    ep.addData(epData)
                 }
                 delay(1000)
             } catch (c: CancellationException) {
@@ -132,19 +211,25 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
             }
         }
     }
+
+    private fun usingLiveData(): Boolean = props.baseRestApiUrl != null
 }
 
 private fun getEpIds(confData: dynamic): Array<String> {
-    return keys(confData.endpoints)
+    return if (confData.endpoints != undefined) { keys(confData.endpoints) } else emptyArray()
 }
 
 external interface ConferenceState : RState {
     var epIds: Array<String>
     var name: String
     var expanded: Boolean
+    var numericalKeys: List<String>
+    var nonNumericalKeys: List<String>
+    var dataByEp: MutableMap<String, MutableList<dynamic>>?
 }
 
 external interface ConferenceProps : RProps {
-    var baseRestApiUrl: String
+    var baseRestApiUrl: String?
     var id: String
+    var confData: List<dynamic>?
 }
