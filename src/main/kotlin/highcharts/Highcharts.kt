@@ -216,6 +216,6 @@ external class Highcharts {
     fun chart(renderTo: String, opts: Options): Chart
 }
 
-@JsModule("HighCharts")
+@JsModule("highcharts")
 @JsNonModule
 external val highcharts: Highcharts

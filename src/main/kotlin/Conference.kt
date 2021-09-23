@@ -57,6 +57,9 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
             }.toSet()
             val dataByEp = mutableMapOf<String, MutableList<dynamic>>()
             confData.forEach { confDataEntry ->
+                if (confDataEntry.timestamp == undefined) {
+                    return@forEach
+                }
                 val timestamp = confDataEntry.timestamp as Number
                 val epIds = getEpIds(confDataEntry)
                 epIds.forEach { epId ->
