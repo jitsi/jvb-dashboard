@@ -219,7 +219,13 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
 }
 
 private fun getEpIds(confData: dynamic): Array<String> {
-    return if (confData.endpoints != undefined) { keys(confData.endpoints) } else emptyArray()
+    // we only want to consider lines like this:
+    // {"endpoints":{"bca514fc":{"iceTransport":{"iceConnected":true,"num_packets_received":328,"num_packets_sent":76}...
+    // and not lines like this:
+    // {"confName":"jitsisitdown","meetingUniqueId":"804786d39ed9aba3","applicationName":"JVB","endpoints":["Lawson-rqz", ...
+    // in other words, we want to extract the endpoint stats tree root keys
+    return if (confData.endpoints != undefined && confData.endpoints !is Array<String>)
+        keys(confData.endpoints) else emptyArray()
 }
 
 external interface ConferenceState : RState {
