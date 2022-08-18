@@ -23,7 +23,7 @@ class Endpoint : RComponent<EpProps, EpState>() {
 
     override fun componentDidMount() {
         if (props.data != null) {
-            extractKeys(props.data!!.first())
+            extractKeys(props.data!!)
             val statsId = props.data!!.findFirstValueFor("statsId")
             if (statsId != undefined) {
                 setState {
@@ -32,17 +32,23 @@ class Endpoint : RComponent<EpProps, EpState>() {
             }
         }
         if (state.numericalKeys.isEmpty() && props.data != undefined) {
-            extractKeys(props.data!!.first())
+            extractKeys(props.data!!)
         }
     }
 
-    private fun extractKeys(data: dynamic) {
-        console.log("Extracting keys from ", data)
+    private fun extractKeys(dataList: List<dynamic>) {
+        console.log("Extracting keys from ", dataList)
         setState {
-            numericalKeys = getAllKeysWithValuesThat(data) { it is Number }
-            nonNumericalKeys = getAllKeysWithValuesThat(data) { it !is Number }
+            numericalKeys = dataList.flatMap { data ->
+                getAllKeysWithValuesThat(data) { it is Number }
+            }.toSet().toList()
+            nonNumericalKeys = dataList.flatMap { data ->
+                getAllKeysWithValuesThat(data) { it !is Number }
+            }.toSet().toList()
         }
     }
+
+    private fun extractKeys(data: dynamic) = extractKeys(listOf(data))
 
     override fun componentWillUnmount() {}
 
