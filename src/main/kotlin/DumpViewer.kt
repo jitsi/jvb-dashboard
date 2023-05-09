@@ -43,10 +43,27 @@ class DumpViewer : RComponent<DumpViewerProps, DumpViewerState>() {
                 reader.readAsText(props.file)
             }
             else -> {
-                child(Conference::class) {
-                    attrs {
-                        id = getConfId(state.data)
-                        confData = state.data
+                val data = state.data as List<dynamic>
+                val jicofo = try {
+                    val clientProtocol = JSON.parse<dynamic>(data[0][2]).clientProtocol as String
+                    clientProtocol.contains("jicofo", ignoreCase = true)
+                } catch (e: Exception) {
+                    false
+                }
+                console.log("Rendering a ${if (jicofo) "jicofo" else "JVB"} conference.")
+                if (jicofo) {
+                    child(JicofoConference::class) {
+                        attrs {
+                            id = getJicofoConfId(data)
+                            confData = data
+                        }
+                    }
+                } else {
+                    child(Conference::class) {
+                        attrs {
+                            id = getConfId(data)
+                            confData = data
+                        }
                     }
                 }
             }
@@ -57,6 +74,11 @@ class DumpViewer : RComponent<DumpViewerProps, DumpViewerState>() {
 private fun getConfId(data: List<dynamic>?): String {
     return data?.asSequence()
         ?.map { it.id }
+        ?.first { it != undefined } as? String ?: "No conf ID found"
+}
+private fun getJicofoConfId(data: List<dynamic>?): String {
+    return data?.asSequence()
+        ?.map { it.confName }
         ?.first { it != undefined } as? String ?: "No conf ID found"
 }
 
