@@ -45,7 +45,7 @@ class JicofoConference : RComponent<JicofoConferenceProps, JicofoConferenceState
         }
         // TODO: do we know that when this method runs state.numericalKeys will always be empty?
         if (state.numericalKeys.isEmpty() && props.confData != undefined) {
-            extractKeys(props.confData!!.first())
+            extractKeys(props.confData!!)
         }
 
         if ((state.epIds == undefined || state.epIds.isEmpty()) && !usingLiveData()) {
@@ -80,10 +80,18 @@ class JicofoConference : RComponent<JicofoConferenceProps, JicofoConferenceState
         }
     }
 
-    private fun extractKeys(data: dynamic) {
+    private fun extractKeys(data: List<dynamic>) {
+        val dataList = mutableListOf<dynamic>()
+        for (i in 1 until data.size) {
+            dataList.add(data[i])
+        }
         setState {
-            numericalKeys = getAllKeysWithValuesThat(data) { it is Number }
-            nonNumericalKeys = getAllKeysWithValuesThat(data) { it !is Number }
+            numericalKeys = dataList.flatMap { data ->
+                getAllKeysWithValuesThat(data) { it is Number }
+            }.toSet().toList()
+            nonNumericalKeys = dataList.flatMap { data ->
+                getAllKeysWithValuesThat(data) { it !is Number }
+            }.toSet().toList()
         }
     }
 

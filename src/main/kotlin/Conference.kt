@@ -45,7 +45,7 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
         }
         // TODO: do we know that when this method runs state.numericalKeys will always be empty?
         if (state.numericalKeys.isEmpty() && props.confData != undefined) {
-            extractKeys(props.confData!!.first())
+            extractKeys(props.confData!!)
         }
 
         if ((state.epIds == undefined || state.epIds.isEmpty()) && !usingLiveData()) {
@@ -80,11 +80,19 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
         }
     }
 
-    private fun extractKeys(data: dynamic) {
-        console.log("Extracting keys from ", data)
+    private fun extractKeys(data: List<dynamic>) {
+        // This may turn out to be too slow for large dumps.
+        val dataList = mutableListOf<dynamic>()
+        for (i in 1 until data.size) {
+            dataList.add(data[i])
+        }
         setState {
-            numericalKeys = getAllKeysWithValuesThat(data) { it is Number }
-            nonNumericalKeys = getAllKeysWithValuesThat(data) { it !is Number }
+            numericalKeys = dataList.flatMap { data ->
+                getAllKeysWithValuesThat(data) { it is Number }
+            }.toSet().toList()
+            nonNumericalKeys = dataList.flatMap { data ->
+                getAllKeysWithValuesThat(data) { it !is Number }
+            }.toSet().toList()
         }
     }
 
