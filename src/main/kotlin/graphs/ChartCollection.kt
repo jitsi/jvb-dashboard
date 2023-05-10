@@ -104,7 +104,7 @@ class ChartCollection : RComponent<ChartCollectionProps, ChartCollectionState>()
                                     attrs {
                                         title = "Graph ${chart.id}"
                                         allKeys = props.numericalKeys
-                                        graphType = "spline"
+                                        graphType = "line"
                                         data = props.data
                                         // TODO: ideally we'd always pull the start zoom from the value in the
                                         //  buttons, but we may not have a reference to the buttons component
