@@ -47,6 +47,7 @@ class Chart : RComponent<GraphProps, RState>() {
                         // live graphs
                         enabled = false
                     }
+                    step = "left"
                 }
             }
             chart = ChartOptions().apply {

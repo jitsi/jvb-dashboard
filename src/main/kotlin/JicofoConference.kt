@@ -25,7 +25,7 @@ import react.setState
 import styled.css
 import styled.styledDiv
 
-class Conference : RComponent<ConferenceProps, ConferenceState>() {
+class JicofoConference : RComponent<JicofoConferenceProps, JicofoConferenceState>() {
     private val eps: MutableMap<String, Endpoint> = mutableMapOf()
     private var chartCollection: ChartCollection? = null
     private var job: Job? = null
@@ -63,7 +63,7 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
                 val timestamp = confDataEntry.timestamp as Number
                 val epIds = getEpIds(confDataEntry)
                 epIds.forEach { epId ->
-                    val epData = confDataEntry.endpoints[epId]
+                    val epData = confDataEntry.participants[epId]
                     // Set the timestamp in the object we'll pass down, since it's at a higher
                     // level
                     epData.timestamp = timestamp
@@ -81,7 +81,6 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
     }
 
     private fun extractKeys(data: List<dynamic>) {
-        // This may turn out to be too slow for large dumps.
         val dataList = mutableListOf<dynamic>()
         for (i in 1 until data.size) {
             dataList.add(data[i])
@@ -104,7 +103,7 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
     //  or not it changed.  We could introduce an 'EndpointList' component whose only state was the IDs, and then
     //  get rid of this override here and move it there (which would be a bit cleaner, since here we may add more state
     //  and would have to remember to take it into account in this method)
-    override fun shouldComponentUpdate(nextProps: ConferenceProps, nextState: ConferenceState): Boolean {
+    override fun shouldComponentUpdate(nextProps: JicofoConferenceProps, nextState: JicofoConferenceState): Boolean {
         return (state.expanded != nextState.expanded) ||
             (state.name != nextState.name) ||
             (!state.epIds.contentEquals(nextState.epIds) ||
@@ -113,7 +112,7 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
     }
 
     override fun RBuilder.render() {
-        console.log("conference ${props.id} rendering")
+        console.log("jicofo conference ${props.id} rendering")
         div {
             key = props.id
             h2 {
@@ -232,11 +231,11 @@ private fun getEpIds(confData: dynamic): Array<String> {
     // and not lines like this:
     // {"confName":"jitsisitdown","meetingUniqueId":"804786d39ed9aba3","applicationName":"JVB","endpoints":["Lawson-rqz", ...
     // in other words, we want to extract the endpoint stats tree root keys
-    return if (confData.endpoints != undefined && confData.endpoints !is Array<String>)
-        keys(confData.endpoints) else emptyArray()
+    return if (confData.participants != undefined && confData.participants !is Array<String>)
+        keys(confData.participants) else emptyArray()
 }
 
-external interface ConferenceState : RState {
+external interface JicofoConferenceState : RState {
     var epIds: Array<String>
     var name: String
     var expanded: Boolean
@@ -245,7 +244,7 @@ external interface ConferenceState : RState {
     var dataByEp: MutableMap<String, MutableList<dynamic>>?
 }
 
-external interface ConferenceProps : RProps {
+external interface JicofoConferenceProps : RProps {
     var baseRestApiUrl: String?
     var id: String
     var confData: List<dynamic>?

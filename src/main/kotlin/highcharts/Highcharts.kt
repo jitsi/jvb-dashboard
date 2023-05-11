@@ -150,6 +150,9 @@ external interface PlotSeriesOptions {
     var marker: PointMarkerOptionsObject?
         get() = definedExternally
         set(value) = definedExternally
+    var step: String?
+        get() = definedExternally
+        set(value) = definedExternally
 }
 
 fun PlotSeriesOptions(): PlotSeriesOptions = js("{}")
