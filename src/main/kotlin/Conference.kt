@@ -32,6 +32,7 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
 
     init {
         state.epIds = arrayOf()
+        state.relayIds = arrayOf()
         state.expanded = false
         state.dataByEp = null
         state.numericalKeys = emptyList()
@@ -48,12 +49,17 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
             extractKeys(props.confData!!)
         }
 
-        if ((state.epIds == undefined || state.epIds.isEmpty()) && !usingLiveData()) {
+        if (((state.epIds == undefined || state.epIds.isEmpty()) &&
+                (state.relayIds == undefined || state.relayIds.isEmpty())) && !usingLiveData()) {
             val confData = props.confData!!
             // We need to extract all epIds present in all the data
             val allEpIds = confData.flatMap {
                 val epIds = getEpIds(it).toList()
                 epIds
+            }.toSet()
+            val allRelayIds = confData.flatMap {
+                val relayIds = getRelayIds(it).toList()
+                relayIds
             }.toSet()
             val dataByEp = mutableMapOf<String, MutableList<dynamic>>()
             confData.forEach { confDataEntry ->
@@ -70,10 +76,18 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
                     val existingEpData = dataByEp.getOrPut(epId) { mutableListOf() }
                     existingEpData.add(epData)
                 }
+                val relayIds = getRelayIds(confDataEntry)
+                relayIds.forEach { relayId ->
+                    val relayData = confDataEntry.relays[relayId]
+                    relayData.timestamp = timestamp
+                    val existingRelayData = dataByEp.getOrPut(relayId) { mutableListOf() }
+                    existingRelayData.add(relayData)
+                }
             }
             val name = confData.asSequence().map { it.name }.first { it != undefined } ?: "No conf name found"
             setState {
                 epIds = allEpIds.toTypedArray()
+                relayIds = allRelayIds.toTypedArray()
                 this.dataByEp = dataByEp
                 this.name = name
             }
@@ -136,7 +150,8 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
                 }
             }
             if (state.expanded) {
-                if (state.epIds == undefined || state.epIds.isEmpty()) {
+                if ((state.epIds == undefined || state.epIds.isEmpty()) &&
+                    (state.relayIds == undefined || state.relayIds.isEmpty())){
                     p {
                         +"No data received yet"
                         return
@@ -168,6 +183,7 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
                         key = epId
                         child(Endpoint::class) {
                             attrs {
+                                entityType = "Endpoint"
                                 confId = props.id
                                 id = epId
                                 baseRestApiUrl = props.baseRestApiUrl
@@ -182,6 +198,31 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
                             }
                         }
                     }
+                }
+                state.relayIds.forEach { relayId ->
+                    styledDiv {
+                        css {
+                            paddingLeft = 2.pct
+                        }
+                        key = relayId
+                        child(Endpoint::class) {
+                            attrs {
+                                entityType = "Relay"
+                                confId = props.id
+                                id = relayId
+                                baseRestApiUrl = props.baseRestApiUrl
+                                state.dataByEp?.get(relayId)?.let { existingEpData ->
+                                    data = existingEpData
+                                }
+                            }
+                            ref {
+                                if (it != null) {
+                                    eps[relayId] = it as Endpoint
+                                }
+                            }
+                        }
+                    }
+
                 }
             }
         }
@@ -236,8 +277,15 @@ private fun getEpIds(confData: dynamic): Array<String> {
         keys(confData.endpoints) else emptyArray()
 }
 
+private fun getRelayIds(confData: dynamic): Array<String> {
+    // Same logic as getEpIds above
+    return if (confData.relays != undefined && confData.relays !is Array<String>)
+        keys(confData.relays) else emptyArray()
+}
+
 external interface ConferenceState : RState {
     var epIds: Array<String>
+    var relayIds: Array<String>
     var name: String
     var expanded: Boolean
     var numericalKeys: List<String>

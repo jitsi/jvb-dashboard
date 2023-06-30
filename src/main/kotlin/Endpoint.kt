@@ -67,13 +67,13 @@ class Endpoint : RComponent<EpProps, EpState>() {
     }
 
     override fun RBuilder.render() {
-        console.log("Endpoint ${props.id}: rendering")
+        console.log("${props.entityType} ${props.id}: rendering")
         div {
             h3 {
                 if (!state.statsId.isNullOrEmpty()) {
-                    +"Endpoint ${props.id} (${state.statsId})   "
+                    +"${props.entityType} ${props.id} (${state.statsId})   "
                 } else {
-                    +"Endpoint ${props.id}   "
+                    +"${props.entityType} ${props.id}   "
                 }
             }
             if (usingLiveData()) {
@@ -111,6 +111,7 @@ class Endpoint : RComponent<EpProps, EpState>() {
 }
 
 external interface EpProps : RProps {
+    var entityType: String
     var confId: String
     var id: String
     var baseRestApiUrl: String?
