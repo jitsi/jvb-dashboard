@@ -27,6 +27,17 @@ class DumpViewer : RComponent<DumpViewerProps, DumpViewerState>() {
                             val data = rawData.split("\r\n", "\n")
                                 .filter { it.isNotEmpty() }
                                 .map { JSON.parse<dynamic>(it) }
+                                .map {
+                                    try {
+                                        if (it.data is String) {
+                                            val lineData = JSON.parse<dynamic>(it.data)
+                                            js("Object").assign(it, lineData)
+                                        }
+                                    } catch (t: Throwable) {
+                                        // Ignore any failures
+                                    }
+                                    it
+                                }
                                 .toList()
 
                             setState {
@@ -45,7 +56,11 @@ class DumpViewer : RComponent<DumpViewerProps, DumpViewerState>() {
             else -> {
                 val data = state.data as List<dynamic>
                 val jicofo = try {
-                    val clientProtocol = JSON.parse<dynamic>(data[0][2]).clientProtocol as String
+                    var connectionInfo = data[0][2]
+                    if (connectionInfo is String) {
+                        connectionInfo = JSON.parse<dynamic>(connectionInfo)
+                    }
+                    val clientProtocol = connectionInfo.clientProtocol as String
                     clientProtocol.contains("jicofo", ignoreCase = true)
                 } catch (e: Exception) {
                     false
@@ -74,18 +89,18 @@ class DumpViewer : RComponent<DumpViewerProps, DumpViewerState>() {
 private fun getConfId(data: List<dynamic>?): String {
     return data?.asSequence()
         ?.map { it.id }
-        ?.first { it != undefined } as? String ?: "No conf ID found"
+        ?.firstOrNull { it != undefined } as? String ?: "No conf ID found"
 }
 private fun getJicofoConfId(data: List<dynamic>?): String {
     return data?.asSequence()
         ?.map { it.confName }
-        ?.first { it != undefined } as? String ?: "No conf ID found"
+        ?.firstOrNull { it != undefined } as? String ?: "No conf ID found"
 }
 
 private fun getConfName(data: List<dynamic>?): String {
     return data?.asSequence()
         ?.map { it.name }
-        ?.first { it != undefined } as? String ?: "No conf name found"
+        ?.firstOrNull { it != undefined } as? String ?: "No conf name found"
 }
 
 external interface DumpViewerState : RState {

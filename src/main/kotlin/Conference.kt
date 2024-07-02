@@ -84,7 +84,7 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
                     existingRelayData.add(relayData)
                 }
             }
-            val name = confData.asSequence().map { it.name }.first { it != undefined } ?: "No conf name found"
+            val name = confData.asSequence().map { it.name }.firstOrNull { it != undefined } ?: "No conf name found"
             setState {
                 epIds = allEpIds.toTypedArray()
                 relayIds = allRelayIds.toTypedArray()
