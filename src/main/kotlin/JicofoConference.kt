@@ -71,7 +71,7 @@ class JicofoConference : RComponent<JicofoConferenceProps, JicofoConferenceState
                     existingEpData.add(epData)
                 }
             }
-            val name = confData.asSequence().map { it.name }.first { it != undefined } ?: "No conf name found"
+            val name = confData.asSequence().map { it.name }.firstOrNull { it != undefined } ?: "No conf name found"
             setState {
                 epIds = allEpIds.toTypedArray()
                 this.dataByEp = dataByEp

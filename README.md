@@ -7,7 +7,7 @@ JVB dashboard provides a UI to connect to a JVB's REST API and display live grap
 
 # Deploying
 The built files will be in `/build/distributions`.  These files can be copied anywhere and hosted.  The easiest way to host
-them locally is to run `python -m SimpleHTTPServer` in the `/build/distributions` directory.
+them locally is to run `python3 -m http.server` in the `/build/distributions` directory.
 
 # Known issues
 * The JVB's REST API is usually not publicly accessible, so the easiest way to have the UI connect to it is to create an
