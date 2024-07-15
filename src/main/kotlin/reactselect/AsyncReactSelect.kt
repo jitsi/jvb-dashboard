@@ -3,13 +3,13 @@
 
 package reactselect
 
-import react.RClass
-import react.RProps
+import react.ComponentClass
+import react.PropsWithChildren
 
 @JsName("default")
-external val AsyncSelect: RClass<AsyncReactSelectProps>
+external val AsyncSelect: ComponentClass<AsyncReactSelectProps>
 
-external interface AsyncReactSelectProps : RProps {
+external interface AsyncReactSelectProps : PropsWithChildren {
     var loadOptions: (String /* inputValue */, (Array<Option>) -> Unit /* callback */) -> Unit
     var isMulti: Boolean
     var onChange: OnChangeCallback

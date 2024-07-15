@@ -4,11 +4,12 @@ import kotlinx.css.paddingTop
 import kotlinx.css.pct
 import react.RBuilder
 import react.RComponent
-import react.RProps
-import react.RState
+import react.PropsWithChildren
+import react.State
 import react.dom.div
 import react.dom.h3
 import react.setState
+import react.useRefCallback
 import styled.css
 import styled.styledDiv
 
@@ -97,9 +98,9 @@ class Endpoint : RComponent<EpProps, EpState>() {
                         nonNumericalKeys = state.nonNumericalKeys
                         data = props.data
                     }
-                    ref {
+                    ref = useRefCallback<ChartCollection> {
                         if (it != null) {
-                            chartCollection = it as ChartCollection
+                            chartCollection = it
                         }
                     }
                 }
@@ -110,7 +111,7 @@ class Endpoint : RComponent<EpProps, EpState>() {
     private fun usingLiveData(): Boolean = props.baseRestApiUrl != null
 }
 
-external interface EpProps : RProps {
+external interface EpProps : PropsWithChildren {
     var entityType: String
     var confId: String
     var id: String
@@ -121,7 +122,7 @@ external interface EpProps : RProps {
 
 // Endpoints don't retrieve their own data, the conference makes a single
 // request and updates the props of the ep components
-external interface EpState : RState {
+external interface EpState : State {
     var numericalKeys: List<String>
     var nonNumericalKeys: List<String>
     var statsId: String?

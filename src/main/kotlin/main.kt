@@ -1,11 +1,11 @@
 import highcharts.TimelineSeries
 import highcharts.highcharts
-import kotlinx.browser.document
-import react.dom.render
+import react.create
+import react.dom.client.createRoot
+import web.dom.document
 
 fun main() {
     TimelineSeries(highcharts)
-    render(document.getElementById("root")) {
-        child(App::class) {}
-    }
+    val root = createRoot(document.getElementById("root")!!)
+    root.render(App.create())
 }

@@ -16,12 +16,13 @@ import kotlinx.css.pct
 import kotlinx.html.js.onClickFunction
 import react.RBuilder
 import react.RComponent
-import react.RProps
-import react.RState
+import react.PropsWithChildren
+import react.State
 import react.dom.div
 import react.dom.h2
 import react.dom.p
 import react.setState
+import react.useRefCallback
 import styled.css
 import styled.styledDiv
 
@@ -126,11 +127,9 @@ class JicofoConference : RComponent<JicofoConferenceProps, JicofoConferenceState
                 } else {
                     +"Conference (${props.id})"
                 }
-                attrs {
-                    onClickFunction = { _ ->
-                        setState {
-                            expanded = !expanded
-                        }
+                attrs.onClickFunction = { _ ->
+                    setState {
+                        expanded = !expanded
                     }
                 }
             }
@@ -152,9 +151,9 @@ class JicofoConference : RComponent<JicofoConferenceProps, JicofoConferenceState
                             nonNumericalKeys = state.nonNumericalKeys
                             data = props.confData
                         }
-                        ref {
+                        ref = useRefCallback<ChartCollection> {
                             if (it != null) {
-                                chartCollection = it as ChartCollection
+                                chartCollection = it
                             }
                         }
                     }
@@ -174,9 +173,9 @@ class JicofoConference : RComponent<JicofoConferenceProps, JicofoConferenceState
                                     data = existingEpData
                                 }
                             }
-                            ref {
+                            ref = useRefCallback<Endpoint> {
                                 if (it != null) {
-                                    eps[epId] = it as Endpoint
+                                    eps[epId] = it
                                 }
                             }
                         }
@@ -235,7 +234,7 @@ private fun getEpIds(confData: dynamic): Array<String> {
         keys(confData.participants) else emptyArray()
 }
 
-external interface JicofoConferenceState : RState {
+external interface JicofoConferenceState : State {
     var epIds: Array<String>
     var name: String
     var expanded: Boolean
@@ -244,7 +243,7 @@ external interface JicofoConferenceState : RState {
     var dataByEp: MutableMap<String, MutableList<dynamic>>?
 }
 
-external interface JicofoConferenceProps : RProps {
+external interface JicofoConferenceProps : PropsWithChildren {
     var baseRestApiUrl: String?
     var id: String
     var confData: List<dynamic>?

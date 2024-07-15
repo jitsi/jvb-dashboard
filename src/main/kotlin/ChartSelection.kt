@@ -3,11 +3,12 @@ import highcharts.Event
 import highcharts.Point
 import react.RBuilder
 import react.RComponent
-import react.RProps
-import react.RState
+import react.PropsWithChildren
+import react.State
+import react.useRefCallback
 
 // Defines a selector and the graph itself, and acts as the 'go between' between the two
-class ChartSelection : RComponent<GraphSelectionProps, RState>() {
+class ChartSelection : RComponent<GraphSelectionProps, State>() {
     private var currentlyGraphedKeys = listOf<String>()
     private var selector: Selector? = null
     private var chart: Chart? = null
@@ -52,8 +53,8 @@ class ChartSelection : RComponent<GraphSelectionProps, RState>() {
                 onSelectedKeysChange = this@ChartSelection::selectedKeysChanged
                 allKeys = props.allKeys
             }
-            ref {
-                selector = it as? Selector
+            ref = useRefCallback<Selector> {
+                selector = it
             }
         }
         child(Chart::class) {
@@ -63,8 +64,8 @@ class ChartSelection : RComponent<GraphSelectionProps, RState>() {
                 graphType = props.graphType ?: "line"
                 startZoomSeconds = props.startZoomSeconds
             }
-            ref {
-                chart = it as? Chart
+            ref = useRefCallback<Chart> {
+                chart = it
             }
         }
     }
@@ -97,7 +98,7 @@ class ChartSelection : RComponent<GraphSelectionProps, RState>() {
 
     // Leaving this here, but since it doesn't propagate these values to props, it's a bit cumbersome to use.
     // See https://github.com/JetBrains/kotlin-wrappers/issues/385
-//    companion object : RStatics<GraphSelectionProps, RState, GraphSelection, Nothing>(GraphSelection::class) {
+//    companion object : RStatics<GraphSelectionProps, State, GraphSelection, Nothing>(GraphSelection::class) {
 //        init {
 //            defaultProps = GraphSelectionProps().apply {
 //                allKeys = emptyList()
@@ -107,7 +108,7 @@ class ChartSelection : RComponent<GraphSelectionProps, RState>() {
 //    }
 }
 
-external interface GraphSelectionProps : RProps {
+external interface GraphSelectionProps : PropsWithChildren {
     var title: String?
     var allKeys: List<String>?
     // An optional property which can contain stored data to be graphed

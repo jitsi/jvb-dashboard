@@ -2,8 +2,8 @@ import org.w3c.files.File
 import org.w3c.files.FileReader
 import react.RBuilder
 import react.RComponent
-import react.RProps
-import react.RState
+import react.PropsWithChildren
+import react.State
 import react.setState
 
 class DumpViewer : RComponent<DumpViewerProps, DumpViewerState>() {
@@ -103,12 +103,12 @@ private fun getConfName(data: List<dynamic>?): String {
         ?.firstOrNull { it != undefined } as? String ?: "No conf name found"
 }
 
-external interface DumpViewerState : RState {
+external interface DumpViewerState : State {
     // A list of JSON stat entries from the dump
     var data: List<dynamic>?
     var error: String?
 }
 
-external interface DumpViewerProps : RProps {
+external interface DumpViewerProps : PropsWithChildren {
     var file: File
 }

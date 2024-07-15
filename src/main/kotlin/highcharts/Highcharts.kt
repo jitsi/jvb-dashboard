@@ -153,6 +153,12 @@ external interface PlotSeriesOptions {
     var step: String?
         get() = definedExternally
         set(value) = definedExternally
+    var boostThreshold: Number?
+        get() = definedExternally
+        set(value) = definedExternally
+    var turboThreshold: Number?
+        get() = definedExternally
+        set(value) = definedExternally
 }
 
 fun PlotSeriesOptions(): PlotSeriesOptions = js("{}")
