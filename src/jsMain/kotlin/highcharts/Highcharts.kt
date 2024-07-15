@@ -24,7 +24,9 @@ external interface Point {
     var description: String?
         get() = definedExternally
         set(value) = definedExternally
+    @JsName("x")
     var x: Number
+    @JsName("y")
     var y: Number
 }
 
