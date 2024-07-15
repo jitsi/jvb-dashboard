@@ -19,7 +19,7 @@ import react.PropsWithChildren
 import react.State
 import react.ReactElement
 import react.dom.div
-import react.useRefCallback
+import react.RefCallback
 import kotlin.js.Date
 
 class Chart : RComponent<GraphProps, State>() {
@@ -64,7 +64,7 @@ class Chart : RComponent<GraphProps, State>() {
                 attrs.highcharts = highcharts
                 attrs.options = options
                 attrs.allowChartUpdate = true
-                ref = useRefCallback<ReactElement<GraphProps>> {
+                ref = RefCallback<ReactElement<GraphProps>> {
                     chartRef = it
                 }
             }

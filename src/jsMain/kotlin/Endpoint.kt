@@ -5,11 +5,11 @@ import kotlinx.css.pct
 import react.RBuilder
 import react.RComponent
 import react.PropsWithChildren
+import react.RefCallback
 import react.State
 import react.dom.div
 import react.dom.h3
 import react.setState
-import react.useRefCallback
 import styled.css
 import styled.styledDiv
 
@@ -98,7 +98,7 @@ class Endpoint : RComponent<EpProps, EpState>() {
                         nonNumericalKeys = state.nonNumericalKeys
                         data = props.data
                     }
-                    ref = useRefCallback<ChartCollection> {
+                    ref = RefCallback<ChartCollection> {
                         if (it != null) {
                             chartCollection = it
                         }

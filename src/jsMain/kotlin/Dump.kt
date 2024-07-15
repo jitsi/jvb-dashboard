@@ -7,6 +7,7 @@ import react.State
 import react.dom.html.ReactHTML.div
 import react.dom.html.ReactHTML.input
 import react.setState
+import web.html.InputType
 
 class Dump : RComponent<PropsWithChildren, DumpState>() {
     init {
@@ -18,7 +19,7 @@ class Dump : RComponent<PropsWithChildren, DumpState>() {
             div {
                 input {
                     attrs {
-                        type = js("\"file\"")
+                        type = InputType.file
                         onChange = { event ->
                             val file = (event.target as HTMLInputElement).files?.item(0)
                             console.log("got file ", file)

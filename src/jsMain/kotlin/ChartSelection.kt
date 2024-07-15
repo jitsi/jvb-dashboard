@@ -5,7 +5,7 @@ import react.RBuilder
 import react.RComponent
 import react.PropsWithChildren
 import react.State
-import react.useRefCallback
+import react.RefCallback
 
 // Defines a selector and the graph itself, and acts as the 'go between' between the two
 class ChartSelection : RComponent<GraphSelectionProps, State>() {
@@ -53,7 +53,7 @@ class ChartSelection : RComponent<GraphSelectionProps, State>() {
                 onSelectedKeysChange = this@ChartSelection::selectedKeysChanged
                 allKeys = props.allKeys
             }
-            ref = useRefCallback<Selector> {
+            ref = RefCallback<Selector> {
                 selector = it
             }
         }
@@ -64,7 +64,7 @@ class ChartSelection : RComponent<GraphSelectionProps, State>() {
                 graphType = props.graphType ?: "line"
                 startZoomSeconds = props.startZoomSeconds
             }
-            ref = useRefCallback<Chart> {
+            ref = RefCallback<Chart> {
                 chart = it
             }
         }

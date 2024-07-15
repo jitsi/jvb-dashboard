@@ -78,7 +78,7 @@ class ChartCollection : RComponent<ChartCollectionProps, ChartCollectionState>()
                                 ZoomButtonDesc("All", Int.MAX_VALUE.seconds),
                             )
                         }
-                        ref = useRefCallback<ChartZoomButtons> {
+                        ref = RefCallback<ChartZoomButtons> {
                             zoomButtons = it
                         }
                     }
@@ -111,7 +111,7 @@ class ChartCollection : RComponent<ChartCollectionProps, ChartCollectionState>()
                                         //  yet
                                         startZoomSeconds = zoomButtons?.currZoomSeconds() ?: 60
                                     }
-                                    ref = useRefCallback<ChartSelection> {
+                                    ref = RefCallback<ChartSelection> {
                                         if (it != null) {
                                             chartSelectors[chart.id] = it
                                         }
@@ -131,7 +131,7 @@ class ChartCollection : RComponent<ChartCollectionProps, ChartCollectionState>()
                                         //  yet
                                         startZoomSeconds = zoomButtons?.currZoomSeconds() ?: 60
                                     }
-                                    ref = useRefCallback<ChartSelection> {
+                                    ref = RefCallback<ChartSelection> {
                                         if (it != null) {
                                             chartSelectors[chart.id] = it
                                         }

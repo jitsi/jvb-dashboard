@@ -6,7 +6,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.await
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -17,22 +16,23 @@ import kotlinx.html.js.onClickFunction
 import react.RBuilder
 import react.RComponent
 import react.PropsWithChildren
+import react.RefCallback
 import react.State
 import react.dom.div
 import react.dom.h2
 import react.dom.p
 import react.setState
-import react.useRefCallback
 import styled.css
 import styled.styledDiv
 
-class JicofoConference : RComponent<JicofoConferenceProps, JicofoConferenceState>() {
+class Conference : RComponent<ConferenceProps, ConferenceState>() {
     private val eps: MutableMap<String, Endpoint> = mutableMapOf()
     private var chartCollection: ChartCollection? = null
     private var job: Job? = null
 
     init {
         state.epIds = arrayOf()
+        state.relayIds = arrayOf()
         state.expanded = false
         state.dataByEp = null
         state.numericalKeys = emptyList()
@@ -49,12 +49,17 @@ class JicofoConference : RComponent<JicofoConferenceProps, JicofoConferenceState
             extractKeys(props.confData!!)
         }
 
-        if ((state.epIds == undefined || state.epIds.isEmpty()) && !usingLiveData()) {
+        if (((state.epIds == undefined || state.epIds.isEmpty()) &&
+                (state.relayIds == undefined || state.relayIds.isEmpty())) && !usingLiveData()) {
             val confData = props.confData!!
             // We need to extract all epIds present in all the data
             val allEpIds = confData.flatMap {
                 val epIds = getEpIds(it).toList()
                 epIds
+            }.toSet()
+            val allRelayIds = confData.flatMap {
+                val relayIds = getRelayIds(it).toList()
+                relayIds
             }.toSet()
             val dataByEp = mutableMapOf<String, MutableList<dynamic>>()
             confData.forEach { confDataEntry ->
@@ -64,17 +69,25 @@ class JicofoConference : RComponent<JicofoConferenceProps, JicofoConferenceState
                 val timestamp = confDataEntry.timestamp as Number
                 val epIds = getEpIds(confDataEntry)
                 epIds.forEach { epId ->
-                    val epData = confDataEntry.participants[epId]
+                    val epData = confDataEntry.endpoints[epId]
                     // Set the timestamp in the object we'll pass down, since it's at a higher
                     // level
                     epData.timestamp = timestamp
                     val existingEpData = dataByEp.getOrPut(epId) { mutableListOf() }
                     existingEpData.add(epData)
                 }
+                val relayIds = getRelayIds(confDataEntry)
+                relayIds.forEach { relayId ->
+                    val relayData = confDataEntry.relays[relayId]
+                    relayData.timestamp = timestamp
+                    val existingRelayData = dataByEp.getOrPut(relayId) { mutableListOf() }
+                    existingRelayData.add(relayData)
+                }
             }
             val name = confData.asSequence().map { it.name }.firstOrNull { it != undefined } ?: "No conf name found"
             setState {
                 epIds = allEpIds.toTypedArray()
+                relayIds = allRelayIds.toTypedArray()
                 this.dataByEp = dataByEp
                 this.name = name
             }
@@ -82,6 +95,7 @@ class JicofoConference : RComponent<JicofoConferenceProps, JicofoConferenceState
     }
 
     private fun extractKeys(data: List<dynamic>) {
+        // This may turn out to be too slow for large dumps.
         val dataList = mutableListOf<dynamic>()
         for (i in 1 until data.size) {
             dataList.add(data[i])
@@ -104,7 +118,7 @@ class JicofoConference : RComponent<JicofoConferenceProps, JicofoConferenceState
     //  or not it changed.  We could introduce an 'EndpointList' component whose only state was the IDs, and then
     //  get rid of this override here and move it there (which would be a bit cleaner, since here we may add more state
     //  and would have to remember to take it into account in this method)
-    override fun shouldComponentUpdate(nextProps: JicofoConferenceProps, nextState: JicofoConferenceState): Boolean {
+    override fun shouldComponentUpdate(nextProps: ConferenceProps, nextState: ConferenceState): Boolean {
         return (state.expanded != nextState.expanded) ||
             (state.name != nextState.name) ||
             (!state.epIds.contentEquals(nextState.epIds) ||
@@ -113,7 +127,7 @@ class JicofoConference : RComponent<JicofoConferenceProps, JicofoConferenceState
     }
 
     override fun RBuilder.render() {
-        console.log("jicofo conference ${props.id} rendering")
+        console.log("conference ${props.id} rendering")
         div {
             key = props.id
             h2 {
@@ -134,7 +148,8 @@ class JicofoConference : RComponent<JicofoConferenceProps, JicofoConferenceState
                 }
             }
             if (state.expanded) {
-                if (state.epIds == undefined || state.epIds.isEmpty()) {
+                if ((state.epIds == undefined || state.epIds.isEmpty()) &&
+                    (state.relayIds == undefined || state.relayIds.isEmpty())){
                     p {
                         +"No data received yet"
                         return
@@ -151,7 +166,7 @@ class JicofoConference : RComponent<JicofoConferenceProps, JicofoConferenceState
                             nonNumericalKeys = state.nonNumericalKeys
                             data = props.confData
                         }
-                        ref = useRefCallback<ChartCollection> {
+                        ref = RefCallback<ChartCollection> {
                             if (it != null) {
                                 chartCollection = it
                             }
@@ -166,6 +181,7 @@ class JicofoConference : RComponent<JicofoConferenceProps, JicofoConferenceState
                         key = epId
                         child(Endpoint::class) {
                             attrs {
+                                entityType = "Endpoint"
                                 confId = props.id
                                 id = epId
                                 baseRestApiUrl = props.baseRestApiUrl
@@ -173,13 +189,38 @@ class JicofoConference : RComponent<JicofoConferenceProps, JicofoConferenceState
                                     data = existingEpData
                                 }
                             }
-                            ref = useRefCallback<Endpoint> {
+                            ref = RefCallback<Endpoint> {
                                 if (it != null) {
                                     eps[epId] = it
                                 }
                             }
                         }
                     }
+                }
+                state.relayIds.forEach { relayId ->
+                    styledDiv {
+                        css {
+                            paddingLeft = 2.pct
+                        }
+                        key = relayId
+                        child(Endpoint::class) {
+                            attrs {
+                                entityType = "Relay"
+                                confId = props.id
+                                id = relayId
+                                baseRestApiUrl = props.baseRestApiUrl
+                                state.dataByEp?.get(relayId)?.let { existingEpData ->
+                                    data = existingEpData
+                                }
+                            }
+                            ref = RefCallback<Endpoint> {
+                                if (it != null) {
+                                    eps[relayId] = it
+                                }
+                            }
+                        }
+                    }
+
                 }
             }
         }
@@ -230,12 +271,19 @@ private fun getEpIds(confData: dynamic): Array<String> {
     // and not lines like this:
     // {"confName":"jitsisitdown","meetingUniqueId":"804786d39ed9aba3","applicationName":"JVB","endpoints":["Lawson-rqz", ...
     // in other words, we want to extract the endpoint stats tree root keys
-    return if (confData.participants != undefined && confData.participants !is Array<String>)
-        keys(confData.participants) else emptyArray()
+    return if (confData.endpoints != undefined && confData.endpoints !is Array<String>)
+        keys(confData.endpoints) else emptyArray()
 }
 
-external interface JicofoConferenceState : State {
+private fun getRelayIds(confData: dynamic): Array<String> {
+    // Same logic as getEpIds above
+    return if (confData.relays != undefined && confData.relays !is Array<String>)
+        keys(confData.relays) else emptyArray()
+}
+
+external interface ConferenceState : State {
     var epIds: Array<String>
+    var relayIds: Array<String>
     var name: String
     var expanded: Boolean
     var numericalKeys: List<String>
@@ -243,7 +291,7 @@ external interface JicofoConferenceState : State {
     var dataByEp: MutableMap<String, MutableList<dynamic>>?
 }
 
-external interface JicofoConferenceProps : PropsWithChildren {
+external interface ConferenceProps : PropsWithChildren {
     var baseRestApiUrl: String?
     var id: String
     var confData: List<dynamic>?
