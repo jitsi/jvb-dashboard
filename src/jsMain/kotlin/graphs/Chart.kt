@@ -49,7 +49,6 @@ class Chart : RComponent<GraphProps, State>() {
                         enabled = false
                     }
                     step = "left"
-                    turboThreshold = 0
                 }
             }
             chart = ChartOptions().apply {

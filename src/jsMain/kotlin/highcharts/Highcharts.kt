@@ -4,12 +4,16 @@ import jsObject
 import org.w3c.dom.events.Event
 
 data class Title(
+    @JsName("text")
     val text: String
 )
 
 data class XAxis(
+    @JsName("type")
     val type: String, /* "category" | "datetime" | "linear" | "logarithmic" | "treegrid" */
+    @JsName("visible")
     val visible: Boolean = true,
+    @JsName("gridLineWidth")
     val gridLineWidth: Int = 1
 )
 
