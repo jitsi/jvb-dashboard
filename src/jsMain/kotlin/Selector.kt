@@ -1,11 +1,11 @@
 import react.RBuilder
 import react.RComponent
-import react.RProps
-import react.RState
+import react.PropsWithChildren
+import react.State
 import reactselect.AsyncSelect
 import reactselect.Option
 
-class Selector : RComponent<SelectorProps, RState>() {
+class Selector : RComponent<SelectorProps, State>() {
     override fun RBuilder.render() {
         val allOptions = props.allKeys?.map { Option(it) }?.toTypedArray() ?: emptyArray()
         AsyncSelect {
@@ -36,7 +36,7 @@ class Selector : RComponent<SelectorProps, RState>() {
     }
 }
 
-external interface SelectorProps : RProps {
+external interface SelectorProps : PropsWithChildren {
     var allKeys: List<String>?
     var onSelectedKeysChange: ((List<String>) -> Unit)?
 }

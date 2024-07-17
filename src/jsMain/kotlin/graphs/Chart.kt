@@ -15,14 +15,15 @@ import highcharts.XAxis
 import highcharts.highcharts
 import react.RBuilder
 import react.RComponent
-import react.RProps
-import react.RState
+import react.PropsWithChildren
+import react.State
 import react.ReactElement
 import react.dom.div
+import react.RefCallback
 import kotlin.js.Date
 
-class Chart : RComponent<GraphProps, RState>() {
-    private var chartRef: ReactElement? = null
+class Chart : RComponent<GraphProps, State>() {
+    private var chartRef: ReactElement<GraphProps>? = null
     private val maxPoints: Int = 60 * 60
     // How many seconds worth of live data we're currently displaying
     private var currentTimeZoomSeconds: Long = maxPoints.toLong()
@@ -62,8 +63,8 @@ class Chart : RComponent<GraphProps, RState>() {
                 attrs.highcharts = highcharts
                 attrs.options = options
                 attrs.allowChartUpdate = true
-                ref {
-                    chartRef = it.unsafeCast<ReactElement>()
+                ref = RefCallback<ReactElement<GraphProps>> {
+                    chartRef = it
                 }
             }
         }
@@ -135,7 +136,7 @@ class Chart : RComponent<GraphProps, RState>() {
     }
 }
 
-external interface GraphProps : RProps {
+external interface GraphProps : PropsWithChildren {
     var title: String?
     var enableZoom: Boolean
     var graphType: String?

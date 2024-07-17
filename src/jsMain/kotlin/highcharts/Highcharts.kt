@@ -4,12 +4,16 @@ import jsObject
 import org.w3c.dom.events.Event
 
 data class Title(
+    @JsName("text")
     val text: String
 )
 
 data class XAxis(
+    @JsName("type")
     val type: String, /* "category" | "datetime" | "linear" | "logarithmic" | "treegrid" */
+    @JsName("visible")
     val visible: Boolean = true,
+    @JsName("gridLineWidth")
     val gridLineWidth: Int = 1
 )
 
@@ -20,7 +24,9 @@ external interface Point {
     var description: String?
         get() = definedExternally
         set(value) = definedExternally
+    @JsName("x")
     var x: Number
+    @JsName("y")
     var y: Number
 }
 
@@ -151,6 +157,12 @@ external interface PlotSeriesOptions {
         get() = definedExternally
         set(value) = definedExternally
     var step: String?
+        get() = definedExternally
+        set(value) = definedExternally
+    var boostThreshold: Number?
+        get() = definedExternally
+        set(value) = definedExternally
+    var turboThreshold: Number?
         get() = definedExternally
         set(value) = definedExternally
 }

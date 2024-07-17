@@ -1,16 +1,15 @@
-import kotlinx.html.InputType
-import kotlinx.html.js.onChangeFunction
 import org.w3c.dom.HTMLInputElement
 import org.w3c.files.File
 import react.RBuilder
 import react.RComponent
-import react.RProps
-import react.RState
-import react.dom.div
-import react.dom.input
+import react.PropsWithChildren
+import react.State
+import react.dom.html.ReactHTML.div
+import react.dom.html.ReactHTML.input
 import react.setState
+import web.html.InputType
 
-class Dump : RComponent<RProps, DumpState>() {
+class Dump : RComponent<PropsWithChildren, DumpState>() {
     init {
         state.file = null
     }
@@ -18,9 +17,10 @@ class Dump : RComponent<RProps, DumpState>() {
         console.log("blah")
         if (state.file == null) {
             div {
-                input(type = InputType.file) {
+                input {
                     attrs {
-                        onChangeFunction = { event ->
+                        type = InputType.file
+                        onChange = { event ->
                             val file = (event.target as HTMLInputElement).files?.item(0)
                             console.log("got file ", file)
                             setState {
@@ -40,6 +40,6 @@ class Dump : RComponent<RProps, DumpState>() {
     }
 }
 
-external interface DumpState : RState {
+external interface DumpState : State {
     var file: File?
 }

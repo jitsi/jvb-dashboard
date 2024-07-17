@@ -12,8 +12,8 @@ import org.w3c.fetch.RequestInit
 import org.w3c.fetch.RequestMode
 import react.RBuilder
 import react.RComponent
-import react.RProps
-import react.RState
+import react.PropsWithChildren
+import react.State
 import react.dom.div
 import react.dom.hr
 import react.dom.p
@@ -128,12 +128,12 @@ class Jvb : RComponent<JvbProps, JvbState>() {
     }
 }
 
-external interface JvbState : RState {
+external interface JvbState : State {
     var state: dynamic
     var error: String?
 }
 
-external interface JvbProps : RProps {
+external interface JvbProps : PropsWithChildren {
     var url: String
     var updateIntervalMs: Long?
 }

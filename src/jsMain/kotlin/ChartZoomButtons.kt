@@ -3,12 +3,13 @@ import kotlinx.css.fontWeight
 import kotlinx.html.js.onClickFunction
 import react.RBuilder
 import react.RComponent
-import react.RProps
-import react.RState
+import react.PropsWithChildren
+import react.State
 import react.setState
 import styled.css
 import styled.styledButton
 import kotlin.time.Duration
+
 
 class ChartZoomButtons : RComponent<ChartZoomProps, ChartZoomState>() {
     init {
@@ -25,14 +26,12 @@ class ChartZoomButtons : RComponent<ChartZoomProps, ChartZoomState>() {
                         this.fontWeight = FontWeight.bold
                     }
                 }
-                attrs {
-                    text(buttonDesc.title)
-                    onClickFunction = {
-                        setState {
-                            currZoomSeconds = buttonDesc.zoomSeconds
-                        }
-                        props.onZoomChange?.invoke(buttonDesc.zoomSeconds)
+                attrs.text(buttonDesc.title)
+                attrs.onClickFunction = {
+                    setState {
+                        currZoomSeconds = buttonDesc.zoomSeconds
                     }
+                    props.onZoomChange?.invoke(buttonDesc.zoomSeconds)
                 }
             }
         }
@@ -41,11 +40,11 @@ class ChartZoomButtons : RComponent<ChartZoomProps, ChartZoomState>() {
     fun currZoomSeconds(): Int = state.currZoomSeconds
 }
 
-external interface ChartZoomState : RState {
+external interface ChartZoomState : State {
     var currZoomSeconds: Int
 }
 
-external interface ChartZoomProps : RProps {
+external interface ChartZoomProps : PropsWithChildren {
     var onZoomChange: ((Int) -> Unit)?
     var buttons: List<ZoomButtonDesc>?
 }
@@ -57,4 +56,4 @@ data class ZoomButtonDesc(
 )
 
 fun ZoomButtonDesc(title: String, size: Duration): ZoomButtonDesc =
-    ZoomButtonDesc(title, size.inSeconds.toInt())
+    ZoomButtonDesc(title, size.inWholeSeconds.toInt())
