@@ -2,8 +2,8 @@ import kotlinx.css.Color
 import kotlinx.css.color
 import react.RBuilder
 import react.RComponent
-import react.RProps
-import react.RState
+import react.PropsWithChildren
+import react.State
 import styled.css
 import styled.styledDiv
 
@@ -14,7 +14,7 @@ import styled.styledDiv
 abstract class StatusBadge<T>(
     private val fieldName: String,
     private val evaluationFunc: (T) -> Status
-) : RComponent<StatusBadgeProps<T>, RState>() {
+) : RComponent<StatusBadgeProps<T>, State>() {
     override fun RBuilder.render() {
         val status = evaluationFunc(props.value)
         styledDiv {
@@ -32,7 +32,7 @@ enum class Status(val color: Color) {
     RED(Color.red)
 }
 
-external interface StatusBadgeProps<T> : RProps {
+external interface StatusBadgeProps<T> : PropsWithChildren {
     var value: T
 }
 

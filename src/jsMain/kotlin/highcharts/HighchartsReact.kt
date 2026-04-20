@@ -3,13 +3,13 @@
 
 package highcharts
 
-import react.RClass
-import react.RProps
+import react.ComponentClass
+import react.PropsWithChildren
 
 @JsName("default")
-external val HighchartsReact: RClass<HighchartsReactProps>
+external val HighchartsReact: ComponentClass<HighchartsReactProps>
 
-external interface HighchartsReactProps : RProps {
+external interface HighchartsReactProps : PropsWithChildren {
     var highcharts: Highcharts
 //    var options: dynamic
     var options: Options

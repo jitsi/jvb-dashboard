@@ -8,14 +8,16 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.css.Display
+import kotlinx.css.Margin
 import kotlinx.css.display
 import kotlinx.css.margin
+import kotlinx.css.px
 import kotlinx.html.js.onClickFunction
 import org.w3c.xhr.XMLHttpRequest
 import react.RBuilder
 import react.RComponent
-import react.RProps
-import react.RState
+import react.PropsWithChildren
+import react.State
 import react.dom.button
 import react.dom.div
 import react.setState
@@ -54,22 +56,20 @@ class FeatureToggle : RComponent<FeatureToggleProps, FeatureToggleState>() {
         styledDiv {
             css {
                 display = Display.inlineBlock
-                margin = "10px"
+                margin = Margin(10.px)
             }
             +props.featureName
             div {
                 button {
                     val isEnabled: Boolean = state.enabled
-                    attrs {
-                        text(if (isEnabled) "Disable" else "Enable")
-                        onClickFunction = { _ ->
-                            XMLHttpRequest().apply {
-                                open("POST", "${props.url}/${!isEnabled}", async = true)
-                                send()
-                            }
-                            setState {
-                                enabled = !state.enabled
-                            }
+                    attrs.text(if (isEnabled) "Disable" else "Enable")
+                    attrs.onClickFunction = { _ ->
+                        XMLHttpRequest().apply {
+                            open("POST", "${props.url}/${!isEnabled}", async = true)
+                            send()
+                        }
+                        setState {
+                            enabled = !state.enabled
                         }
                     }
                 }
@@ -78,11 +78,11 @@ class FeatureToggle : RComponent<FeatureToggleProps, FeatureToggleState>() {
     }
 }
 
-external interface FeatureToggleState : RState {
+external interface FeatureToggleState : State {
     var enabled: Boolean
 }
 
-external interface FeatureToggleProps : RProps {
+external interface FeatureToggleProps : PropsWithChildren {
     var featureName: String
     var url: String
 }

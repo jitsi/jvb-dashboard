@@ -14,8 +14,8 @@ import react.dom.button
 import react.dom.div
 import styled.css
 import styled.styledDiv
-import kotlin.time.minutes
-import kotlin.time.seconds
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 class ChartCollection : RComponent<ChartCollectionProps, ChartCollectionState>() {
     private var chartSelectors: MutableMap<Int, ChartSelection> = mutableMapOf()
@@ -78,8 +78,8 @@ class ChartCollection : RComponent<ChartCollectionProps, ChartCollectionState>()
                                 ZoomButtonDesc("All", Int.MAX_VALUE.seconds),
                             )
                         }
-                        ref {
-                            zoomButtons = it as? ChartZoomButtons
+                        ref = RefCallback<ChartZoomButtons> {
+                            zoomButtons = it
                         }
                     }
                 }
@@ -111,9 +111,9 @@ class ChartCollection : RComponent<ChartCollectionProps, ChartCollectionState>()
                                         //  yet
                                         startZoomSeconds = zoomButtons?.currZoomSeconds() ?: 60
                                     }
-                                    ref {
+                                    ref = RefCallback<ChartSelection> {
                                         if (it != null) {
-                                            chartSelectors[chart.id] = it as ChartSelection
+                                            chartSelectors[chart.id] = it
                                         }
                                     }
                                 }
@@ -131,9 +131,9 @@ class ChartCollection : RComponent<ChartCollectionProps, ChartCollectionState>()
                                         //  yet
                                         startZoomSeconds = zoomButtons?.currZoomSeconds() ?: 60
                                     }
-                                    ref {
+                                    ref = RefCallback<ChartSelection> {
                                         if (it != null) {
-                                            chartSelectors[chart.id] = it as ChartSelection
+                                            chartSelectors[chart.id] = it
                                         }
                                     }
                                 }
@@ -148,11 +148,11 @@ class ChartCollection : RComponent<ChartCollectionProps, ChartCollectionState>()
     private fun usingLiveData(): Boolean = props.data == null
 }
 
-external interface ChartCollectionState : RState {
+external interface ChartCollectionState : State {
     var chartInfos: List<ChartInfo>
 }
 
-external interface ChartCollectionProps : RProps {
+external interface ChartCollectionProps : PropsWithChildren {
     var numericalKeys: List<String>
     var nonNumericalKeys: List<String>
     // An optional property to pass pre-existing data (e.g. from a dump file)

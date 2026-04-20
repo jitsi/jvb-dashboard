@@ -6,7 +6,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.await
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -16,8 +15,9 @@ import kotlinx.css.pct
 import kotlinx.html.js.onClickFunction
 import react.RBuilder
 import react.RComponent
-import react.RProps
-import react.RState
+import react.PropsWithChildren
+import react.RefCallback
+import react.State
 import react.dom.div
 import react.dom.h2
 import react.dom.p
@@ -141,11 +141,9 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
                 } else {
                     +"Conference (${props.id})"
                 }
-                attrs {
-                    onClickFunction = { _ ->
-                        setState {
-                            expanded = !expanded
-                        }
+                attrs.onClickFunction = { _ ->
+                    setState {
+                        expanded = !expanded
                     }
                 }
             }
@@ -168,9 +166,9 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
                             nonNumericalKeys = state.nonNumericalKeys
                             data = props.confData
                         }
-                        ref {
+                        ref = RefCallback<ChartCollection> {
                             if (it != null) {
-                                chartCollection = it as ChartCollection
+                                chartCollection = it
                             }
                         }
                     }
@@ -191,9 +189,9 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
                                     data = existingEpData
                                 }
                             }
-                            ref {
+                            ref = RefCallback<Endpoint> {
                                 if (it != null) {
-                                    eps[epId] = it as Endpoint
+                                    eps[epId] = it
                                 }
                             }
                         }
@@ -215,9 +213,9 @@ class Conference : RComponent<ConferenceProps, ConferenceState>() {
                                     data = existingEpData
                                 }
                             }
-                            ref {
+                            ref = RefCallback<Endpoint> {
                                 if (it != null) {
-                                    eps[relayId] = it as Endpoint
+                                    eps[relayId] = it
                                 }
                             }
                         }
@@ -283,7 +281,7 @@ private fun getRelayIds(confData: dynamic): Array<String> {
         keys(confData.relays) else emptyArray()
 }
 
-external interface ConferenceState : RState {
+external interface ConferenceState : State {
     var epIds: Array<String>
     var relayIds: Array<String>
     var name: String
@@ -293,7 +291,7 @@ external interface ConferenceState : RState {
     var dataByEp: MutableMap<String, MutableList<dynamic>>?
 }
 
-external interface ConferenceProps : RProps {
+external interface ConferenceProps : PropsWithChildren {
     var baseRestApiUrl: String?
     var id: String
     var confData: List<dynamic>?

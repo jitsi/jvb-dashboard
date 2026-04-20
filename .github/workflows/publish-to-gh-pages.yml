@@ -32,7 +32,7 @@ jobs:
       - name: Upload build reports
         uses: actions/upload-pages-artifact@84bb4cd4b733d5c320c9c9cfbc354937524f4d64  # v1
         with:
-          path: build/distributions/
+          path: build/dist/js/productionExecutable/
   # Deploy job
   deploy:
     # The type of runner that the job will run on

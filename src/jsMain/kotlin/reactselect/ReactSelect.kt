@@ -3,13 +3,13 @@
 
 package reactselect
 
-import react.RClass
-import react.RProps
+import react.ComponentClass
+import react.PropsWithChildren
 
 @JsName("default")
-external val Select: RClass<ReactSelectProps>
+external val Select: ComponentClass<ReactSelectProps>
 
-external interface ReactSelectProps : RProps {
+external interface ReactSelectProps : PropsWithChildren {
     var options: Array<Option>
     var onChange: OnChangeCallback
     var isMulti: Boolean
